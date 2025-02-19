@@ -14,6 +14,13 @@ class State:
         Return a mapping from each variable in self.vars() to a list of possible values
         '''
         raise NotImplementedError
+    
+    @property
+    def var_funcs(self) -> dict:
+        '''
+        Return a mapping from each variable in self.vars() to a function used to compute that variable's value
+        '''
+        raise NotImplementedError
 
     @property
     def vars(self) -> list[str]:
@@ -21,6 +28,12 @@ class State:
         Return a list of the state variables that make up the state, as defined by the state dictionary keys
         '''
         return list(self.ranges.keys())
+    
+    def set_value(self,var:str,value):
+        if not self.valid_var_value(var,value):
+            raise ValueError(f"Cannot set {var} to {value}")
+        
+        self.vals[var] = value
     
     '''
     HELPER FUNCTIONS
@@ -31,8 +44,14 @@ class State:
             return False
         
         for var in self.ranges:
-            if values[var] not in self.ranges[var]:
-                # Variable value outside range
+            valid = self.valid_var_value(var,values[var])
+            if not valid:
                 return False
             
+        return True
+    
+    def valid_var_value(self,var:str,value) -> bool:
+        if value not in self.ranges[var]:
+            # Variable value outside range
+            return False
         return True

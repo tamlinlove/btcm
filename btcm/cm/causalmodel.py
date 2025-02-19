@@ -64,6 +64,27 @@ class CausalModel:
         for node in self.nodes:
             val_dict[node] = self.nodes[node].value
         return val_dict
+    
+    def propagation_order(self,nodes:list[str]) -> list[str]:
+        # Get order for propagation, ignoring nodes that do not descend from intervened nodes
+        order = nx.topological_sort(self.graph)
+        reduced_order = []
+        for node in order:
+            ancestors = nx.ancestors(self.graph,node)
+            for inode in nodes:
+                if inode in ancestors:
+                    reduced_order.append(node)
+                    break
+        return reduced_order
+    
+    def propagate_interventions(self,order:list[str]) -> None:
+        val_dict = self.value_dict()
+        for node in order:
+            val_dict[node] = self.nodes[node].run(val_dict) # NOTE: ASSUMES CM ACCURATELY CAPTURES THE INPUTS TO THE FUNCTION OF THE NODE
+            self.nodes[node] = val_dict[node]
+
+    def set_value(self,node:str,new_value):
+        self.nodes[node].value = new_value
 
     def intervene(self,nodes:list[str],values:list) -> Self:
         # Validate
@@ -84,24 +105,11 @@ class CausalModel:
                 new_model.graph.remove_edge(parent,node)
 
             # Set new values
-            new_model.nodes[node].value = value
+            new_model.set_value(node,value)
 
         # Propagate changes throughout model
-        # Get order for propagation, ignoring nodes that do not descend from intervened nodes
-        order = nx.topological_sort(new_model.graph)
-        reduced_order = []
-        for node in order:
-            ancestors = nx.ancestors(new_model.graph,node)
-            for inode in nodes:
-                if inode in ancestors:
-                    reduced_order.append(node)
-                    break
-
-        
-        val_dict = new_model.value_dict()
-        for node in reduced_order:
-            val_dict[node] = new_model.nodes[node].run(val_dict) # NOTE: ASSUMES CM ACCURATELY CAPTURES THE INPUTS TO THE FUNCTION OF THE NODE
-            new_model.nodes[node] = val_dict[node]
+        order = new_model.propagation_order(nodes)
+        new_model.propagate_interventions(order)
 
         return new_model
 

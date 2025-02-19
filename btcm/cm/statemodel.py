@@ -10,12 +10,15 @@ class StateNode(CausalNode):
 
         self.category = "State"
 
+    def run(self,state:State):
+        return self.func(state=state)
+
 class StateModel(CausalModel):
-    def __init__(self,state:State,var_funcs:Dict[str,Callable]):
+    def __init__(self,state:State):
         super().__init__()
 
         self.state = state
-        self.var_funcs = var_funcs
+        self.var_funcs = state.var_funcs
 
         for var in self.state.vals:
             node = StateNode(
@@ -25,6 +28,18 @@ class StateModel(CausalModel):
                 value=self.state.vals[var]
             )
             self.add_node(node)
+
+    '''
+    CAUSAL OPERATIONS
+    '''
+    def set_value(self, node, new_value):
+        super().set_value(node, new_value)
+        self.state.set_value(node,new_value)
+
+    def propagate_interventions(self,order:list[str]) -> None:
+        for node in order:
+            new_val = self.nodes[node].run(self.state)
+            self.set_value(node,new_val)
 
 
 

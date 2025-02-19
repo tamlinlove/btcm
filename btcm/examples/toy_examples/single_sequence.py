@@ -18,6 +18,26 @@ class ToyState(State):
             "VarB":[0,1],
             "VarC":[0,1]
         }
+    
+    @property
+    def var_funcs(self) -> dict:
+        return {
+            "VarA":self.func_varA,
+            "VarB":self.func_varB,
+            "VarC":self.func_varC,
+        }
+    
+    '''
+    VARIABLE FUNCTIONS
+    '''
+    def func_varA(self,state:State):
+        return state.vals["VarC"]
+    
+    def func_varB(self,state:State):
+        return state.vals["VarB"]
+    
+    def func_varC(self,state:State):
+        return state.vals["VarC"]
 
 '''
 ACTIONS

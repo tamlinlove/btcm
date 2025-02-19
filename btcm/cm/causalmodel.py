@@ -3,6 +3,8 @@ from networkx.drawing.nx_pydot import graphviz_layout
 import matplotlib.pyplot as plt
 import copy
 
+from btcm.bt.state import State
+
 from collections.abc import Callable
 from typing import List,Dict,Self
 
@@ -22,14 +24,14 @@ class CausalNode:
         self.func = func
         self.value = value
 
-    def run(self,var_dict:Dict[str,str]):
-        func_args = {key: var_dict[key] for key in var_dict if key in self.func.__code__.co_varnames}
-        return self.func(**func_args)
+    def run(self,state:State):
+        return self.func(state=state)
 
 class CausalModel:
-    def __init__(self):
+    def __init__(self,state:State):
         self.nodes:Dict[str,CausalNode] = {}
         self.graph = nx.DiGraph()
+        self.state = state
 
     '''
     GRAPH OPERATIONS
@@ -78,13 +80,13 @@ class CausalModel:
         return reduced_order
     
     def propagate_interventions(self,order:list[str]) -> None:
-        val_dict = self.value_dict()
         for node in order:
-            val_dict[node] = self.nodes[node].run(val_dict) # NOTE: ASSUMES CM ACCURATELY CAPTURES THE INPUTS TO THE FUNCTION OF THE NODE
-            self.nodes[node] = val_dict[node]
+            new_val = self.nodes[node].run(self.state)
+            self.set_value(node,new_val)
 
     def set_value(self,node:str,new_value):
         self.nodes[node].value = new_value
+        self.state.set_value(node,new_value)
 
     def intervene(self,nodes:list[str],values:list) -> Self:
         # Validate
@@ -97,7 +99,6 @@ class CausalModel:
         
         # Copy
         new_model = copy.deepcopy(self)
-        
         
         for (node,value) in zip(nodes,values):
             # Remove parents
@@ -120,7 +121,7 @@ class CausalModel:
     def visualise(self):
         label_dict = {self.nodes[node].name: f"{self.nodes[node].name} = {self.nodes[node].value}" for node in self.nodes}
         pos = graphviz_layout(self.graph, prog="dot")
-        nx.draw_networkx_nodes(self.graph, pos, cmap=plt.get_cmap('jet'), node_size = 500)
+        nx.draw_networkx_nodes(self.graph, pos, node_size = 500)
         nx.draw_networkx_labels(self.graph, pos, labels=label_dict)
         nx.draw_networkx_edges(self.graph, pos, edgelist= self.graph.edges, arrows=True)
         plt.show()

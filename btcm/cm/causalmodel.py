@@ -3,7 +3,7 @@ from networkx.drawing.nx_pydot import graphviz_layout
 import matplotlib.pyplot as plt
 import copy
 
-from btcm.bt.state import State
+from btcm.dm.state import State
 
 from collections.abc import Callable
 from typing import List,Dict,Self

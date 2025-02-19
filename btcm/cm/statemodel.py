@@ -1,5 +1,5 @@
 from btcm.cm.causalmodel import CausalModel,CausalNode
-from btcm.bt.state import State
+from btcm.dm.state import State
 
 class StateNode(CausalNode):
     def __init__(self, name, vals, func, value):

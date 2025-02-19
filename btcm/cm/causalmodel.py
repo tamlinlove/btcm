@@ -8,21 +8,34 @@ from btcm.dm.state import State
 from collections.abc import Callable
 from typing import List,Dict,Self
 
-class CausalNode:
-    def __init__(self,name:str,vals:list,value,func:Callable):
-        """
-        Initialize a CausalNode instance.
+def build_state_model(state:State, edges:list[tuple[str,str]]=None):
+    '''
+    This function builds a CausalModel to model the input State
+    '''
+    cm = CausalModel(state=state)
 
-        Parameters:
-        - name (str): The name of the node variable. This serves as an identifier for the node.
-        - vals (list): A list of possible values that the node can take. These represent the domain of the node variable.
-        - value: The real value of the node. This is the actual value assigned to the node.
-        - func (Callable): A function that encodes how the value of the node is calculated. Assumes arguments are given the same name as variables.
-        """
+    for var in cm.state.vals:
+        node = CausalNode(
+            name=var,
+            vals=cm.state.ranges[var],
+            func=cm.state.var_funcs[var],
+            value=cm.state.vals[var],
+            category="State"
+        )
+        cm.add_node(node)
+
+    if edges is not None:
+        cm.add_edges(edges)
+
+    return cm
+
+class CausalNode:
+    def __init__(self,name:str,vals:list,value,func:Callable,category:str="State"):
         self.name = name
         self.vals = vals
         self.func = func
         self.value = value
+        self.category = category
 
     def run(self,state:State):
         return self.func(state=state)

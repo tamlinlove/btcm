@@ -2,7 +2,7 @@ import time
 import py_trees
 
 from btcm.examples.toy_examples import single_sequence
-from btcm.cm.statemodel import StateModel
+from btcm.cm.causalmodel import build_state_model
 
 if __name__ == "__main__":
     '''
@@ -35,9 +35,10 @@ if __name__ == "__main__":
         pass
 
     # CM Test
-    cm = StateModel(board.state)
-    cm.add_edge(["VarC","VarA"])
-    #cm.add_edge(["VarC","VarB"])
+    edges = [
+        ("VarC","VarA")
+    ]
+    cm = build_state_model(state=board.state,edges=edges)
     cm.visualise()
     nm = cm.intervene(["VarC"],[0])
     nm.visualise()

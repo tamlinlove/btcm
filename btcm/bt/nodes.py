@@ -88,7 +88,7 @@ class ConditionNode(Leaf):
         '''
         This function returns a list containing only the NullAction as condition nodes cannot select actions
         '''
-        return [NullAction]
+        return [NullAction()]
     
     '''
     BT NODE FUNCTIONALITY
@@ -97,5 +97,5 @@ class ConditionNode(Leaf):
         '''
         This always returns the NullAction as condition nodes cannot make decisions
         '''
-        return NullAction
+        return NullAction()
 

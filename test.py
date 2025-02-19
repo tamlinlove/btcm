@@ -2,6 +2,13 @@ import time
 import py_trees
 
 from btcm.examples.toy_examples import single_sequence
+from btcm.cm.statemodel import StateModel
+
+def varAfunc(VarC=None):
+    return VarC
+
+def varBfunc(VarC=None):
+    return VarC
 
 if __name__ == "__main__":
     '''
@@ -9,7 +16,7 @@ if __name__ == "__main__":
     '''
     test_vals = {
         "VarA":1,
-        "VarB":1,
+        "VarB":0,
         "VarC":1,
     }
 
@@ -32,3 +39,17 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         print("KILL")
         pass
+
+    # CM Test
+    vfs = {
+        "VarA":varAfunc,
+        "VarB":varBfunc,
+        "VarC":None,
+    }
+    cm = StateModel(board.state,var_funcs=vfs)
+    cm.add_edge(["VarC","VarA"])
+    #cm.add_edge(["VarC","VarB"])
+    cm.nodes["VarA"].run("VarC")
+    cm.visualise()
+    nm = cm.intervene(["VarA"],[0])
+    nm.visualise()

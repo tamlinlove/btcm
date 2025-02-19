@@ -78,6 +78,9 @@ class ToyGuard(ConditionNode):
         if state.vals["VarA"] == state.vals["VarB"]:
             return py_trees.common.Status.SUCCESS
         return py_trees.common.Status.FAILURE
+    
+    def input_variables(self):
+        return ["VarA","VarB"]
 
 class ToyAction(ActionNode):
     '''
@@ -88,12 +91,18 @@ class ToyAction(ActionNode):
 
     def decide(self, state):
         if state.vals["VarB"] == 0:
-            return ActionA
+            return ActionA()
         else:
-            return ActionB
+            return ActionB()
 
     def execute(self, _, action):
         if action == ActionA:
             return py_trees.common.Status.SUCCESS
         else:
             return py_trees.common.Status.FAILURE 
+        
+    def input_variables(self):
+        return ["VarB"]
+    
+    def action_space(self):
+        return [ActionA(),ActionB()]

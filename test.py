@@ -4,6 +4,7 @@ import py_trees
 from btcm.examples.toy_examples import single_sequence
 from btcm.cm.causalmodel import build_state_model
 from btcm.bt.logger import Logger
+from btcm.bt.btstatemanager import BTStateManager
 
 if __name__ == "__main__":
     '''
@@ -24,7 +25,7 @@ if __name__ == "__main__":
     '''
     Visitor
     '''
-    logger = Logger(tree=tree)
+    logger = Logger(tree=tree,filename="log")
     tree.visitors.append(logger)
 
     
@@ -42,7 +43,11 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         print("KILL")
         pass
-    #logger.reconstruct_tree_state()
+    
+    '''
+    Load BT
+    '''
+    manager = BTStateManager("log.json")
 
     '''
     # CM Test

@@ -33,6 +33,7 @@ class Logger(py_trees.visitors.VisitorBase):
         self.logfile = f"{filename}.json"
 
         # Initialise log
+        self.log_structure()
         self.log(None)
 
     '''
@@ -58,13 +59,10 @@ class Logger(py_trees.visitors.VisitorBase):
             raise TypeError(f"Unsuported behaviour of type {type(btnode)}")
 
         # Add node to structure
-        self.nodes[btnode.id] = LogNode(
-            name=btnode.name,
-            category=category
-        )
+        self.nodes[btnode.id] = LogNode(behaviour=btnode,category=category)
 
         # Link BT node with LogNode
-        if category in ["Action","Condition"]:
+        if self.nodes[btnode.id].is_leaf():
             btnode.add_log_node(self.nodes[btnode.id])
 
         # Add node to graph
@@ -100,7 +98,13 @@ class Logger(py_trees.visitors.VisitorBase):
         # Log
         self.log(behaviour)
         
-            
+    def log_structure(self):
+        self.log_dict["tree"] = {}
+        for node in self.nodes:
+            self.log_dict["tree"][str(node)] = self.nodes[node].info_dict()
+
+        for edge in self.graph.edges:
+            self.log_dict["tree"][str(edge[0])]["children"].append(str(edge[1])) 
 
     def log(self,behaviour:py_trees.behaviour.Behaviour):
         if str(self.tick) in self.log_dict:
@@ -121,11 +125,9 @@ class Logger(py_trees.visitors.VisitorBase):
         self.save_log()
 
     def log_behaviour(self,behaviour: py_trees.behaviour.Behaviour):
-        self.log_dict[str(self.tick)][str(self.time)]["node"] = copy.deepcopy(self.nodes[behaviour.id].to_dict())
-        self.log_dict[str(self.tick)][str(self.time)]["node"]["id"] = str(behaviour.id)
-
-        if self.nodes[behaviour.id].is_leaf():
-            self.log_dict[str(self.tick)][str(self.time)]["node"]["action"] = str(self.nodes[behaviour.id].action)
+        self.log_dict[str(self.tick)][str(self.time)]["update"] = {
+            str(behaviour.id):copy.deepcopy(self.nodes[behaviour.id].status_dict())
+        }
 
     def save_log(self):
         with open(self.logfile, 'w') as f:

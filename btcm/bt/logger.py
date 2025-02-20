@@ -99,12 +99,19 @@ class Logger(py_trees.visitors.VisitorBase):
         self.log(behaviour)
         
     def log_structure(self):
+        # Log Tree Structure
         self.log_dict["tree"] = {}
         for node in self.nodes:
             self.log_dict["tree"][str(node)] = self.nodes[node].info_dict()
 
         for edge in self.graph.edges:
-            self.log_dict["tree"][str(edge[0])]["children"].append(str(edge[1])) 
+            self.log_dict["tree"][str(edge[0])]["children"].append(str(edge[1]))
+
+        # Log State Information
+        self.log_dict["state"] = {
+            "class":self.board.state.__class__.__name__,
+            "module":self.board.state.__class__.__module__,
+        }
 
     def log(self,behaviour:py_trees.behaviour.Behaviour):
         if str(self.tick) in self.log_dict:

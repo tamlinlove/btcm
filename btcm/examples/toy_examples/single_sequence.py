@@ -11,16 +11,16 @@ class ToyState(State):
     def __init__(self, assignment):
         super().__init__(assignment)
 
-    @property
-    def ranges(self) -> dict:
+    @staticmethod
+    def ranges() -> dict:
         return {
             "VarA":[0,1],
             "VarB":[0,1],
             "VarC":[0,1]
         }
     
-    @property
-    def var_funcs(self) -> dict:
+    @staticmethod
+    def var_funcs() -> dict:
         return {
             "VarA":self.func_varA,
             "VarB":self.func_varB,

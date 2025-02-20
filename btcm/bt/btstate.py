@@ -3,13 +3,61 @@ import networkx as nx
 import json
 import importlib
 
+from typing import Dict
+
+from btcm.dm.state import State
+
+class BTState(State):
+    def __init__(self, data: dict, behaviour_dict: Dict[str,py_trees.behaviour.Behaviour]):
+        
+        self.data = data
+        self.behaviour_dict = behaviour_dict
+
+        # Calculate list of variables
+        self.calculate_state_attributes()
+
+    '''
+    RECONSTRUCT STATE
+    '''
+    def vars(self):
+        pass
+    
+    def calculate_state_attributes(self):
+        vars = []
+        for node in self.behaviour_dict:
+            # Add return status
+            vars.append(f"return_{node}")
+            # Add executed variable
+            vars.append(f"executed_{node}")
+
+            if self.data["tree"][node]["category"] == "Action":
+                # Add decision variable
+                vars.append(f"decision_{node}")
+
+        # State
+        module = importlib.import_module(self.data["state"]["module"])
+        cls = getattr(module, self.data["state"]["class"])
+        state_vars = list(cls.ranges().keys())
+        vars += state_vars
+
+        print(vars)
+    
+
+        return vars
+
+        
+
 class BTStateManager:
     def __init__(self,filename:str):
         # Read Data
         self.read_from_file(filename)
 
         # Reconstruct BT
+        self.behaviours = {} # Stores mapping from node id string to behaviour object
         self.tree = self.reconstruct_bt()
+
+        # TODO
+        BTState(self.data,self.behaviours)
 
 
     def read_from_file(self,filename:str):
@@ -49,6 +97,7 @@ class BTStateManager:
         else:
             raise ValueError(f"Unknown node category {node_info["category"]}")
         
+        self.behaviours[node] = behaviour
         return behaviour
 
         

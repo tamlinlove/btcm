@@ -8,26 +8,25 @@ class State:
     def __str__(self):
         return str(self.vals)
         
-    @property
-    def ranges(self) -> dict:
+    @staticmethod
+    def ranges() -> dict:
         '''
         Return a mapping from each variable in self.vars() to a list of possible values
         '''
         raise NotImplementedError
     
-    @property
-    def var_funcs(self) -> dict:
+    @staticmethod
+    def var_funcs() -> dict:
         '''
         Return a mapping from each variable in self.vars() to a function used to compute that variable's value
         '''
         raise NotImplementedError
 
-    @property
     def vars(self) -> list[str]:
         '''
         Return a list of the state variables that make up the state, as defined by the state dictionary keys
         '''
-        return list(self.ranges.keys())
+        return list(self.ranges().keys())
     
     def set_value(self,var:str,value):
         if not self.valid_var_value(var,value):
@@ -39,11 +38,11 @@ class State:
     HELPER FUNCTIONS
     '''
     def valid_state_assignment(self,values: dict) -> bool:
-        if values.keys() != self.ranges.keys():
+        if values.keys() != self.ranges().keys():
             # Dicts have mismatching keys
             return False
         
-        for var in self.ranges:
+        for var in self.ranges():
             valid = self.valid_var_value(var,values[var])
             if not valid:
                 return False
@@ -51,7 +50,7 @@ class State:
         return True
     
     def valid_var_value(self,var:str,value) -> bool:
-        if value not in self.ranges[var]:
+        if value not in self.ranges()[var]:
             # Variable value outside range
             return False
         return True

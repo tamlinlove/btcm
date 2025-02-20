@@ -4,14 +4,14 @@ import py_trees
 from btcm.examples.toy_examples import single_sequence
 from btcm.cm.causalmodel import build_state_model
 from btcm.bt.logger import Logger
-from btcm.bt.btstatemanager import BTStateManager
+from btcm.bt.btstate import BTStateManager
 
 if __name__ == "__main__":
     '''
     Test State
     '''
     test_vals = {
-        "VarA":1,
+        "VarA":0,
         "VarB":1,
         "VarC":1,
     }

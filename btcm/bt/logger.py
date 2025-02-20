@@ -1,26 +1,16 @@
 import py_trees
 import networkx as nx
+import json
+import copy
 
 from typing import Dict
 
-from btcm.bt.nodes import Leaf,ActionNode,ConditionNode
-
-class TreeNode:
-    def __init__(self,name:str,category:str):
-        self.name = name
-        self.category = category
-        self.status = py_trees.common.Status.INVALID
-
-    def to_dict(self) -> dict:
-        return {
-            "name":self.name,
-            "category":self.category,
-            "status":str(self.status),
-        }
+from btcm.bt.nodes import ActionNode,ConditionNode
+from btcm.bt.lognode import LogNode
 
 
 class Logger(py_trees.visitors.VisitorBase):
-    def __init__(self, full:bool = False, tree: py_trees.trees.BehaviourTree = None) -> None:
+    def __init__(self, full:bool = False, tree: py_trees.trees.BehaviourTree = None, filename="log") -> None:
         super().__init__(full)
 
         self.tick = 0 # The current tick iteration
@@ -32,11 +22,24 @@ class Logger(py_trees.visitors.VisitorBase):
         # Create dict of tree nodes and types
         self.make_tree(tree)
 
+        # Setup board
+        self.board = py_trees.blackboard.Client(name="LoggerBoard")
+        self.board.register_key("state", access=py_trees.common.Access.READ)
+
+        # Log Dictionary to be saved
+        self.log_dict = {}
+
+        # Log file
+        self.logfile = f"{filename}.json"
+
+        # Initialise log
+        self.log(None)
+
     '''
     TREE STATE FUNCTIONS
     '''
     def make_tree(self,tree:py_trees.trees.BehaviourTree):
-        self.nodes: Dict[str,TreeNode] = {}
+        self.nodes: Dict[str,LogNode] = {}
         self.graph = nx.DiGraph()
         self.ranges = {}
         self.var_funcs = {}
@@ -55,10 +58,14 @@ class Logger(py_trees.visitors.VisitorBase):
             raise TypeError(f"Unsuported behaviour of type {type(btnode)}")
 
         # Add node to structure
-        self.nodes[btnode.id] = TreeNode(
+        self.nodes[btnode.id] = LogNode(
             name=btnode.name,
             category=category
         )
+
+        # Link BT node with LogNode
+        if category in ["Action","Condition"]:
+            btnode.add_log_node(self.nodes[btnode.id])
 
         # Add node to graph
         self.graph.add_node(btnode.id)
@@ -74,7 +81,6 @@ class Logger(py_trees.visitors.VisitorBase):
     '''
 
     def initialise(self) -> None:
-        self.visited = {}
         self.root = None
 
     def run(self, behaviour: py_trees.behaviour.Behaviour):
@@ -84,35 +90,46 @@ class Logger(py_trees.visitors.VisitorBase):
         # Update stored behaviours
         self.nodes[behaviour.id].status = behaviour.status
 
-
-        # Old Log
-        '''
-        if isinstance(behaviour,Leaf):
-            print(f"T{self.tick}:t{self.time} - {behaviour.name}")
-            self.log()
-            self.time += 1
-            self.reconstruct_tree_state()
-        '''
+        
+        # Update time
+        self.time += 1
+        if self.nodes[behaviour.id].is_leaf():
+            # Leaf node, update time
+            self.nodes[behaviour.id].update_time(self.tick,self.time)
 
         # Log
-        if self.nodes[behaviour.id].category in ["Action","Condition"]:
-            # Leaf node, log
-            self.log()
-            self.time += 1
+        self.log(behaviour)
+        
+            
 
-    def log(self):
-        # TODO: This should save the state to a file or something
-        log_dict = {
-            "tick":self.tick,
-            "time":self.time,
-            "nodes":{}
-        }
-        for node in self.nodes:
-            log_dict["nodes"][str(node)] = self.nodes[node].to_dict()
+    def log(self,behaviour:py_trees.behaviour.Behaviour):
+        if str(self.tick) in self.log_dict:
+            self.log_dict[str(self.tick)][str(self.time)] = {}
+        else:
+            self.log_dict[str(self.tick)] = {
+                str(self.time):{}
+            }
 
-        # TODO: Add state to log
-        # TODO: Save log to file
-        print(log_dict)
+        # Log node status and action
+        if behaviour is not None:
+            self.log_behaviour(behaviour=behaviour)
+
+        # Log new state
+        self.log_dict[str(self.tick)][str(self.time)]["state"] = copy.deepcopy(self.board.state.vals)
+
+        # Save log to file
+        self.save_log()
+
+    def log_behaviour(self,behaviour: py_trees.behaviour.Behaviour):
+        self.log_dict[str(self.tick)][str(self.time)]["node"] = copy.deepcopy(self.nodes[behaviour.id].to_dict())
+        self.log_dict[str(self.tick)][str(self.time)]["node"]["id"] = str(behaviour.id)
+
+        if self.nodes[behaviour.id].is_leaf():
+            self.log_dict[str(self.tick)][str(self.time)]["node"]["action"] = str(self.nodes[behaviour.id].action)
+
+    def save_log(self):
+        with open(self.logfile, 'w') as f:
+            json.dump(self.log_dict, f, indent=4)
 
     def reconstruct_tree_state(self):
         # Given the known states of all terminated nodes, reconstruct the full state of the tree

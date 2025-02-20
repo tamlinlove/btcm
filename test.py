@@ -33,7 +33,6 @@ if __name__ == "__main__":
     Run
     '''
     tree.setup()
-    print(f"State: {board.state}")
     try:
         finished = False
         while not finished:
@@ -43,7 +42,7 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         print("KILL")
         pass
-    logger.reconstruct_tree_state()
+    #logger.reconstruct_tree_state()
 
     '''
     # CM Test

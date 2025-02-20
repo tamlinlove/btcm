@@ -116,6 +116,7 @@ class ToyAction(ActionNode):
             return ActionB()
 
     def execute(self, _, action):
+        self.board.state.set_value("VarA",0)
         if action == ActionA:
             return py_trees.common.Status.SUCCESS
         else:

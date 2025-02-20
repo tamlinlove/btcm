@@ -4,6 +4,7 @@ from typing import List # For type hints
 
 from btcm.dm.state import State
 from btcm.dm.action import Action,NullAction
+from btcm.bt.lognode import LogNode
 
 class Leaf(py_trees.behaviour.Behaviour):
     '''
@@ -16,6 +17,9 @@ class Leaf(py_trees.behaviour.Behaviour):
         # Blackboard
         self.board = self.attach_blackboard_client(name=f"{name}_board")
         self.board.register_key("state", access=py_trees.common.Access.READ)
+
+        # Logging
+        self.lognode:LogNode = None
 
     '''
     EMPTY BOILERPLATE FUNCTIONS
@@ -67,9 +71,18 @@ class Leaf(py_trees.behaviour.Behaviour):
         '''
         state = self.board.state
         action = self.decide(state)
-        # TODO: Replace with proper logging
-        print(f"Node {self.name} selects action {action.name} for state {state}")
+
+        # Logging
+        if self.lognode is not None:
+            self.lognode.log_action(action)
+        
         return self.execute(state,action)
+    
+    '''
+    LOGGING
+    '''
+    def add_log_node(self,lognode:LogNode):
+        self.lognode = lognode
 
 class ActionNode(Leaf):
     def __init__(self, name: str):

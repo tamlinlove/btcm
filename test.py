@@ -3,6 +3,7 @@ import py_trees
 
 from btcm.examples.toy_examples import single_sequence
 from btcm.cm.causalmodel import build_state_model
+from btcm.bt.logger import Logger
 
 if __name__ == "__main__":
     '''
@@ -10,7 +11,7 @@ if __name__ == "__main__":
     '''
     test_vals = {
         "VarA":1,
-        "VarB":0,
+        "VarB":1,
         "VarC":1,
     }
 
@@ -21,8 +22,17 @@ if __name__ == "__main__":
     tree = single_sequence.make_tree()
 
     '''
+    Visitor
+    '''
+    logger = Logger(tree=tree)
+    tree.visitors.append(logger)
+
+    
+
+    '''
     Run
     '''
+    tree.setup()
     print(f"State: {board.state}")
     try:
         finished = False
@@ -33,7 +43,9 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         print("KILL")
         pass
+    logger.reconstruct_tree_state()
 
+    '''
     # CM Test
     edges = [
         ("VarC","VarA")
@@ -42,3 +54,4 @@ if __name__ == "__main__":
     cm.visualise()
     nm = cm.intervene(["VarC"],[0])
     nm.visualise()
+    '''

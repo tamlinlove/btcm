@@ -1,22 +1,19 @@
 class State:
-    def __init__(self, values: dict):
-        if self.valid_state_assignment(values):
-            self.vals = values
-        else:
-            raise ValueError("Invalid values: doesn't match defines ranges")
+    def __init__(self,values:dict=None):
+       self.vals = None
+       if values is not None:
+           self.set_values(values)
         
     def __str__(self):
         return str(self.vals)
         
-    @staticmethod
-    def ranges() -> dict:
+    def ranges(self) -> dict:
         '''
         Return a mapping from each variable in self.vars() to a list of possible values
         '''
         raise NotImplementedError
     
-    @staticmethod
-    def var_funcs() -> dict:
+    def var_funcs(self) -> dict:
         '''
         Return a mapping from each variable in self.vars() to a function used to compute that variable's value
         '''
@@ -27,6 +24,12 @@ class State:
         Return a list of the state variables that make up the state, as defined by the state dictionary keys
         '''
         return list(self.ranges().keys())
+    
+    def set_values(self,values:dict):
+        if self.valid_state_assignment(values):
+            self.vals = values
+        else:
+            raise ValueError("Invalid values: doesn't match defines ranges")
     
     def set_value(self,var:str,value):
         if not self.valid_var_value(var,value):

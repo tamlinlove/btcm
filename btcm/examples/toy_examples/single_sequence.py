@@ -8,19 +8,17 @@ from btcm.dm.action import Action
 STATE
 '''
 class ToyState(State):
-    def __init__(self, assignment):
-        super().__init__(assignment)
+    def __init__(self,values:dict=None):
+        super().__init__(values=values)
 
-    @staticmethod
-    def ranges() -> dict:
+    def ranges(self) -> dict:
         return {
             "VarA":[0,1],
             "VarB":[0,1],
             "VarC":[0,1]
         }
     
-    @staticmethod
-    def var_funcs() -> dict:
+    def var_funcs(self) -> dict:
         return {
             "VarA":self.func_varA,
             "VarB":self.func_varB,

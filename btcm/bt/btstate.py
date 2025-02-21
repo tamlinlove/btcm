@@ -4,6 +4,7 @@ import json
 import importlib
 
 from typing import Dict
+from collections.abc import Callable
 
 from btcm.dm.state import State
 
@@ -17,34 +18,96 @@ class BTState(State):
         self.calculate_state_attributes()
 
     '''
+    DEFINING FUNCTIONS
+    '''
+    def vars(self) -> list[str]:
+        return self.vars_list
+    
+    def ranges(self) -> dict:
+        pass
+
+    def var_funcs(self) -> dict:
+        pass
+
+    '''
     RECONSTRUCT STATE
     '''
-    def vars(self):
-        pass
     
     def calculate_state_attributes(self):
-        vars = []
+        self.vars_list = []
+        self.range_dict = {}
+        self.func_dict = {}
+
         for node in self.behaviour_dict:
-            # Add return status
-            vars.append(f"return_{node}")
+            # Return Status
+            vname = f"return_{node}"
+            self.vars_list.append(vname)
+            self.range_dict[vname] = self.get_return_range(node)
+            self.func_dict[vname] = self.get_return_func(node)
+
             # Add executed variable
-            vars.append(f"executed_{node}")
+            vname = f"executed_{node}"
+            self.vars_list.append(vname)
+            self.range_dict[vname] = self.get_executed_range()
+            self.func_dict[vname] = self.get_executed_func(node)
 
             if self.data["tree"][node]["category"] == "Action":
                 # Add decision variable
-                vars.append(f"decision_{node}")
+                vname = f"decision_{node}"
+                self.vars_list.append(vname)
+                self.range_dict[vname] = self.get_decision_range(node)
+                self.func_dict[vname] = self.get_decision_func(node)
 
         # State
         module = importlib.import_module(self.data["state"]["module"])
         cls = getattr(module, self.data["state"]["class"])
-        state_vars = list(cls.ranges().keys())
-        vars += state_vars
+        self.var_state = cls()
+        state_vars = list(self.var_state.ranges().keys())
+        self.vars_list += state_vars
+        for var in state_vars:
+            self.range_dict[var] = self.var_state.ranges()[var]
+            self.func_dict[var] = self.var_state.var_funcs()[var]
 
-        print(vars)
+
+    '''
+    NODE RANGES
+    '''
+    def get_return_range(self,node:str) -> list:
+        if self.data["tree"][node]["category"] == "Condition":
+            # No running
+            return [
+                py_trees.common.Status.SUCCESS,
+                py_trees.common.Status.FAILURE,
+                py_trees.common.Status.INVALID,
+            ]
+        return [
+            py_trees.common.Status.RUNNING,
+            py_trees.common.Status.SUCCESS,
+            py_trees.common.Status.FAILURE,
+            py_trees.common.Status.INVALID,
+        ]
     
+    def get_executed_range(self) -> list[bool]:
+        return [False,True]
+    
+    def get_decision_range(self,node:str) -> list:
+        # TODO
+        return []
 
-        return vars
+    '''
+    NODE FUNCTIONS
+    '''
+    def get_return_func(self,node:str) -> Callable:
+        # TODO: handle both leaf and composite cases
+        return None
 
+    def get_executed_func(self,node:str) -> Callable:
+        # TODO: handle both leaf and composite cases
+        return None
+    
+    def get_decision_func(self,node:str) -> Callable:
+        # TODO: handle both leaf and composite cases
+        return None
         
 
 class BTStateManager:

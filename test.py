@@ -11,7 +11,7 @@ if __name__ == "__main__":
     Test State
     '''
     test_vals = {
-        "VarA":0,
+        "VarA":1,
         "VarB":1,
         "VarC":1,
     }
@@ -48,6 +48,10 @@ if __name__ == "__main__":
     Load BT
     '''
     manager = BTStateManager("log.json")
+    manager.load_state(tick=0,time="end")
+    manager.visualise(show_values=True)
+    manager.model.intervene(["VarC"],[0])
+    manager.visualise(show_values=True)
 
     '''
     # CM Test

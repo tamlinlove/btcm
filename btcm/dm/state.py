@@ -1,3 +1,5 @@
+from btcm.dm.action import Action
+
 class State:
     def __init__(self,values:dict=None):
        self.vals = None
@@ -25,6 +27,12 @@ class State:
         '''
         return list(self.ranges().keys())
     
+    def retrieve_action(self,action_name:str) -> Action:
+        '''
+        Given a string id of an action, return an Action object
+        '''
+        raise NotImplementedError
+     
     def set_values(self,values:dict):
         if self.valid_state_assignment(values):
             self.vals = values
@@ -36,6 +44,15 @@ class State:
             raise ValueError(f"Cannot set {var} to {value}")
         
         self.vals[var] = value
+
+    '''
+    CAUSAL MODEL
+    '''
+    def cm_edges(self) -> list[tuple[str,str]]:
+        '''
+        Return a list of edges representing the assumptions of a causal model modelling this state
+        '''
+        return []
     
     '''
     HELPER FUNCTIONS

@@ -5,6 +5,9 @@ class Action:
     def __str__(self):
         return self.name
     
+    def __eq__(self, other_action):
+        return self.name == other_action.name
+    
     @property
     def name(self) -> str:
         raise NotImplementedError

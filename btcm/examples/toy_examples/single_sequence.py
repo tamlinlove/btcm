@@ -2,7 +2,7 @@ import py_trees
 
 from btcm.bt.nodes import ActionNode,ConditionNode
 from btcm.dm.state import State
-from btcm.dm.action import Action
+from btcm.dm.action import Action,NullAction
 
 '''
 STATE
@@ -25,6 +25,14 @@ class ToyState(State):
             "VarC":self.func_varC,
         }
     
+    def retrieve_action(self, action_name):
+        if action_name == "ActionA":
+            return ActionA()
+        elif action_name == "ActionB":
+            return ActionB()
+        elif action_name == "NullAction":
+            return NullAction()
+    
     '''
     VARIABLE FUNCTIONS
     '''
@@ -36,6 +44,14 @@ class ToyState(State):
     
     def func_varC(self,state:State):
         return state.vals["VarC"]
+    
+    '''
+    CAUSAL MODEL
+    '''
+    def cm_edges(self) -> list[tuple[str,str]]:
+        return [
+            ("VarC","VarA"),
+        ]
 
 '''
 ACTIONS

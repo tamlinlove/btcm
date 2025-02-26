@@ -82,7 +82,7 @@ class BTState(State):
             vname = f"return_{node}"
             self.vars_list.append(vname)
             self.range_dict[vname] = self.get_return_range(node)
-            self.func_dict[vname] = self.get_return_func(node)
+            self.func_dict[vname] = None # TODO: needed?
             self.categories[vname] = "Return"
             self.sub_vars[node]["Return"] = vname
             self.nodes[vname] = node
@@ -93,7 +93,7 @@ class BTState(State):
             vname = f"executed_{node}"
             self.vars_list.append(vname)
             self.range_dict[vname] = self.get_executed_range()
-            self.func_dict[vname] = self.get_executed_func(node)
+            self.func_dict[vname] = None # TODO: needed?
             self.categories[vname] = "Executed"
             self.sub_vars[node]["Executed"] = vname
             self.nodes[vname] = node
@@ -105,7 +105,7 @@ class BTState(State):
                 vname = f"decision_{node}"
                 self.vars_list.append(vname)
                 self.range_dict[vname] = self.get_decision_range(node)
-                self.func_dict[vname] = self.get_decision_func(node)
+                self.func_dict[vname] = None # TODO: needed?
                 self.categories[vname] = "Decision"
                 self.sub_vars[node]["Decision"] = vname
                 self.nodes[vname] = node
@@ -151,42 +151,6 @@ class BTState(State):
         if null not in dec_range:
             dec_range.append(null)
         return dec_range
-
-    '''
-    NODE FUNCTIONS
-    '''
-    def get_return_func(self,node:str) -> Callable:
-        node_cat = self.data["tree"][node]["category"]
-        if node_cat in ["Action","Condition"]:
-            # Leaf node, get function from behaviour
-            return self.behaviour_dict[node].execute
-        elif node_cat == "Sequence":
-            # Sequence node
-            return self.sequence_return
-        else:
-            raise TypeError(f"Unrecognised category of node: {node_cat}")
-
-    def get_executed_func(self,node:str) -> Callable:
-        if self.behaviour_dict[node].parent is None:
-            # No parent, is root of the tree
-            return self.execute_root
-        else:
-            # Is a child of a composite node
-            siblings = self.behaviour_dict[node].parent.children
-            if self.behaviour_dict[node] == siblings[0]:
-                # First child, depends on parent
-                return self.execute_left_child
-            else:
-                # Second child onwards, depends on left sibling
-                if isinstance(self.behaviour_dict[node].parent,py_trees.composites.Sequence):
-                    # Sequence parent
-                    return self.execute_sequence_child
-                else:
-                    # Unknown parent
-                    raise TypeError(f"Unknown parent node: {self.behaviour_dict[node].parent}")
-    
-    def get_decision_func(self,node:str) -> Callable:
-        return self.behaviour_dict[node].decide
     
     '''
     VARIABLE FUNCTIONS
@@ -207,18 +171,6 @@ class BTState(State):
                 raise ValueError("Invalid sequence node child configuration")
         # Must have succeeded
         return py_trees.common.Status.SUCCESS
-
-    @staticmethod
-    def execute_root() -> bool:
-        return True
-
-    @staticmethod
-    def execute_left_child(parent_executed:bool) -> bool:
-        return parent_executed
-
-    @staticmethod
-    def execute_sequence_child(left_return) -> bool:
-        return left_return == py_trees.common.Status.SUCCESS
     
     '''
     RUN FUNCTIONS FOR INTERVENTIONS

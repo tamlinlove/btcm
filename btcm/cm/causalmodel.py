@@ -94,37 +94,33 @@ class CausalModel:
     
     def propagate_interventions(self,order:list[str],state:State) -> None:
         for node in order:
-            #new_val = self.nodes[node].run(state)
-            print(f"Attempting to propagate values to {node}...")
             new_val = state.run(node)
             state.set_value(node,new_val)
-            print(f"...intervention on {node} successful, set to {new_val}")
 
-    def intervene(self,nodes:list[str],values:list) -> Self:
+    def intervene(self,interventions:dict) -> tuple[nx.DiGraph,State]:
         # Validate
-        for (node,value) in zip(nodes,values):
+        for node in interventions:
             if node not in self.nodes:
                 raise ValueError(f"Unrecognised node {node}")
             
-            if value not in self.nodes[node].vals:
-                raise ValueError(f"Invalid value {value} for node {node}")
+            if interventions[node] not in self.nodes[node].vals:
+                raise ValueError(f"Invalid value {interventions[node]} for node {node}")
         
         # Copy
 
         new_graph = copy.deepcopy(self.graph)
         new_state = self.state.copy_state(self.state)
         
-        for (node,value) in zip(nodes,values):
+        for node in interventions:
             # Remove parents
             for parent in self.parents(node):
                 new_graph.remove_edge(parent,node)
 
             # Set new values
-            print(f"Intervention on {node} to {value}")
-            new_state.set_value(node,value)
+            new_state.set_value(node,interventions[node])
 
         # Propagate changes throughout model
-        order = self.propagation_order(nodes,new_graph)
+        order = self.propagation_order(list(interventions.keys()),new_graph)
         self.propagate_interventions(order,new_state)
 
         return new_graph,new_state

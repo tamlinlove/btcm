@@ -135,7 +135,6 @@ class ToyAction(ActionNode):
             return ActionB()
 
     def execute(self, _, action):
-        self.board.state.set_value("VarA",0)
         if action == ActionA:
             return py_trees.common.Status.SUCCESS
         else:
@@ -145,4 +144,4 @@ class ToyAction(ActionNode):
         return ["VarB"]
     
     def action_space(self):
-        return [ActionA(),ActionB()]
+        return [ActionA(),ActionB(),NullAction()]

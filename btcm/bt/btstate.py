@@ -146,7 +146,7 @@ class BTState(State):
         return [False,True]
     
     def get_decision_range(self,node:str) -> list:
-        dec_range = self.behaviour_dict[node].action_space()
+        dec_range = copy.deepcopy(self.behaviour_dict[node].action_space())
         null = NullAction()
         if null not in dec_range:
             dec_range.append(null)
@@ -166,9 +166,8 @@ class BTState(State):
             if child_return in [py_trees.common.Status.FAILURE,py_trees.common.Status.RUNNING]:
                 return child_return
             elif child_return == py_trees.common.Status.INVALID:
-                # Should not be possible
-                print(child_returns)
-                raise ValueError("Invalid sequence node child configuration")
+                # Should not be possible normally, but may occurr during interventions
+                return child_return
         # Must have succeeded
         return py_trees.common.Status.SUCCESS
     
@@ -222,7 +221,7 @@ class BTState(State):
         siblings = behaviour.parent.children
         if behaviour == siblings[0]:
             # First child, depends only on parent's execution status
-            parent_node = self.behaviours_to_node(behaviour.parent)
+            parent_node = self.behaviours_to_node[behaviour.parent]
             corresponding_execution = self.sub_vars[parent_node]["Executed"]
             return self.vals[corresponding_execution]
         

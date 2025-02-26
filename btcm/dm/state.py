@@ -51,6 +51,12 @@ class State:
         
         self.vals[var] = value
 
+    def get_values(self,nodes:list[str]=None):
+        if nodes is None:
+            return self.vals
+        else:
+            return {node:self.vals[node] for node in nodes}
+
     '''
     CAUSAL MODEL
     '''

@@ -5,6 +5,7 @@ from btcm.examples.toy_examples import single_sequence
 from btcm.cm.causalmodel import build_state_model
 from btcm.bt.logger import Logger
 from btcm.bt.btstate import BTStateManager
+from btcm.cfx.explainer import Explainer
 
 if __name__ == "__main__":
     '''
@@ -33,6 +34,7 @@ if __name__ == "__main__":
     '''
     Run
     '''
+    
     tree.setup()
     try:
         finished = False
@@ -43,23 +45,3 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         print("KILL")
         pass
-    
-    '''
-    Load BT
-    '''
-    manager = BTStateManager("log.json")
-    manager.load_state(tick=0,time="end")
-    manager.visualise(show_values=True)
-    new_graph,new_state = manager.model.intervene(["VarB"],[0])
-    manager.visualise(show_values=True,graph=new_graph,state=new_state)
-
-    '''
-    # CM Test
-    edges = [
-        ("VarC","VarA")
-    ]
-    cm = build_state_model(state=board.state,edges=edges)
-    cm.visualise()
-    nm = cm.intervene(["VarC"],[0])
-    nm.visualise()
-    '''

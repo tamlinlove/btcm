@@ -80,26 +80,25 @@ class CausalModel:
             val_dict[node] = self.nodes[node].value
         return val_dict
     
-    def propagation_order(self,nodes:list[str]) -> list[str]:
+    def propagation_order(self,nodes:list[str],graph:nx.DiGraph) -> list[str]:
         # Get order for propagation, ignoring nodes that do not descend from intervened nodes
-        order = nx.topological_sort(self.graph)
+        order = nx.topological_sort(graph)
         reduced_order = []
         for node in order:
-            ancestors = nx.ancestors(self.graph,node)
+            ancestors = nx.ancestors(graph,node)
             for inode in nodes:
                 if inode in ancestors:
                     reduced_order.append(node)
                     break
         return reduced_order
     
-    def propagate_interventions(self,order:list[str]) -> None:
+    def propagate_interventions(self,order:list[str],state:State) -> None:
         for node in order:
-            new_val = self.nodes[node].run(self.state)
-            self.set_value(node,new_val)
-
-    def set_value(self,node:str,new_value):
-        self.nodes[node].value = new_value
-        self.state.set_value(node,new_value)
+            #new_val = self.nodes[node].run(state)
+            print(f"Attempting to propagate values to {node}...")
+            new_val = state.run(node)
+            state.set_value(node,new_val)
+            print(f"...intervention on {node} successful, set to {new_val}")
 
     def intervene(self,nodes:list[str],values:list) -> Self:
         # Validate
@@ -111,32 +110,40 @@ class CausalModel:
                 raise ValueError(f"Invalid value {value} for node {node}")
         
         # Copy
-        new_model = copy.deepcopy(self)
+
+        new_graph = copy.deepcopy(self.graph)
+        new_state = self.state.copy_state(self.state)
         
         for (node,value) in zip(nodes,values):
             # Remove parents
-            for parent in new_model.parents(node):
-                new_model.graph.remove_edge(parent,node)
+            for parent in self.parents(node):
+                new_graph.remove_edge(parent,node)
 
             # Set new values
-            new_model.set_value(node,value)
+            print(f"Intervention on {node} to {value}")
+            new_state.set_value(node,value)
 
         # Propagate changes throughout model
-        order = new_model.propagation_order(nodes)
-        new_model.propagate_interventions(order)
+        order = self.propagation_order(nodes,new_graph)
+        self.propagate_interventions(order,new_state)
 
-        return new_model
+        return new_graph,new_state
 
 
     '''
     VISUALISE
     '''
-    def visualise(self):
-        label_dict = {self.nodes[node].name: f"{self.nodes[node].name} = {self.nodes[node].value}" for node in self.nodes}
-        pos = graphviz_layout(self.graph, prog="dot")
-        nx.draw_networkx_nodes(self.graph, pos, node_size = 500)
-        nx.draw_networkx_labels(self.graph, pos, labels=label_dict)
-        nx.draw_networkx_edges(self.graph, pos, edgelist= self.graph.edges, arrows=True)
+    def visualise(self,graph:nx.DiGraph=None,state:State=None):
+        if graph is None:
+            graph = self.graph
+        if state is None:
+            state = self.state
+        
+        label_dict = {self.nodes[node].name: f"{self.nodes[node].name} = {state.vals[self.nodes[node].name]}" for node in self.nodes}
+        pos = graphviz_layout(graph, prog="dot")
+        nx.draw_networkx_nodes(graph, pos, node_size = 500)
+        nx.draw_networkx_labels(graph, pos, labels=label_dict)
+        nx.draw_networkx_edges(graph, pos, edgelist= graph.edges, arrows=True)
         plt.show()
 
  

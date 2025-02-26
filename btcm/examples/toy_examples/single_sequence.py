@@ -1,5 +1,7 @@
 import py_trees
 
+from typing import Self
+
 from btcm.bt.nodes import ActionNode,ConditionNode
 from btcm.dm.state import State
 from btcm.dm.action import Action,NullAction
@@ -44,6 +46,9 @@ class ToyState(State):
     
     def func_varC(self,state:State):
         return state.vals["VarC"]
+    
+    def run(self,node:str,state:State):
+        return self.var_funcs()[node](state)
     
     '''
     CAUSAL MODEL

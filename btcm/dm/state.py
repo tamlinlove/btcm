@@ -1,3 +1,5 @@
+from typing import Self
+
 from btcm.dm.action import Action
 
 class State:
@@ -5,6 +7,10 @@ class State:
        self.vals = None
        if values is not None:
            self.set_values(values)
+
+    @classmethod
+    def copy_state(cls,state:Self) -> Self:
+        return cls(values=state.vals)
         
     def __str__(self):
         return str(self.vals)
@@ -53,6 +59,12 @@ class State:
         Return a list of edges representing the assumptions of a causal model modelling this state
         '''
         return []
+    
+    def run(self,node:str,*args,**kwargs):
+        '''
+        Given the name of the node, run its function and return its new value based on other arguments
+        '''
+        raise NotImplementedError
     
     '''
     HELPER FUNCTIONS

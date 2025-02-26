@@ -2,25 +2,55 @@ import py_trees
 import networkx as nx
 import json
 import importlib
+import copy
 
 from networkx.drawing.nx_pydot import graphviz_layout
 import matplotlib.pyplot as plt
 
-from typing import Dict,List
+from typing import Dict,List,Self
 from collections.abc import Callable
 
 from btcm.dm.state import State
 from btcm.dm.action import NullAction
 from btcm.cm.causalmodel import CausalModel,CausalNode
+from btcm.bt.nodes import Leaf
 
 class BTState(State):
-    def __init__(self, data: dict, behaviour_dict: Dict[str,py_trees.behaviour.Behaviour]):
-        
+    def __init__(
+            self,
+            data: dict,
+            behaviour_dict: Dict[str,py_trees.behaviour.Behaviour],
+            behaviours_to_node: Dict[py_trees.behaviour.Behaviour,str]
+    ):  
         self.data = data
         self.behaviour_dict = behaviour_dict
+        self.behaviours_to_node = behaviours_to_node
 
-        # Calculate list of variables
-        self.calculate_state_attributes()
+    @classmethod
+    def from_data(
+            cls,
+            data: dict, 
+            behaviour_dict: Dict[str,py_trees.behaviour.Behaviour],
+            behaviours_to_node: Dict[py_trees.behaviour.Behaviour,str]
+    ) -> Self:
+        obj = cls(data,behaviour_dict,behaviours_to_node)
+        obj.calculate_state_attributes()
+        return obj
+
+    @classmethod
+    def copy_state(cls,state:Self) -> Self:
+        obj = cls(state.data,state.behaviour_dict,state.behaviours_to_node)
+        obj.vars_list = state.vars_list
+        obj.range_dict = state.range_dict
+        obj.func_dict = state.func_dict
+        obj.categories = state.categories
+        obj.nodes = state.nodes
+        obj.vals = copy.deepcopy(state.vals)
+        obj.sub_vars = state.sub_vars
+        obj.var_state = state.var_state
+
+        return obj
+
 
     '''
     DEFINING FUNCTIONS
@@ -57,6 +87,7 @@ class BTState(State):
             self.sub_vars[node]["Return"] = vname
             self.nodes[vname] = node
             self.vals[vname] = None
+            self.var_state: State = None
 
             # Add executed variable
             vname = f"executed_{node}"
@@ -93,7 +124,6 @@ class BTState(State):
             self.nodes[var] = var
             self.vals[var] = None
 
-
     '''
     NODE RANGES
     '''
@@ -116,7 +146,11 @@ class BTState(State):
         return [False,True]
     
     def get_decision_range(self,node:str) -> list:
-        return self.behaviour_dict[node].action_space()
+        dec_range = self.behaviour_dict[node].action_space()
+        null = NullAction()
+        if null not in dec_range:
+            dec_range.append(null)
+        return dec_range
 
     '''
     NODE FUNCTIONS
@@ -169,6 +203,7 @@ class BTState(State):
                 return child_return
             elif child_return == py_trees.common.Status.INVALID:
                 # Should not be possible
+                print(child_returns)
                 raise ValueError("Invalid sequence node child configuration")
         # Must have succeeded
         return py_trees.common.Status.SUCCESS
@@ -184,7 +219,77 @@ class BTState(State):
     @staticmethod
     def execute_sequence_child(left_return) -> bool:
         return left_return == py_trees.common.Status.SUCCESS
+    
+    '''
+    RUN FUNCTIONS FOR INTERVENTIONS
+    '''
+    def run(self,node:str):
+        if self.categories[node] == "State":
+            # State node, delegate to var_state
+            return self.var_state.run(node,self)
+        if self.categories[node] == "Return":
+            # Return node, decide which case
+            return self.run_return(node)
+        if self.categories[node] == "Executed":
+            # Executed node, decide which case
+            return self.run_executed(node)
+        if self.categories[node] == "Decision":
+            return self.run_decision(node)
+    
+        raise ValueError(f"Unrecognised category {self.categories[node]}")
         
+    def run_return(self,node:str):
+        executed_node = self.sub_vars[self.nodes[node]]["Executed"]
+        if not self.vals[executed_node]:
+            # Node was not executed, always return invalid
+            return py_trees.common.Status.INVALID
+
+        node_cat = self.data["tree"][self.nodes[node]]["category"]
+        behaviour = self.behaviour_dict[self.nodes[node]]
+        if node_cat == "Action":
+            corresponding_decision = self.sub_vars[self.nodes[node]]["Decision"]
+            action = self.vals[corresponding_decision]
+            return behaviour.execute(self,action)
+        elif node_cat == "Condition":
+            action = NullAction()
+            return behaviour.execute(self,action)
+        elif node_cat == "Sequence":
+            children  = behaviour.children
+            child_nodes = [self.behaviours_to_node[child] for child in children]
+            child_return_nodes = [self.sub_vars[child]["Return"] for child in child_nodes]
+            child_return_vals = [self.vals[child] for child in child_return_nodes]
+            return self.sequence_return(child_return_vals,True)
+        
+    def run_executed(self,node:str):
+        behaviour = self.behaviour_dict[self.nodes[node]]
+        if behaviour.parent is None:
+            # Root node, always executed
+            return True
+        
+        # Is child of a composite node
+        siblings = behaviour.parent.children
+        if behaviour == siblings[0]:
+            # First child, depends only on parent's execution status
+            parent_node = self.behaviours_to_node(behaviour.parent)
+            corresponding_execution = self.sub_vars[parent_node]["Executed"]
+            return self.vals[corresponding_execution]
+        
+        # Second child onwards, depends on left sibling
+        if isinstance(behaviour.parent,py_trees.composites.Sequence):
+            # Sequence parent
+            lsib = siblings[siblings.index(behaviour)-1]
+            lsib_node = self.behaviours_to_node[lsib]
+            corresponding_return = self.sub_vars[lsib_node]["Return"]
+            return self.vals[corresponding_return] == py_trees.common.Status.SUCCESS
+        
+    def run_decision(self,node:str):
+        executed_node = self.sub_vars[self.nodes[node]]["Executed"]
+        if not self.vals[executed_node]:
+            # Node was not executed, always return null action
+            return NullAction()
+
+        behaviour:Leaf = self.behaviour_dict[self.nodes[node]]
+        return behaviour.decide(self)
 
 class BTStateManager:
     status_map = {
@@ -204,7 +309,7 @@ class BTStateManager:
         self.graph,self.tree = self.reconstruct_bt()
 
         # Create a BT State
-        self.state = BTState(self.data,self.behaviours)
+        self.state = BTState.from_data(self.data,self.behaviours,self.behaviours_to_nodes)
 
         # Create causal model
         self.model = self.create_causal_model(causal_edges)
@@ -349,6 +454,8 @@ class BTStateManager:
                 if self.data["tree"][node]["category"] == "Action":
                     # Connect Execution and State to Decision for Action nodes
                     cm.add_edge((self.state.sub_vars[node]["Executed"],self.state.sub_vars[node]["Decision"]))
+                    # Connect Decision to Return for Action nodes
+                    cm.add_edge((self.state.sub_vars[node]["Decision"],self.state.sub_vars[node]["Return"]))
                     # TODO: Handle state variation over time????
                     for ivar in self.behaviours[node].input_variables():
                         cm.add_edge((ivar,self.state.sub_vars[node]["Decision"]))
@@ -391,40 +498,45 @@ class BTStateManager:
     '''
     VISUALISATION
     '''
-    def visualise(self,show_values:bool=False):
+    def visualise(self,show_values:bool=False,graph:nx.DiGraph=None,state:State=None):
         # Labels
         label_dict = {}
         colour_map = []
 
-        for node in self.model.graph.nodes:
+        if graph is None:
+            graph = self.model.graph
+        if state is None:
+            state = self.state
+
+        for node in graph.nodes:
             val_statement = ""
             if show_values:
-                val_statement = f" = {self.state.vals[node]}"
+                val_statement = f" = {state.vals[node]}"
 
-            if self.state.categories[node] == "State":
+            if state.categories[node] == "State":
                 # State
-                label_dict[node] = f"{self.state.nodes[node]}_State{val_statement}"
+                label_dict[node] = f"{state.nodes[node]}_State{val_statement}"
                 colour_map.append("green")
             else:
                 # Related to BT node
-                nodename = self.behaviours[self.state.nodes[node]].name
-                if self.state.categories[node] == "Return":
+                nodename = self.behaviours[state.nodes[node]].name
+                if state.categories[node] == "Return":
                     label_dict[node] = f"{nodename}_Return{val_statement}"
                     colour_map.append("red")
-                elif self.state.categories[node] == "Executed":
+                elif state.categories[node] == "Executed":
                     label_dict[node] = f"{nodename}_Executed{val_statement}"
                     colour_map.append("yellow")
-                elif self.state.categories[node] == "Decision":
+                elif state.categories[node] == "Decision":
                     label_dict[node] = f"{nodename}_Decision{val_statement}"
                     colour_map.append("cyan")
                 else:
-                    raise ValueError(f"Invalid node category: {self.state.categories[node]}")
+                    raise ValueError(f"Invalid node category: {state.categories[node]}")
 
 
-        pos = graphviz_layout(self.model.graph, prog="dot")
-        nx.draw_networkx_nodes(self.model.graph, pos, node_size = 500, node_color=colour_map)
-        nx.draw_networkx_labels(self.model.graph, pos, labels=label_dict)
-        nx.draw_networkx_edges(self.model.graph, pos, edgelist= self.model.graph.edges, arrows=True)
+        pos = graphviz_layout(graph, prog="dot")
+        nx.draw_networkx_nodes(graph, pos, node_size = 500, node_color=colour_map)
+        nx.draw_networkx_labels(graph, pos, labels=label_dict)
+        nx.draw_networkx_edges(graph, pos, edgelist= graph.edges, arrows=True)
         plt.show()
 
 

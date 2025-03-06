@@ -57,6 +57,16 @@ class ToyState(State):
         return [
             ("VarC","VarA"),
         ]
+    
+    '''
+    SEMANTIC DESCRIPTION
+    '''
+    def semantic_dict(self) -> dict[str,str]:
+        return {
+            "VarA":"An example variable in a toy state",
+            "VarB":"An example variable in a toy state",
+            "VarC":"An example variable in a toy state",
+        }
 
 '''
 ACTIONS
@@ -120,6 +130,12 @@ class ToyGuard(ConditionNode):
     
     def input_variables(self):
         return ["VarA","VarB"]
+    
+    '''
+    SEMANTIC DESCRIPTION
+    '''
+    def semantic_description(self) -> str:
+        return "A toy condition node that checks if vars A and B are equal."
 
 class ToyAction(ActionNode):
     '''
@@ -145,3 +161,9 @@ class ToyAction(ActionNode):
     
     def action_space(self):
         return [ActionA(),ActionB(),NullAction()]
+    
+    '''
+    SEMANTIC DESCRIPTION
+    '''
+    def semantic_description(self) -> str:
+        return "A toy action node that executes action B except if VarB is 0."

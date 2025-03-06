@@ -92,3 +92,9 @@ class State:
             # Variable value outside range
             return False
         return True
+    
+    '''
+    SEMANTIC DESCRIPTION
+    '''
+    def semantic_dict(self) -> dict[str,str]:
+        return {var:"A state variable" for var in self.vars()}

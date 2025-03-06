@@ -12,4 +12,4 @@ if __name__ == "__main__":
     explainer = Explainer(manager.model)
     #explainer.explain({"decision_f81601d8-199f-426b-8657-fe7c3bae808b":None})
     # NB: this is hardcoded for now, so if you re-generate the log.json you will have to manually change the variable you are querying below
-    explainer.explain({"return_064e92cc-eff3-4a38-bff8-59f5b9ae4df3":[py_trees.common.Status.SUCCESS]},max_depth=2)
+    explainer.explain({"return_c0fce5fd-6d26-4f51-9f89-ac254b905d30":[py_trees.common.Status.SUCCESS]},max_depth=2)

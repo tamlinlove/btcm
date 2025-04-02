@@ -345,7 +345,7 @@ class BTStateManager:
             cls = getattr(module, node_info["class"])
             behaviour = cls()
         else:
-            raise ValueError(f"Unknown node category {node_info["category"]}")
+            raise ValueError(f"Unknown node category {node_info['category']}")
         
         self.behaviours[node] = behaviour
         self.behaviours_to_nodes[behaviour] = node
@@ -485,7 +485,7 @@ class BTStateManager:
                             lsib = self.behaviours_to_nodes[siblings[siblings.index(self.behaviours[node])-1]]
                             cm.add_edge((self.state.sub_vars[lsib]["Return"],self.state.sub_vars[node]["Executed"]))
                     else:
-                        raise TypeError(f"Unknown node category: {self.data["tree"][parent_node]["category"]}")
+                        raise TypeError(f"Unknown node category: {self.data['tree'][parent_node]['category']}")
                 
             else:
                 # Connect Execution and Return for composite nodes

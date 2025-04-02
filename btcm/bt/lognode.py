@@ -10,6 +10,7 @@ class LogNode:
         self.action = None
         self.behaviour_class = behaviour.__class__.__name__
         self.behaviour_module = behaviour.__class__.__module__
+        self.description = self.get_semantic_info(behaviour)
 
         self.tick = 0
         self.time = 0
@@ -26,6 +27,7 @@ class LogNode:
             return {
                 "name":self.name,
                 "category":self.category,
+                "description":self.description,
                 "class":self.behaviour_class,
                 "module":self.behaviour_module
             }
@@ -56,3 +58,11 @@ class LogNode:
     def update_time(self,tick:int,time:int):
         self.tick = tick
         self.time = time
+
+    def get_semantic_info(self,behaviour:py_trees.behaviour.Behaviour) -> str:
+        if self.is_leaf():
+            return behaviour.semantic_description()
+        elif self.category == "Sequence":
+            return "A sequence node"
+        else:
+            raise TypeError(f"Unrecognised type of behaviour: {type(behaviour)}")

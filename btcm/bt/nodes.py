@@ -84,6 +84,12 @@ class Leaf(py_trees.behaviour.Behaviour):
     def add_log_node(self,lognode:LogNode):
         self.lognode = lognode
 
+    '''
+    SEMANTIC DESCRIPTION
+    '''
+    def semantic_description(self) -> str:
+        return "A leaf node in a behaviour tree."
+
 class ActionNode(Leaf):
     def __init__(self, name: str):
         super().__init__(name)

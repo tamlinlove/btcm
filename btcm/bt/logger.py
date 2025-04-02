@@ -25,6 +25,7 @@ class Logger(py_trees.visitors.VisitorBase):
         # Setup board
         self.board = py_trees.blackboard.Client(name="LoggerBoard")
         self.board.register_key("state", access=py_trees.common.Access.READ)
+        self.board.register_key("environment", access=py_trees.common.Access.READ)
 
         # Log Dictionary to be saved
         self.log_dict = {}
@@ -55,6 +56,8 @@ class Logger(py_trees.visitors.VisitorBase):
             category = "Condition"
         elif isinstance(btnode,py_trees.composites.Sequence):
             category = "Sequence"
+        elif isinstance(btnode,py_trees.composites.Selector):
+            category = "Fallback"
         else:
             raise TypeError(f"Unsuported behaviour of type {type(btnode)}")
 
@@ -111,6 +114,12 @@ class Logger(py_trees.visitors.VisitorBase):
         self.log_dict["state"] = {
             "class":self.board.state.__class__.__name__,
             "module":self.board.state.__class__.__module__,
+        }
+
+        # Log Environment Information
+        self.log_dict["environment"] = {
+            "class":self.board.environment.__class__.__name__,
+            "module":self.board.environment.__class__.__module__,
         }
 
     def log(self,behaviour:py_trees.behaviour.Behaviour):

@@ -171,6 +171,22 @@ class BTState(State):
         # Must have succeeded
         return py_trees.common.Status.SUCCESS
     
+    @staticmethod
+    def fallback_return(child_returns:list,executed:bool):
+        '''
+        Calculate the return of a fallback node given a list of its children's returns, in order from left to right
+        '''
+        if not executed:
+            return py_trees.common.Status.INVALID
+        for child_return in child_returns:
+            if child_return in [py_trees.common.Status.SUCCESS,py_trees.common.Status.RUNNING]:
+                return child_return
+            elif child_return == py_trees.common.Status.INVALID:
+                # Should not be possible normally, but may occurr during interventions
+                return child_return
+        # Must have failed
+        return py_trees.common.Status.FAILURE
+    
     '''
     RUN FUNCTIONS FOR INTERVENTIONS
     '''
@@ -210,6 +226,15 @@ class BTState(State):
             child_return_nodes = [self.sub_vars[child]["Return"] for child in child_nodes]
             child_return_vals = [self.vals[child] for child in child_return_nodes]
             return self.sequence_return(child_return_vals,True)
+        elif node_cat == "Fallback":
+            children  = behaviour.children
+            child_nodes = [self.behaviours_to_node[child] for child in children]
+            child_return_nodes = [self.sub_vars[child]["Return"] for child in child_nodes]
+            child_return_vals = [self.vals[child] for child in child_return_nodes]
+            return self.fallback_return(child_return_vals,True)
+        
+        # Sholdn't be here
+        raise TypeError(f"Unknown node category: {node_cat}")
         
     def run_executed(self,node:str):
         behaviour = self.behaviour_dict[self.nodes[node]]
@@ -227,11 +252,21 @@ class BTState(State):
         
         # Second child onwards, depends on left sibling
         if isinstance(behaviour.parent,py_trees.composites.Sequence):
-            # Sequence parent
+            # Sequence parent, runs if left sibling succeeds
             lsib = siblings[siblings.index(behaviour)-1]
             lsib_node = self.behaviours_to_node[lsib]
             corresponding_return = self.sub_vars[lsib_node]["Return"]
             return self.vals[corresponding_return] == py_trees.common.Status.SUCCESS
+        elif isinstance(behaviour.parent,py_trees.composites.Selector):
+            # Fallback parent, runs if left sibling fails
+            lsib = siblings[siblings.index(behaviour)-1]
+            lsib_node = self.behaviours_to_node[lsib]
+            corresponding_return = self.sub_vars[lsib_node]["Return"]
+            return self.vals[corresponding_return] == py_trees.common.Status.FAILURE
+
+        
+        # Shouldn't be here
+        raise TypeError(f"Unknown parent type: {self.data["tree"][self.behaviours_to_node[behaviour.parent]]["category"]}")
         
     def run_decision(self,node:str):
         executed_node = self.sub_vars[self.nodes[node]]["Executed"]
@@ -261,6 +296,9 @@ class BTStateManager:
 
         # Create a BT State
         self.state = BTState.from_data(self.data,self.behaviours,self.behaviours_to_nodes)
+
+        # Register blackboard
+        self.board = self.register_blackboard(data=self.data,state=self.state.var_state)
 
         # Create causal model
         self.model = self.create_causal_model(causal_edges)
@@ -296,6 +334,12 @@ class BTStateManager:
                 memory=False,
                 children=[self.instantiate_node(child) for child in node_info["children"]]
             )
+        elif node_info["category"] == "Fallback":
+            behaviour = py_trees.composites.Selector(
+                name = node_info["name"],
+                memory=False,
+                children=[self.instantiate_node(child) for child in node_info["children"]]
+            )
         elif node_info["category"] in ["Action","Condition"]:
             module = importlib.import_module(node_info["module"])
             cls = getattr(module, node_info["class"])
@@ -306,6 +350,20 @@ class BTStateManager:
         self.behaviours[node] = behaviour
         self.behaviours_to_nodes[behaviour] = node
         return behaviour
+    
+    def register_blackboard(self,data:dict,state:State) -> py_trees.blackboard.Client:
+        # Create blackboard
+        board = py_trees.blackboard.Client(name="Board")
+        # Register state
+        board.register_key("state", access=py_trees.common.Access.WRITE)
+        board.state = state
+        # Register environment
+        board.register_key("environment", access=py_trees.common.Access.WRITE)
+        module = importlib.import_module(self.data["environment"]["module"])
+        cls = getattr(module, self.data["environment"]["class"])
+        board.environment = cls(board.state)
+
+        return board
     
     '''
     VALUES
@@ -361,6 +419,8 @@ class BTStateManager:
         # State variables
         for state_var in state_vals:
             self.state.vals[state_var] = state_vals[state_var]
+
+        
             
 
     def set_initial_state(self):
@@ -375,6 +435,7 @@ class BTStateManager:
             self.state.vals[self.state.sub_vars[node]["Executed"]] = False
             if "Decision" in self.state.sub_vars[node]:
                 self.state.vals[self.state.sub_vars[node]["Decision"]] = NullAction()
+
     
     '''
     CAUSAL MODEL
@@ -413,7 +474,7 @@ class BTStateManager:
 
                 if self.behaviours[node].parent is not None:
                     parent_node = self.behaviours_to_nodes[self.behaviours[node].parent]
-                    if self.data["tree"][parent_node]["category"] in ["Sequence"]:
+                    if self.data["tree"][parent_node]["category"] in ["Sequence","Fallback"]:
                         # COMPOSITE
                         siblings = self.behaviours[node].parent.children
                         if self.behaviours[node] == siblings[0]:
@@ -430,7 +491,7 @@ class BTStateManager:
                 # Connect Execution and Return for composite nodes
                 cm.add_edge((self.state.sub_vars[node]["Executed"],self.state.sub_vars[node]["Return"]))
 
-                if self.data["tree"][node]["category"] in ["Sequence"]:
+                if self.data["tree"][node]["category"] in ["Sequence","Fallback"]:
                     # Composite node, link result to results of all children
                     for child_behaviour in self.behaviours[node].children:
                         child_node = self.behaviours_to_nodes[child_behaviour]

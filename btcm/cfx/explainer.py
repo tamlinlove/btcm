@@ -131,6 +131,8 @@ class Explainer:
     def explain(self,foils:dict[str,list],max_depth:int = None) -> List[CounterfactualExplanation]:
         query:CounterfactualQuery = self.construct_query(foils)
 
+        # TODO: Double check that foil isn't just the real value
+
         # Start by constructing a new graph only of ancestors to the node in question
         search_space = self.reduce_model(query)
 

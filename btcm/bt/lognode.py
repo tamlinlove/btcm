@@ -64,5 +64,7 @@ class LogNode:
             return behaviour.semantic_description()
         elif self.category == "Sequence":
             return "A sequence node"
+        elif self.category == "Fallback":
+            return "A fallback node"
         else:
             raise TypeError(f"Unrecognised type of behaviour: {type(behaviour)}")

@@ -49,6 +49,16 @@ class CognitiveSequenceState(State):
     '''
     def cm_edges(self) -> list[tuple[str,str]]:
         return []
+    
+    '''
+    SEMANTIC DESCRIPTION
+    '''
+    def semantic_dict(self) -> dict[str,str]:
+        return {
+            "EndGame":"Boolean variable indicating if the game must be ended",
+            "NumSequences":f"Number of times a sequence has been provided, up to a maximum of {self.MAX_NUM_SEQUENCES}",
+            "SequenceSet":"Boolean, if True a sequence has been set",
+        }
 
 
 '''

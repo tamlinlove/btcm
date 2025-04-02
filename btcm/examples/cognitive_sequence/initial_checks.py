@@ -21,6 +21,12 @@ class CheckOverride(ConditionNode):
     def input_variables(self):
         return ["EndGame"]
     
+    '''
+    SEMANTIC DESCRIPTION
+    '''
+    def semantic_description(self) -> str:
+        return "Checks if the game must be ended. If so, it returns SUCCESS, otherwise FAILURE."
+    
 class EndGame(ActionNode):
     def __init__(self, name:str = "EndGame"):
         super(EndGame, self).__init__(name)
@@ -42,6 +48,12 @@ class EndGame(ActionNode):
     
     def action_space(self):
         return [EndGameAction(),NullAction()]
+    
+    '''
+    SEMANTIC DESCRIPTION
+    '''
+    def semantic_description(self) -> str:
+        return "Executes the EndGame action."
     
 '''
 Composite Nodes

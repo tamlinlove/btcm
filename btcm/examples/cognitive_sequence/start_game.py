@@ -20,6 +20,12 @@ class CheckInitialSequence(ConditionNode):
     def input_variables(self):
         return ["NumSequences"]
     
+    '''
+    SEMANTIC DESCRIPTION
+    '''
+    def semantic_description(self) -> str:
+        return "Checks if a sequence has already been set or not. If not, it returns SUCCESS, otherwise FAILURE."
+    
 class SetSequenceParameters(ActionNode):
     def __init__(self, name:str = "SetSequenceParameters"):
         super(SetSequenceParameters, self).__init__(name)
@@ -51,6 +57,12 @@ class SetSequenceParameters(ActionNode):
         all_combos = SetSequenceParametersAction.action_combos()
         return all_combos + [NullAction()]
     
+    '''
+    SEMANTIC DESCRIPTION
+    '''
+    def semantic_description(self) -> str:
+        return "Sets the parameters for the sequence, based on a number of human factors in the state."
+    
 class HandleRepeatedSequence(ActionNode):
     def __init__(self, name:str = "HandleRepeatedSequence"):
         super(HandleRepeatedSequence, self).__init__(name)
@@ -72,6 +84,12 @@ class HandleRepeatedSequence(ActionNode):
     def action_space(self):
         return [CrashAction(),NullAction()]
     
+    '''
+    SEMANTIC DESCRIPTION
+    '''
+    def semantic_description(self) -> str:
+        return "Handles the case where a sequence has already been set."
+    
 class ProvideSequence(ActionNode):
     def __init__(self, name:str = "ProvideSequence"):
         super(ProvideSequence, self).__init__(name)
@@ -92,6 +110,12 @@ class ProvideSequence(ActionNode):
     
     def action_space(self):
         return [ProvideSequenceAction(),NullAction()]
+    
+    '''
+    SEMANTIC DESCRIPTION
+    '''
+    def semantic_description(self) -> str:
+        return "Presents the sequence that was selected."
     
 '''
 COMPOSITE NODES

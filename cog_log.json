@@ -1,83 +1,94 @@
 {
     "tree": {
-        "521f5d7b-6562-4bc1-a5f8-98c624dda0ea": {
+        "4b4e961f-05cf-4820-b66b-1160b7b23fb6": {
             "name": "OverrideOrContinueFallback",
             "category": "Fallback",
             "children": [
-                "a382e1f0-59af-4a52-9c4f-e3d2d388da20",
-                "b1dadf83-6196-4b5f-96cb-e66c2dd8e9f6"
+                "519c037a-0e26-4881-a09f-e0a0f5a4d958",
+                "b58fa31a-641c-4f37-955f-47c8a0f373cf"
             ]
         },
-        "a382e1f0-59af-4a52-9c4f-e3d2d388da20": {
+        "519c037a-0e26-4881-a09f-e0a0f5a4d958": {
             "name": "CheckOverrideAndEndSequence",
             "category": "Sequence",
             "children": [
-                "8c27a2b2-c0f8-482b-a340-196102ad26c6",
-                "049c355a-dfea-4304-949f-74818f411759"
+                "13f05de5-6496-435c-b79f-0190ce865ad8",
+                "b7c2bb66-0f62-4261-9fe3-2250bb9a62fb"
             ]
         },
-        "8c27a2b2-c0f8-482b-a340-196102ad26c6": {
+        "13f05de5-6496-435c-b79f-0190ce865ad8": {
             "name": "CheckOverride",
             "category": "Condition",
+            "description": "Checks if the game must be ended. If so, it returns SUCCESS, otherwise FAILURE.",
             "class": "CheckOverride",
             "module": "btcm.examples.cognitive_sequence.initial_checks"
         },
-        "049c355a-dfea-4304-949f-74818f411759": {
+        "b7c2bb66-0f62-4261-9fe3-2250bb9a62fb": {
             "name": "EndGame",
             "category": "Action",
+            "description": "Executes the EndGame action.",
             "class": "EndGame",
             "module": "btcm.examples.cognitive_sequence.initial_checks"
         },
-        "b1dadf83-6196-4b5f-96cb-e66c2dd8e9f6": {
+        "b58fa31a-641c-4f37-955f-47c8a0f373cf": {
             "name": "StartGameSequence",
             "category": "Sequence",
             "children": [
-                "074d5b56-bef7-4345-97aa-31a6c7f9c97a",
-                "ebb3ae73-b910-427d-bc55-06ffcafc7c94"
+                "a981240c-cbb6-46d6-a43e-f0ae6bcd6ae3",
+                "0a7aee63-74b4-4f08-bbf8-25213376d24a"
             ]
         },
-        "074d5b56-bef7-4345-97aa-31a6c7f9c97a": {
+        "a981240c-cbb6-46d6-a43e-f0ae6bcd6ae3": {
             "name": "SetParamsOrHandleRepeatedFallback",
             "category": "Fallback",
             "children": [
-                "38ba960a-7f43-4da4-96af-006881cb070f",
-                "a7cccfd9-3af9-4c34-bdf7-5d75244f9ff7"
+                "80fe317b-dd16-4e89-9e04-802edd3d8a61",
+                "2773d050-a023-42b1-923b-f6672a3eee9a"
             ]
         },
-        "38ba960a-7f43-4da4-96af-006881cb070f": {
+        "80fe317b-dd16-4e89-9e04-802edd3d8a61": {
             "name": "CheckInitialAndSetParamsSequence",
             "category": "Sequence",
             "children": [
-                "a8224d51-9fb7-43bf-9e0f-a5404faea842",
-                "29175c09-a016-485e-bdb3-9a44a7859f4e"
+                "dda56b89-5028-4668-bbc3-409a223f92c3",
+                "d99a72d9-e70b-4761-94af-a0e2b76e9a1a"
             ]
         },
-        "a8224d51-9fb7-43bf-9e0f-a5404faea842": {
+        "dda56b89-5028-4668-bbc3-409a223f92c3": {
             "name": "CheckInitialSequence",
             "category": "Condition",
+            "description": "Checks if a sequence has already been set or not. If not, it returns SUCCESS, otherwise FAILURE.",
             "class": "CheckInitialSequence",
             "module": "btcm.examples.cognitive_sequence.start_game"
         },
-        "29175c09-a016-485e-bdb3-9a44a7859f4e": {
+        "d99a72d9-e70b-4761-94af-a0e2b76e9a1a": {
             "name": "SetSequenceParameters",
             "category": "Action",
+            "description": "Sets the parameters for the sequence, based on a number of human factors in the state.",
             "class": "SetSequenceParameters",
             "module": "btcm.examples.cognitive_sequence.start_game"
         },
-        "a7cccfd9-3af9-4c34-bdf7-5d75244f9ff7": {
+        "2773d050-a023-42b1-923b-f6672a3eee9a": {
             "name": "HandleRepeatedSequence",
             "category": "Action",
+            "description": "Handles the case where a sequence has already been set.",
             "class": "HandleRepeatedSequence",
             "module": "btcm.examples.cognitive_sequence.start_game"
         },
-        "ebb3ae73-b910-427d-bc55-06ffcafc7c94": {
+        "0a7aee63-74b4-4f08-bbf8-25213376d24a": {
             "name": "ProvideSequence",
             "category": "Action",
+            "description": "Presents the sequence that was selected.",
             "class": "ProvideSequence",
             "module": "btcm.examples.cognitive_sequence.start_game"
         }
     },
     "state": {
+        "variables": {
+            "EndGame": "Boolean variable indicating if the game must be ended",
+            "NumSequences": "Number of times a sequence has been provided, up to a maximum of 3",
+            "SequenceSet": "Boolean, if True a sequence has been set"
+        },
         "class": "CognitiveSequenceState",
         "module": "btcm.examples.cognitive_sequence.basic"
     },
@@ -95,7 +106,7 @@
         },
         "1": {
             "update": {
-                "8c27a2b2-c0f8-482b-a340-196102ad26c6": {
+                "13f05de5-6496-435c-b79f-0190ce865ad8": {
                     "status": "Status.FAILURE",
                     "action": "NullAction"
                 }
@@ -108,7 +119,7 @@
         },
         "2": {
             "update": {
-                "a382e1f0-59af-4a52-9c4f-e3d2d388da20": {
+                "519c037a-0e26-4881-a09f-e0a0f5a4d958": {
                     "status": "Status.FAILURE"
                 }
             },
@@ -120,7 +131,7 @@
         },
         "3": {
             "update": {
-                "a8224d51-9fb7-43bf-9e0f-a5404faea842": {
+                "dda56b89-5028-4668-bbc3-409a223f92c3": {
                     "status": "Status.SUCCESS",
                     "action": "NullAction"
                 }
@@ -133,7 +144,7 @@
         },
         "4": {
             "update": {
-                "29175c09-a016-485e-bdb3-9a44a7859f4e": {
+                "d99a72d9-e70b-4761-94af-a0e2b76e9a1a": {
                     "status": "Status.FAILURE",
                     "action": "NullAction"
                 }
@@ -146,7 +157,7 @@
         },
         "5": {
             "update": {
-                "38ba960a-7f43-4da4-96af-006881cb070f": {
+                "80fe317b-dd16-4e89-9e04-802edd3d8a61": {
                     "status": "Status.FAILURE"
                 }
             },
@@ -158,7 +169,7 @@
         },
         "6": {
             "update": {
-                "a7cccfd9-3af9-4c34-bdf7-5d75244f9ff7": {
+                "2773d050-a023-42b1-923b-f6672a3eee9a": {
                     "status": "Status.FAILURE",
                     "action": "CrashAction"
                 }
@@ -171,7 +182,7 @@
         },
         "7": {
             "update": {
-                "074d5b56-bef7-4345-97aa-31a6c7f9c97a": {
+                "a981240c-cbb6-46d6-a43e-f0ae6bcd6ae3": {
                     "status": "Status.FAILURE"
                 }
             },
@@ -183,7 +194,7 @@
         },
         "8": {
             "update": {
-                "b1dadf83-6196-4b5f-96cb-e66c2dd8e9f6": {
+                "b58fa31a-641c-4f37-955f-47c8a0f373cf": {
                     "status": "Status.FAILURE"
                 }
             },
@@ -195,7 +206,7 @@
         },
         "9": {
             "update": {
-                "521f5d7b-6562-4bc1-a5f8-98c624dda0ea": {
+                "4b4e961f-05cf-4820-b66b-1160b7b23fb6": {
                     "status": "Status.FAILURE"
                 }
             },

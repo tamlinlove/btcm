@@ -59,7 +59,8 @@ class SetSequenceParameters(ActionNode):
 
         if status:
             # Update the state with the new sequence
-            self.board.state.vals["SequenceSet"] = True
+            #self.board.state.vals["SequenceSet"] = True
+            state.vals["SequenceSet"] = True
             return py_trees.common.Status.SUCCESS
         
         # If the action was not successful, return failure
@@ -116,11 +117,12 @@ class ProvideSequence(ActionNode):
         # Always presents the sequence that was selected
         return ProvideSequenceAction()
     
-    def execute(self, _, action):
+    def execute(self, state:CognitiveSequenceState, action:Action):
         # TODO: logic for presenting the sequence
 
         # Update number of sequences
-        self.board.state.vals["NumSequences"] += 1
+        #self.board.state.vals["NumSequences"] += 1
+        state.vals["NumSequences"] += 1
 
         return py_trees.common.Status.SUCCESS
     

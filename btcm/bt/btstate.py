@@ -298,7 +298,7 @@ class BTStateManager:
         self.state = BTState.from_data(self.data,self.behaviours,self.behaviours_to_nodes)
 
         # Register blackboard
-        self.board = self.register_blackboard(data=self.data,state=self.state.var_state)
+        self.board = self.register_blackboard(data=self.data,state=self.state)
 
         # Create causal model
         self.model = self.create_causal_model(causal_edges)
@@ -352,16 +352,23 @@ class BTStateManager:
         return behaviour
     
     def register_blackboard(self,data:dict,state:State) -> py_trees.blackboard.Client:
+
+        '''
+        
+        TODO: reset blackboard for interventions
+        
+        '''
+
         # Create blackboard
         board = py_trees.blackboard.Client(name="Board")
         # Register state
         board.register_key("state", access=py_trees.common.Access.WRITE)
-        board.state = state
+        board.set("state", state) 
         # Register environment
         board.register_key("environment", access=py_trees.common.Access.WRITE)
         module = importlib.import_module(self.data["environment"]["module"])
         cls = getattr(module, self.data["environment"]["class"])
-        board.environment = cls(board.state)
+        board.set("environment", cls(board.state)) 
 
         return board
     

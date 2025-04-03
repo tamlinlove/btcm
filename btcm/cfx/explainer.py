@@ -154,7 +154,7 @@ class Explainer:
                 explanations.append(CounterfactualExplanation(combo,new_state.get_values(query.foil_vars()),self.model.state))
 
         for exp in explanations:
-            print(exp.text())
+            print("---",exp.text())
         
         
 

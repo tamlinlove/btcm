@@ -366,6 +366,31 @@ class BTStateManager:
         return board
     
     '''
+    UTILITY
+    '''
+    def get_node_from_name(self,node_name:str,node_type:str):
+        # Find the identifier for the node
+        matching_nodes = [
+            node_id for node_id, node_data in self.data["tree"].items()
+            if node_data["name"] == node_name
+        ]
+        if len(matching_nodes) == 0:
+            raise ValueError(f"No node found with name '{node_name}'")
+        if len(matching_nodes) > 1:
+            raise ValueError(f"Multiple nodes found with name '{node_name}'")
+        node_id = matching_nodes[0]
+
+        # Add node type
+        if node_type == "Return":
+            return f"return_{node_id}"
+        elif node_type == "Executed":
+            return f"executed_{node_id}"
+        elif node_type == "Decision":
+            return f"decision_{node_id}"
+        else:
+            raise ValueError(f"Unknown node type '{node_type}'")
+    
+    '''
     VALUES
     '''
     def load_state(self,tick:int=0,time="end"):

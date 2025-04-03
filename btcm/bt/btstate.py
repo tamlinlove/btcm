@@ -510,6 +510,33 @@ class BTStateManager:
     '''
     VISUALISATION
     '''
+    def visualise_tree(self):
+        # Labels
+        label_dict = {}
+        colour_map = []
+
+        for node in self.graph.nodes:
+            if self.data["tree"][node]["category"] == "Action":
+                label_dict[node] = f"{self.data['tree'][node]['name']}"
+                colour_map.append("green")
+            elif self.data["tree"][node]["category"] == "Condition":
+                label_dict[node] = f"{self.data['tree'][node]['name']}"
+                colour_map.append("red")
+            elif self.data["tree"][node]["category"] == "Sequence":
+                label_dict[node] = f"{self.data['tree'][node]['name']}"
+                colour_map.append("yellow")
+            elif self.data["tree"][node]["category"] == "Fallback":
+                label_dict[node] = f"{self.data['tree'][node]['name']}"
+                colour_map.append("cyan")
+            else:
+                raise ValueError(f"Invalid node category: {self.data['tree'][node]['category']}")
+
+        pos = graphviz_layout(self.graph, prog="dot")
+        nx.draw_networkx_nodes(self.graph, pos, node_size=500, node_color=colour_map)
+        nx.draw_networkx_labels(self.graph, pos, labels=label_dict)
+        nx.draw_networkx_edges(self.graph, pos, edgelist=self.graph.edges, arrows=True)
+        plt.show()
+
     def visualise(self,show_values:bool=False,graph:nx.DiGraph=None,state:State=None):
         # Labels
         label_dict = {}

@@ -13,9 +13,20 @@ class CognitiveSequenceState(State):
 
     def ranges(self) -> dict:
         return {
+            # Game state variables
             "EndGame": [True,False], # boolean, if True the game ends
             "NumSequences": list(range(self.MAX_NUM_SEQUENCES+1)), # Number of times a sequence has been provided, to a maximum of MAX_NUM_SEQUENCES
             "SequenceSet": [True,False], # boolean, if True a sequence has been set
+
+            # User progress variables
+            "UserAccuracy":["High","Medium","Low"], # User accuracy level
+            "UserSpeed":["Fast","Medium","Slow"], # User speed level
+
+            # User state variables
+            "UserStruggling":["Yes","No","Unknown"], # User struggling with the task
+            "UserAttention":["High","Medium","Low"], # User attention level
+            "UserFrustration":["High","Medium","Low"], # User frustration level
+            "UserConfusion":["High","Medium","Low"], # User confusion level
         }
     
     def var_funcs(self) -> dict:
@@ -55,9 +66,20 @@ class CognitiveSequenceState(State):
     '''
     def semantic_dict(self) -> dict[str,str]:
         return {
+            # Game state variables
             "EndGame":"Boolean variable indicating if the game must be ended",
             "NumSequences":f"Number of times a sequence has been provided, up to a maximum of {self.MAX_NUM_SEQUENCES}",
             "SequenceSet":"Boolean, if True a sequence has been set",
+
+            # User progress variables
+            "UserAccuracy":"The user's accuracy thusfar",
+            "UserSpeed":"The speed of the user in repeating the sequence",
+
+            # User state variables
+            "UserStruggling":"Whether or not the user is struggling to repeat the sequence",
+            "UserAttention":"The level of attention the user is paying to the task",
+            "UserFrustration":"The level of frustration the user is experiencing",
+            "UserConfusion":"The level of confusion the user is experiencing",
         }
 
 

@@ -1,81 +1,81 @@
 {
     "tree": {
-        "4b4e961f-05cf-4820-b66b-1160b7b23fb6": {
+        "487a79ca-360a-4277-b8f6-d68aa39f8d08": {
             "name": "OverrideOrContinueFallback",
             "category": "Fallback",
             "children": [
-                "519c037a-0e26-4881-a09f-e0a0f5a4d958",
-                "b58fa31a-641c-4f37-955f-47c8a0f373cf"
+                "011c0f86-486a-4691-b986-9de219281205",
+                "ae7a2c26-b9a9-42a1-9f05-813e7d6b25ba"
             ]
         },
-        "519c037a-0e26-4881-a09f-e0a0f5a4d958": {
+        "011c0f86-486a-4691-b986-9de219281205": {
             "name": "CheckOverrideAndEndSequence",
             "category": "Sequence",
             "children": [
-                "13f05de5-6496-435c-b79f-0190ce865ad8",
-                "b7c2bb66-0f62-4261-9fe3-2250bb9a62fb"
+                "4b7d0bac-5af6-4a8a-9d85-89293384888c",
+                "69446580-76c7-4a33-abdb-fe2ba24818bf"
             ]
         },
-        "13f05de5-6496-435c-b79f-0190ce865ad8": {
+        "4b7d0bac-5af6-4a8a-9d85-89293384888c": {
             "name": "CheckOverride",
             "category": "Condition",
             "description": "Checks if the game must be ended. If so, it returns SUCCESS, otherwise FAILURE.",
             "class": "CheckOverride",
             "module": "btcm.examples.cognitive_sequence.initial_checks"
         },
-        "b7c2bb66-0f62-4261-9fe3-2250bb9a62fb": {
+        "69446580-76c7-4a33-abdb-fe2ba24818bf": {
             "name": "EndGame",
             "category": "Action",
             "description": "Executes the EndGame action.",
             "class": "EndGame",
             "module": "btcm.examples.cognitive_sequence.initial_checks"
         },
-        "b58fa31a-641c-4f37-955f-47c8a0f373cf": {
+        "ae7a2c26-b9a9-42a1-9f05-813e7d6b25ba": {
             "name": "StartGameSequence",
             "category": "Sequence",
             "children": [
-                "a981240c-cbb6-46d6-a43e-f0ae6bcd6ae3",
-                "0a7aee63-74b4-4f08-bbf8-25213376d24a"
+                "a0893464-f4ea-47f1-96af-2f786f28b189",
+                "ee9c1b18-d5da-4711-8861-78543cde479d"
             ]
         },
-        "a981240c-cbb6-46d6-a43e-f0ae6bcd6ae3": {
+        "a0893464-f4ea-47f1-96af-2f786f28b189": {
             "name": "SetParamsOrHandleRepeatedFallback",
             "category": "Fallback",
             "children": [
-                "80fe317b-dd16-4e89-9e04-802edd3d8a61",
-                "2773d050-a023-42b1-923b-f6672a3eee9a"
+                "327dd17e-71a6-4a76-9d0b-4653e71e12b0",
+                "cd7604bd-1ae4-4e49-bd3b-3ed2ea2fa2de"
             ]
         },
-        "80fe317b-dd16-4e89-9e04-802edd3d8a61": {
+        "327dd17e-71a6-4a76-9d0b-4653e71e12b0": {
             "name": "CheckInitialAndSetParamsSequence",
             "category": "Sequence",
             "children": [
-                "dda56b89-5028-4668-bbc3-409a223f92c3",
-                "d99a72d9-e70b-4761-94af-a0e2b76e9a1a"
+                "3bb8bb29-3647-4610-9dd3-64fc35ea3063",
+                "8f9e06dd-ddcc-434d-a0f1-16312e416e52"
             ]
         },
-        "dda56b89-5028-4668-bbc3-409a223f92c3": {
+        "3bb8bb29-3647-4610-9dd3-64fc35ea3063": {
             "name": "CheckInitialSequence",
             "category": "Condition",
             "description": "Checks if a sequence has already been set or not. If not, it returns SUCCESS, otherwise FAILURE.",
             "class": "CheckInitialSequence",
             "module": "btcm.examples.cognitive_sequence.start_game"
         },
-        "d99a72d9-e70b-4761-94af-a0e2b76e9a1a": {
+        "8f9e06dd-ddcc-434d-a0f1-16312e416e52": {
             "name": "SetSequenceParameters",
             "category": "Action",
             "description": "Sets the parameters for the sequence, based on a number of human factors in the state.",
             "class": "SetSequenceParameters",
             "module": "btcm.examples.cognitive_sequence.start_game"
         },
-        "2773d050-a023-42b1-923b-f6672a3eee9a": {
+        "cd7604bd-1ae4-4e49-bd3b-3ed2ea2fa2de": {
             "name": "HandleRepeatedSequence",
             "category": "Action",
             "description": "Handles the case where a sequence has already been set.",
             "class": "HandleRepeatedSequence",
             "module": "btcm.examples.cognitive_sequence.start_game"
         },
-        "0a7aee63-74b4-4f08-bbf8-25213376d24a": {
+        "ee9c1b18-d5da-4711-8861-78543cde479d": {
             "name": "ProvideSequence",
             "category": "Action",
             "description": "Presents the sequence that was selected.",
@@ -87,7 +87,13 @@
         "variables": {
             "EndGame": "Boolean variable indicating if the game must be ended",
             "NumSequences": "Number of times a sequence has been provided, up to a maximum of 3",
-            "SequenceSet": "Boolean, if True a sequence has been set"
+            "SequenceSet": "Boolean, if True a sequence has been set",
+            "UserAccuracy": "The user's accuracy thusfar",
+            "UserSpeed": "The speed of the user in repeating the sequence",
+            "UserStruggling": "Whether or not the user is struggling to repeat the sequence",
+            "UserAttention": "The level of attention the user is paying to the task",
+            "UserFrustration": "The level of frustration the user is experiencing",
+            "UserConfusion": "The level of confusion the user is experiencing"
         },
         "class": "CognitiveSequenceState",
         "module": "btcm.examples.cognitive_sequence.basic"
@@ -101,12 +107,18 @@
             "state": {
                 "EndGame": false,
                 "NumSequences": 0,
-                "SequenceSet": false
+                "SequenceSet": false,
+                "UserAccuracy": "High",
+                "UserSpeed": "Fast",
+                "UserStruggling": "No",
+                "UserAttention": "High",
+                "UserFrustration": "Low",
+                "UserConfusion": "Low"
             }
         },
         "1": {
             "update": {
-                "13f05de5-6496-435c-b79f-0190ce865ad8": {
+                "4b7d0bac-5af6-4a8a-9d85-89293384888c": {
                     "status": "Status.FAILURE",
                     "action": "NullAction"
                 }
@@ -114,24 +126,36 @@
             "state": {
                 "EndGame": false,
                 "NumSequences": 0,
-                "SequenceSet": false
+                "SequenceSet": false,
+                "UserAccuracy": "High",
+                "UserSpeed": "Fast",
+                "UserStruggling": "No",
+                "UserAttention": "High",
+                "UserFrustration": "Low",
+                "UserConfusion": "Low"
             }
         },
         "2": {
             "update": {
-                "519c037a-0e26-4881-a09f-e0a0f5a4d958": {
+                "011c0f86-486a-4691-b986-9de219281205": {
                     "status": "Status.FAILURE"
                 }
             },
             "state": {
                 "EndGame": false,
                 "NumSequences": 0,
-                "SequenceSet": false
+                "SequenceSet": false,
+                "UserAccuracy": "High",
+                "UserSpeed": "Fast",
+                "UserStruggling": "No",
+                "UserAttention": "High",
+                "UserFrustration": "Low",
+                "UserConfusion": "Low"
             }
         },
         "3": {
             "update": {
-                "dda56b89-5028-4668-bbc3-409a223f92c3": {
+                "3bb8bb29-3647-4610-9dd3-64fc35ea3063": {
                     "status": "Status.SUCCESS",
                     "action": "NullAction"
                 }
@@ -139,81 +163,123 @@
             "state": {
                 "EndGame": false,
                 "NumSequences": 0,
-                "SequenceSet": false
+                "SequenceSet": false,
+                "UserAccuracy": "High",
+                "UserSpeed": "Fast",
+                "UserStruggling": "No",
+                "UserAttention": "High",
+                "UserFrustration": "Low",
+                "UserConfusion": "Low"
             }
         },
         "4": {
             "update": {
-                "d99a72d9-e70b-4761-94af-a0e2b76e9a1a": {
-                    "status": "Status.FAILURE",
-                    "action": "NullAction"
+                "8f9e06dd-ddcc-434d-a0f1-16312e416e52": {
+                    "status": "Status.SUCCESS",
+                    "action": "SetSequenceParameters(Long,Complex)"
                 }
             },
             "state": {
                 "EndGame": false,
                 "NumSequences": 0,
-                "SequenceSet": false
+                "SequenceSet": true,
+                "UserAccuracy": "High",
+                "UserSpeed": "Fast",
+                "UserStruggling": "No",
+                "UserAttention": "High",
+                "UserFrustration": "Low",
+                "UserConfusion": "Low"
             }
         },
         "5": {
             "update": {
-                "80fe317b-dd16-4e89-9e04-802edd3d8a61": {
-                    "status": "Status.FAILURE"
+                "327dd17e-71a6-4a76-9d0b-4653e71e12b0": {
+                    "status": "Status.SUCCESS"
                 }
             },
             "state": {
                 "EndGame": false,
                 "NumSequences": 0,
-                "SequenceSet": false
+                "SequenceSet": true,
+                "UserAccuracy": "High",
+                "UserSpeed": "Fast",
+                "UserStruggling": "No",
+                "UserAttention": "High",
+                "UserFrustration": "Low",
+                "UserConfusion": "Low"
             }
         },
         "6": {
             "update": {
-                "2773d050-a023-42b1-923b-f6672a3eee9a": {
-                    "status": "Status.FAILURE",
-                    "action": "CrashAction"
+                "a0893464-f4ea-47f1-96af-2f786f28b189": {
+                    "status": "Status.SUCCESS"
                 }
             },
             "state": {
                 "EndGame": false,
                 "NumSequences": 0,
-                "SequenceSet": false
+                "SequenceSet": true,
+                "UserAccuracy": "High",
+                "UserSpeed": "Fast",
+                "UserStruggling": "No",
+                "UserAttention": "High",
+                "UserFrustration": "Low",
+                "UserConfusion": "Low"
             }
         },
         "7": {
             "update": {
-                "a981240c-cbb6-46d6-a43e-f0ae6bcd6ae3": {
-                    "status": "Status.FAILURE"
+                "ee9c1b18-d5da-4711-8861-78543cde479d": {
+                    "status": "Status.SUCCESS",
+                    "action": "ProvideSequence"
                 }
             },
             "state": {
                 "EndGame": false,
-                "NumSequences": 0,
-                "SequenceSet": false
+                "NumSequences": 1,
+                "SequenceSet": true,
+                "UserAccuracy": "High",
+                "UserSpeed": "Fast",
+                "UserStruggling": "No",
+                "UserAttention": "High",
+                "UserFrustration": "Low",
+                "UserConfusion": "Low"
             }
         },
         "8": {
             "update": {
-                "b58fa31a-641c-4f37-955f-47c8a0f373cf": {
-                    "status": "Status.FAILURE"
+                "ae7a2c26-b9a9-42a1-9f05-813e7d6b25ba": {
+                    "status": "Status.SUCCESS"
                 }
             },
             "state": {
                 "EndGame": false,
-                "NumSequences": 0,
-                "SequenceSet": false
+                "NumSequences": 1,
+                "SequenceSet": true,
+                "UserAccuracy": "High",
+                "UserSpeed": "Fast",
+                "UserStruggling": "No",
+                "UserAttention": "High",
+                "UserFrustration": "Low",
+                "UserConfusion": "Low"
             }
         },
         "9": {
             "update": {
-                "4b4e961f-05cf-4820-b66b-1160b7b23fb6": {
-                    "status": "Status.FAILURE"
+                "487a79ca-360a-4277-b8f6-d68aa39f8d08": {
+                    "status": "Status.SUCCESS"
                 }
             },
             "state": {
                 "EndGame": false,
-                "NumSequences": 0,
-                "SequenceSet": false
+                "NumSequences": 1,
+                "SequenceSet": true,
+                "UserAccuracy": "High",
+                "UserSpeed": "Fast",
+                "UserStruggling": "No",
+                "UserAttention": "High",
+                "UserFrustration": "Low",
+                "UserConfusion": "Low"
             }
         }
     }

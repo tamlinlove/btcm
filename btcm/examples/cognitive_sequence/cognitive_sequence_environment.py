@@ -1,3 +1,5 @@
+import random
+
 from btcm.dm.environment import Environment
 from btcm.dm.action import NullAction
 
@@ -22,14 +24,28 @@ class CognitiveSequenceEnvironment(Environment):
     ENVIRONMENT FUNCTIONS
     '''
     def generate_sequence(self):
-        # TODO: write logic to generate a sequence
         if self.sequence_length is None or self.sequence_complexity is None:
             raise ValueError("Sequence length and complexity must be set before generating a sequence.")
         
         # Generate a sequence based on the parameters
-        sequence = "AABB"
+        if self.sequence_complexity == "Simple":
+            characters = ["A", "B"]
+        elif self.sequence_complexity == "Complex":
+            characters = ["A", "B", "C", "D"]
+        else:
+            raise ValueError("Invalid complexity level. Choose 'Simple' or 'Complex'.")
 
-        return sequence
+        if self.sequence_length == "Short":
+            seq_length = 3
+        elif self.sequence_length == "Medium":
+            seq_length = 6
+        elif self.sequence_length == "Long":
+            seq_length = 9
+        else:
+            raise ValueError("Invalid length. Choose 'Short', 'Medium', or 'Long'.")
+
+        sequence = [random.choice(characters) for _ in range(seq_length)]
+        return ''.join(sequence)
 
     '''
     ROBOT ACTIONS
@@ -46,5 +62,7 @@ class CognitiveSequenceEnvironment(Environment):
         self.sequence_length = set_params_action.sequence_length
         self.sequence_complexity = set_params_action.sequence_complexity
         self.sequence = self.generate_sequence()
+
+        #print(f"SEQUENCE: {self.sequence}")
 
         return True

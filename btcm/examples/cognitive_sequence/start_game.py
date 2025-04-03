@@ -35,8 +35,23 @@ class SetSequenceParameters(ActionNode):
         self.board.register_key("state", access=py_trees.common.Access.WRITE)
 
     def decide(self, state:CognitiveSequenceState):
-        # TODO: Logic for setting sequence parameters
-        return NullAction()
+        # Initialise difficulty parameters
+        length = "Medium"
+        complexity = "Simple"
+
+        # Adjust length based on user's speed and accuracy
+        if state.vals["UserSpeed"] == "Fast" and state.vals["UserAccuracy"] == "High":
+            length = "Long"
+        elif state.vals["UserSpeed"] == "Slow" or state.vals["UserAccuracy"] == "Low":
+            length = "Short"
+
+        # Adjust complexity based on user's attention, frustration, and confusion
+        if state.vals["UserAttention"] == "High" and state.vals["UserFrustration"] == "Low" and state.vals["UserConfusion"] == "Low":
+            complexity = "Complex"
+        elif state.vals["UserAttention"] == "Low" or state.vals["UserFrustration"] == "High" or state.vals["UserConfusion"] == "High":
+            complexity = "Simple"
+
+        return SetSequenceParametersAction(length, complexity)
 
     def execute(self, state:CognitiveSequenceState, action:Action):
         # Ask environment for a sequence based on parameters
@@ -51,7 +66,7 @@ class SetSequenceParameters(ActionNode):
         return py_trees.common.Status.FAILURE
     
     def input_variables(self):
-        return []
+        return ["UserSpeed","UserAccuracy","UserAttention","UserFrustration","UserConfusion"]
     
     def action_space(self):
         all_combos = SetSequenceParametersAction.action_combos()
@@ -97,12 +112,19 @@ class ProvideSequence(ActionNode):
         # Requires write access to environment
         self.board.register_key("environment", access=py_trees.common.Access.WRITE)
 
+        # Requires write access to state
+        self.board.register_key("state", access=py_trees.common.Access.WRITE)
+
     def decide(self, _):
         # Always presents the sequence that was selected
         return ProvideSequenceAction()
     
     def execute(self, _, action):
         # TODO: logic for presenting the sequence
+
+        # Update number of sequences
+        self.board.state.vals["NumSequences"] += 1
+
         return py_trees.common.Status.SUCCESS
     
     def input_variables(self):

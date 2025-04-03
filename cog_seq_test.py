@@ -10,9 +10,20 @@ if __name__ == "__main__":
     Initial Game State
     '''
     test_vals = {
+        # Game state variables
         "EndGame":False,
         "NumSequences":0,
         "SequenceSet":False,
+
+        # User progress variables
+        "UserAccuracy":"High",
+        "UserSpeed":"Fast",
+
+        # User state variables
+        "UserStruggling":"No",
+        "UserAttention":"High",
+        "UserFrustration":"Low",
+        "UserConfusion":"Low",
     }
 
     '''

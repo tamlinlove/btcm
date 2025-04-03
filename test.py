@@ -4,8 +4,6 @@ import py_trees
 from btcm.examples.toy_examples import single_sequence
 from btcm.cm.causalmodel import build_state_model
 from btcm.bt.logger import Logger
-from btcm.bt.btstate import BTStateManager
-from btcm.cfx.explainer import Explainer
 
 if __name__ == "__main__":
     '''

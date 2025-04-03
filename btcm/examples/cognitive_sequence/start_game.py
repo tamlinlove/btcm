@@ -59,7 +59,7 @@ class SetSequenceParameters(ActionNode):
 
         if status:
             # Update the state with the new sequence
-            state.vals["SequenceSet"] = True
+            self.board.state.vals["SequenceSet"] = True
             return py_trees.common.Status.SUCCESS
         
         # If the action was not successful, return failure
@@ -108,9 +108,6 @@ class HandleRepeatedSequence(ActionNode):
 class ProvideSequence(ActionNode):
     def __init__(self, name:str = "ProvideSequence"):
         super(ProvideSequence, self).__init__(name)
-
-        # Requires write access to environment
-        self.board.register_key("environment", access=py_trees.common.Access.WRITE)
 
         # Requires write access to state
         self.board.register_key("state", access=py_trees.common.Access.WRITE)

@@ -15,6 +15,14 @@ from btcm.dm.action import NullAction
 from btcm.cm.causalmodel import CausalModel,CausalNode
 from btcm.bt.nodes import Leaf
 
+'''
+
+TODO: 
+Right now, the blackboard and environment are ignored basically by the BTState, Causal Model and Explainer.
+This is fine for the moment as uncertainty in state evolution is not considered. But if it is, this will need to change.
+
+'''
+
 class BTState(State):
     def __init__(
             self,
@@ -352,13 +360,6 @@ class BTStateManager:
         return behaviour
     
     def register_blackboard(self,data:dict,state:State) -> py_trees.blackboard.Client:
-
-        '''
-        
-        TODO: reset blackboard for interventions
-        
-        '''
-
         # Create blackboard
         board = py_trees.blackboard.Client(name="Board")
         # Register state

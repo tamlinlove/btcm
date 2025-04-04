@@ -14,6 +14,7 @@ from btcm.dm.state import State
 from btcm.dm.action import NullAction
 from btcm.cm.causalmodel import CausalModel,CausalNode
 from btcm.bt.nodes import Leaf
+from btcm.dm.environment import Environment
 
 '''
 
@@ -293,7 +294,7 @@ class BTStateManager:
         "Status.INVALID":py_trees.common.Status.INVALID,
     }
 
-    def __init__(self,filename:str,causal_edges:list[tuple[str,str]] = None):
+    def __init__(self,filename:str,causal_edges:list[tuple[str,str]] = None,dummy_env:Environment=None):
         # Read Data
         self.read_from_file(filename)
 
@@ -306,7 +307,7 @@ class BTStateManager:
         self.state = BTState.from_data(self.data,self.behaviours,self.behaviours_to_nodes)
 
         # Register blackboard
-        self.board = self.register_blackboard(data=self.data,state=self.state)
+        self.board = self.register_blackboard(data=self.data,state=self.state,env=dummy_env)
 
         # Create causal model
         self.model = self.create_causal_model(causal_edges)
@@ -359,7 +360,7 @@ class BTStateManager:
         self.behaviours_to_nodes[behaviour] = node
         return behaviour
     
-    def register_blackboard(self,data:dict,state:State) -> py_trees.blackboard.Client:
+    def register_blackboard(self,data:dict,state:State,env:Environment) -> py_trees.blackboard.Client:
         # Create blackboard
         board = py_trees.blackboard.Client(name="Board")
         # Register state
@@ -367,9 +368,14 @@ class BTStateManager:
         board.set("state", state) 
         # Register environment
         board.register_key("environment", access=py_trees.common.Access.WRITE)
-        module = importlib.import_module(self.data["environment"]["module"])
-        cls = getattr(module, self.data["environment"]["class"])
-        board.set("environment", cls(board.state)) 
+        if env is not None:
+            # Use provided dummy environment
+            board.set("environment", env)
+        else:
+            # Create new environment based on logger data
+            module = importlib.import_module(self.data["environment"]["module"])
+            cls = getattr(module, self.data["environment"]["class"])
+            board.set("environment", cls(board.state)) 
 
         return board
     

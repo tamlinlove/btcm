@@ -5,7 +5,21 @@ from btcm.examples.cognitive_sequence import cognitive_sequence
 from btcm.cm.causalmodel import build_state_model
 from btcm.bt.logger import Logger
 
+from btcm.examples.cognitive_sequence.cognitive_sequence_environment import UserProfile
+
 if __name__ == "__main__":
+
+    '''
+    User Profile
+    '''
+    user_profile = UserProfile(
+        speed="Fast",
+        accuracy="High",
+        attention="High",
+        frustration="Low",
+        confusion="Low"
+    )
+
     '''
     Initial Game State
     '''
@@ -14,6 +28,9 @@ if __name__ == "__main__":
         "EndGame":False,
         "NumSequences":0,
         "SequenceSet":False,
+        "ResponseTimerActive":False,
+        "UserResponded": False,
+        "UserResponseTime": 0,
 
         # User progress variables
         "UserAccuracy":"High",
@@ -29,7 +46,7 @@ if __name__ == "__main__":
     '''
     Tree
     '''
-    board = cognitive_sequence.setup_board(test_vals)
+    board = cognitive_sequence.setup_board(test_vals,user_profile=user_profile)
     tree = cognitive_sequence.make_tree()
 
     '''

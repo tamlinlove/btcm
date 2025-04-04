@@ -41,11 +41,13 @@ class LogNode:
     def status_dict(self) -> dict:
         if self.is_leaf():
             return {
+                "name":self.name,
                 "status":str(self.status),
                 "action":str(self.action)
             }
         else:
             return {
+                "name":self.name,
                 "status":str(self.status)
             }
 

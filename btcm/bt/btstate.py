@@ -335,6 +335,9 @@ class BTStateManager:
         return graph,tree
 
     def instantiate_node(self,node:str) -> py_trees.behaviour.Behaviour:
+        '''
+        TODO: Use memory settings that should be saved in data
+        '''
         node_info = self.data["tree"][node]
 
         if node_info["category"] == "Sequence":

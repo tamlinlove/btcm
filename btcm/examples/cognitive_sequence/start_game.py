@@ -4,6 +4,7 @@ from btcm.bt.nodes import ActionNode,ConditionNode
 from btcm.dm.action import Action,NullAction
 
 from btcm.examples.cognitive_sequence.basic import CognitiveSequenceState, SetSequenceParametersAction,ProvideSequenceAction, CrashAction
+from btcm.examples.cognitive_sequence.handle_user_response import handle_user_response_subtree
 
 '''
 LEAF NODES
@@ -123,6 +124,7 @@ class ProvideSequence(ActionNode):
         # Update number of sequences
         #self.board.state.vals["NumSequences"] += 1
         state.vals["NumSequences"] += 1
+        state.vals["UserResponded"] = False
 
         return py_trees.common.Status.SUCCESS
     
@@ -141,10 +143,11 @@ class ProvideSequence(ActionNode):
 '''
 COMPOSITE NODES
 '''
+
 def start_game_subtree():
     check_initial_and_set_params_sequence = py_trees.composites.Sequence(
         name = "CheckInitialAndSetParamsSequence",
-        memory = False,
+        memory = True,
         children = [
             CheckInitialSequence(),
             SetSequenceParameters()
@@ -153,7 +156,7 @@ def start_game_subtree():
 
     set_params_or_handle_repeated_fallback = py_trees.composites.Selector(
         name = "SetParamsOrHandleRepeatedFallback",
-        memory = False,
+        memory = True,
         children = [
             check_initial_and_set_params_sequence,
             HandleRepeatedSequence()
@@ -162,10 +165,11 @@ def start_game_subtree():
 
     start_game_sequence = py_trees.composites.Sequence(
         name = "StartGameSequence",
-        memory = False,
+        memory = True,
         children = [
             set_params_or_handle_repeated_fallback,
-            ProvideSequence()
+            ProvideSequence(),
+            handle_user_response_subtree()
         ]
     )
 

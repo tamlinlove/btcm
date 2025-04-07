@@ -145,6 +145,8 @@ class CognitiveSequenceEnvironment(Environment):
         curr_time = time.time()
         elapsed_time = min(int(curr_time - self.user_response_timer),state.MAX_TIMEOUT)
 
+        print("Elapsed time: ", elapsed_time)
+
         # Set elapsed time in state
         state.vals["UserResponseTime"] = elapsed_time
 

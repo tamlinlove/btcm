@@ -26,3 +26,6 @@ class DummyCognitiveSequenceEnvironment(CognitiveSequenceEnvironment):
 
     def check_timer(self,state:CognitiveSequenceState):
         pass
+
+    def assess_user_sequence(self,state:CognitiveSequenceState):
+        pass

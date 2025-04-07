@@ -18,6 +18,7 @@ class Logger(py_trees.visitors.VisitorBase):
 
         self.root = None # The root of the tree, for visualisation
         self.tree = tree # Points to the tree itself
+        self.node_name_counts = {} # Counts the number of nodes with the same name
 
         # Create dict of tree nodes and types
         self.make_tree(tree)
@@ -60,6 +61,13 @@ class Logger(py_trees.visitors.VisitorBase):
             category = "Fallback"
         else:
             raise TypeError(f"Unsuported behaviour of type {type(btnode)}")
+        
+        # Count number of nodes with the same name
+        if btnode.name in self.node_name_counts:
+            self.node_name_counts[btnode.name] += 1
+            btnode.name = f"{btnode.name}{self.node_name_counts[btnode.name]}"
+        else:
+            self.node_name_counts[btnode.name] = 1
 
         # Add node to structure
         self.nodes[btnode.id] = LogNode(behaviour=btnode,category=category)

@@ -187,6 +187,27 @@ class HandleUserResponse(ActionNode):
     
     def action_space(self):
         return [NullAction()]
+    
+class DecideNextSteps(ActionNode):
+    def __init__(self, name:str = "DecideNextSteps"):
+        super(DecideNextSteps, self).__init__(name)
+
+        # Requires read access to environment and state
+        self.board.register_key("environment", access=py_trees.common.Access.READ)
+
+    def decide(self, state:CognitiveSequenceState):
+        # TODO: Implement
+        return NullAction()
+    
+    def execute(self, state:CognitiveSequenceState, action:Action):
+        # TODO: Implement
+        return py_trees.common.Status.SUCCESS
+    
+    def input_variables(self):
+        return []
+    
+    def action_space(self):
+        return [NullAction()]
 
 '''
 Composite Nodes
@@ -216,7 +237,8 @@ def handle_user_response_subtree():
         memory=True,
         children=[
             AssessUserSequence(),
-            HandleUserResponse()
+            HandleUserResponse(),
+            DecideNextSteps()
         ]
     )
 
@@ -229,4 +251,13 @@ def handle_user_response_subtree():
         ]
     )
 
-    return wait_and_handle_response_sequence
+    handle_response_or_no_response_fallback = py_trees.composites.Selector(
+        name="HandleResponseOrNoResponseFallback",
+        memory=True,
+        children=[
+            wait_and_handle_response_sequence,
+            DecideNextSteps()
+        ]
+    )
+
+    return handle_response_or_no_response_fallback

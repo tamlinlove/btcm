@@ -31,6 +31,8 @@ if __name__ == "__main__":
         "ResponseTimerActive":False,
         "UserResponded": False,
         "UserResponseTime": 0,
+        "LatestUserAccuracy":"Perfect",
+        "LatestUserSpeed":"Faster",
 
         # User progress variables
         "UserAccuracy":"High",

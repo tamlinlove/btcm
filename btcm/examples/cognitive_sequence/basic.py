@@ -21,6 +21,8 @@ class CognitiveSequenceState(State):
             "ResponseTimerActive": [True,False], # boolean, if True the response timer is active
             "UserResponded": [True,False], # boolean, if True the user has responded with a sequence
             "UserResponseTime": list(range(self.MAX_TIMEOUT+1)), # User response time in seconds, to a maximum of MAX_TIMEOUT
+            "LatestUserAccuracy":["Perfect","Good","Medium","Poor","CompletelyWrong"], # User accuracy in the last sequence attempt
+            "LatestUserSpeed":["Faster","Normal","Slower"], # User speed in the last sequence attempt, taking into account sequence difficulty
 
             # User progress variables
             "UserAccuracy":["High","Medium","Low"], # User accuracy level
@@ -60,6 +62,8 @@ class CognitiveSequenceState(State):
             return ResetTimerAction()
         elif action_name == "CheckTimer":
             return CheckTimerAction()
+        elif action_name == "AssessSequence":
+            return AssessSequenceAction()
         else:
             raise ValueError(f"Unknown action name: {action_name}")
 
@@ -81,6 +85,8 @@ class CognitiveSequenceState(State):
             "ResponseTimerActive":"Boolean, if True the robot is waiting for the user to respond",
             "UserResponded":"Boolean, if True the user has responded with a sequence",
             "UserResponseTime":"The time taken by the user to respond, in seconds",
+            "LatestUserAccuracy":"A measure of how well the user did in their last sequence attempt",
+            "LatestUserSpeed":"A measure of how fast the user was in their last sequence attempt, taking into account sequence difficulty",
 
             # User progress variables
             "UserAccuracy":"The user's accuracy thusfar",
@@ -150,6 +156,12 @@ class ResetTimerAction(Action):
 
 class CheckTimerAction(Action):
     name = "CheckTimer"
+
+    def __init__(self):
+        super().__init__()
+
+class AssessSequenceAction(Action):
+    name = "AssessSequence"
 
     def __init__(self):
         super().__init__()

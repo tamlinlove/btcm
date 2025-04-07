@@ -12,6 +12,9 @@ class LogNode:
         self.behaviour_module = behaviour.__class__.__module__
         self.description = self.get_semantic_info(behaviour)
 
+        if not self.is_leaf():
+            self.memory = behaviour.memory
+
         self.tick = 0
         self.time = 0
 
@@ -35,6 +38,7 @@ class LogNode:
             return {
                 "name":self.name,
                 "category":self.category,
+                "memory":self.memory,
                 "children":[]
             }
     

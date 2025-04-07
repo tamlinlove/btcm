@@ -56,6 +56,10 @@ class CognitiveSequenceState(State):
                 action_name.split("(")[1].split(",")[0],
                 action_name.split(",")[1].split(")")[0]
             )
+        elif action_name == "ResetTimer":
+            return ResetTimerAction()
+        elif action_name == "CheckTimer":
+            return CheckTimerAction()
         else:
             raise ValueError(f"Unknown action name: {action_name}")
 

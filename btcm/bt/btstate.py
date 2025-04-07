@@ -343,13 +343,13 @@ class BTStateManager:
         if node_info["category"] == "Sequence":
             behaviour = py_trees.composites.Sequence(
                 name = node_info["name"],
-                memory=False,
+                memory=node_info["memory"],
                 children=[self.instantiate_node(child) for child in node_info["children"]]
             )
         elif node_info["category"] == "Fallback":
             behaviour = py_trees.composites.Selector(
                 name = node_info["name"],
-                memory=False,
+                memory=node_info["memory"],
                 children=[self.instantiate_node(child) for child in node_info["children"]]
             )
         elif node_info["category"] in ["Action","Condition"]:

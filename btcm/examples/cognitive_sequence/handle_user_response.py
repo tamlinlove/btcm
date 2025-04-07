@@ -102,14 +102,21 @@ Composite Nodes
 '''
 def handle_user_response_subtree():
     # Create the composite node
+    nudge_timer_and_handle_response_sequence = py_trees.composites.Sequence(
+        name="HandleUserResponse",
+        memory=False,
+        children=[
+            NudgeTimer(),
+            HandleTimerResponse()
+        ]
+    )
+
     start_timer_and_wait_sequence = py_trees.composites.Sequence(
         name="HandleUserResponse",
         memory=True,
         children=[
             StartResponseTimer(),
-            # TODO: Put Nudge and handle in a sequence without memory
-            NudgeTimer(),
-            HandleTimerResponse()
+            nudge_timer_and_handle_response_sequence
         ]
     )
 

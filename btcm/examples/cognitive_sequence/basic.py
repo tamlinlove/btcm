@@ -23,13 +23,15 @@ class CognitiveSequenceState(State):
             "UserResponseTime": list(range(self.MAX_TIMEOUT+1)), # User response time in seconds, to a maximum of MAX_TIMEOUT
             "LatestUserAccuracy":["Perfect","Good","Medium","Poor","CompletelyWrong"], # User accuracy in the last sequence attempt
             "LatestUserSpeed":["Faster","Normal","Slower"], # User speed in the last sequence attempt, taking into account sequence difficulty
+            "AttemptedReengageUser":[True,False], # Whether the robot attempted to reengage the user after a timeout
+            "RepeatSequence":[True,False], # Whether the robot should repeat the current sequence or not
 
             # User progress variables
             "UserAccuracy":["High","Medium","Low"], # User accuracy level
             "UserSpeed":["Fast","Medium","Slow"], # User speed level
 
             # User state variables
-            "UserStruggling":["Yes","No","Unknown"], # User struggling with the task
+            "UserStruggling":[True,False,None], # User struggling with the task
             "UserAttention":["High","Medium","Low"], # User attention level
             "UserFrustration":["High","Medium","Low"], # User frustration level
             "UserConfusion":["High","Medium","Low"], # User confusion level
@@ -87,13 +89,15 @@ class CognitiveSequenceState(State):
             "UserResponseTime":"The time taken by the user to respond, in seconds",
             "LatestUserAccuracy":"A measure of how well the user did in their last sequence attempt",
             "LatestUserSpeed":"A measure of how fast the user was in their last sequence attempt, taking into account sequence difficulty",
+            "AttemptedReengageUser":"Boolean, if True the robot attempted to reengage the user after a timeout",
+            "RepeatSequence":"Boolean, if True the robot should repeat the current sequence",
 
             # User progress variables
             "UserAccuracy":"The user's accuracy thusfar",
             "UserSpeed":"The speed of the user in repeating the sequence",
 
             # User state variables
-            "UserStruggling":"Whether or not the user is struggling to repeat the sequence",
+            "UserStruggling":"Whether or not the user is struggling to repeat the sequence. If None, value is unknown",
             "UserAttention":"The level of attention the user is paying to the task",
             "UserFrustration":"The level of frustration the user is experiencing",
             "UserConfusion":"The level of confusion the user is experiencing",
@@ -162,6 +166,42 @@ class CheckTimerAction(Action):
 
 class AssessSequenceAction(Action):
     name = "AssessSequence"
+
+    def __init__(self):
+        super().__init__()
+
+class EndThisSequenceAction(Action):
+    name = "EndThisSequence"
+
+    def __init__(self):
+        super().__init__()
+
+class RepeatThisSequenceAction(Action):
+    name = "RepeatThisSequence"
+
+    def __init__(self):
+        super().__init__()
+
+class RecaptureAttentionAction(Action):
+    name = "RecaptureAttention"
+
+    def __init__(self):
+        super().__init__()
+
+class EndSequenceSocialAction(Action):
+    name = "EndSequenceSocial"
+
+    def __init__(self):
+        super().__init__()
+
+class RepeatSequenceSocialAction(Action):
+    name = "RepeatSequenceSocial"
+
+    def __init__(self):
+        super().__init__()
+
+class GiveSequenceHintAction(Action):
+    name = "GiveSequenceHint"
 
     def __init__(self):
         super().__init__()

@@ -3,7 +3,8 @@ import py_trees
 from btcm.bt.nodes import ActionNode,ConditionNode
 from btcm.dm.action import Action,NullAction
 
-from btcm.examples.cognitive_sequence.basic import CognitiveSequenceState, ResetTimerAction, CheckTimerAction, AssessSequenceAction
+from btcm.examples.cognitive_sequence.basic import CognitiveSequenceState, ResetTimerAction, CheckTimerAction, AssessSequenceAction,EndThisSequenceAction,RepeatThisSequenceAction
+from btcm.examples.cognitive_sequence.basic import RecaptureAttentionAction, EndSequenceSocialAction, RepeatSequenceSocialAction, GiveSequenceHintAction
 
 '''
 LEAF NODES
@@ -188,23 +189,91 @@ class HandleUserResponse(ActionNode):
     def action_space(self):
         return [NullAction()]
     
-class DecideNextSteps(ActionNode):
-    def __init__(self, name:str = "DecideNextSteps"):
-        super(DecideNextSteps, self).__init__(name)
 
-        # Requires read access to environment and state
-        self.board.register_key("environment", access=py_trees.common.Access.READ)
+class RepeatOrEnd(ActionNode):
+    def __init__(self, name:str = "RepeatOrEnd"):
+        super(RepeatOrEnd, self).__init__(name)
 
     def decide(self, state:CognitiveSequenceState):
-        # TODO: Implement
-        return NullAction()
+        # First, check if we have exceeded the maximum number of repetitions
+        if state.vals["NumSequences"] >= state.MAX_NUM_SEQUENCES:
+            # If so, end this exercise
+            return EndThisSequenceAction()
+        # Check if the user has responded
+        if state.vals["UserResponded"]:
+            # End if the response is very good or very bad
+            if state.vals["LatestUserAccuracy"] == "Perfect" or state.vals["LatestUserAccuracy"] == "CompletelyWrong":
+                return EndThisSequenceAction()
+            # If the user is frustrated, end the exercise
+            if state.vals["UserFrustration"] == "High":
+                return EndThisSequenceAction()
+            # Otherwise, repeat the sequence
+            return RepeatThisSequenceAction()
+        else:
+            # Check if user is not paying attention and we've already tried to recapture attention
+            if state.vals["UserAttention"] == "Low" and state.vals["AttemptedReengageUser"]:
+                # If so, end the exercise
+                return EndThisSequenceAction()
+            # Check if user is frustrated
+            if state.vals["UserFrustration"] == "High":
+                # If so, end the exercise
+                return EndThisSequenceAction()
+            # Otherwise, repeat the sequence
+            return RepeatThisSequenceAction()
+
     
     def execute(self, state:CognitiveSequenceState, action:Action):
-        # TODO: Implement
-        return py_trees.common.Status.SUCCESS
+        if action == EndThisSequenceAction():
+            state.vals["RepeatSequence"] = False
+            return py_trees.common.Status.SUCCESS
+        elif action == RepeatThisSequenceAction():
+            state.vals["RepeatSequence"] = True
+            return py_trees.common.Status.SUCCESS
+        # Should never get here
+        return py_trees.common.Status.FAILURE
     
     def input_variables(self):
-        return []
+        return ["NumSequences","UserResponded","LatestUserAccuracy","UserFrustration","UserAttention","AttemptedReengageUser"]
+    
+    def action_space(self):
+        return [RepeatThisSequenceAction(),EndThisSequenceAction(),NullAction()]
+
+class DecideSocialAction(ActionNode):
+    def __init__(self, name:str = "DecideSocialAction"):
+        super(DecideSocialAction, self).__init__(name)
+
+        # Requires write access to environment
+        self.board.register_key("environment", access=py_trees.common.Access.WRITE)
+
+    def decide(self, state:CognitiveSequenceState):
+        # Check if repeat sequence is set
+        if state.vals["UserResponded"]:
+            if state.vals["RepeatSequence"]:
+                # Repeating - check if user is confused
+                if state.vals["UserConfusion"] == "High":
+                    return GiveSequenceHintAction()
+                # Otherwise, just repeat the sequence
+                return RepeatSequenceSocialAction()
+            else:
+                # End the sequence
+                return EndSequenceSocialAction()
+        else:
+            if state.vals["RepeatSequence"]:
+                if state.vals["UserAttention"] == "Low":
+                    # Repeating - check if user is not paying attention
+                    return RecaptureAttentionAction()
+                # Otherwise, just repeat the sequence
+                return RepeatSequenceSocialAction()
+            else:
+                # End the sequence
+                return EndSequenceSocialAction()
+        
+    
+    def execute(self, state:CognitiveSequenceState, action:Action):
+        raise NotImplementedError("Finish me")
+    
+    def input_variables(self):
+        return ["UserResponded","RepeatSequence","UserConfusion","UserAttention"]
     
     def action_space(self):
         return [NullAction()]
@@ -232,13 +301,22 @@ def handle_user_response_subtree():
         ]
     )
 
+    decide_repeat_and_social_action_sequence = py_trees.composites.Sequence(
+        name="DecideRepeatAndSocialAction",
+        memory=True,
+        children=[
+            RepeatOrEnd(),
+            DecideSocialAction()
+        ]
+    )
+
     assess_sequence_and_handle_sequence = py_trees.composites.Sequence(
         name="AssessSequenceAndHandleUserResponse",
         memory=True,
         children=[
             AssessUserSequence(),
             HandleUserResponse(),
-            DecideNextSteps()
+            decide_repeat_and_social_action_sequence
         ]
     )
 
@@ -256,7 +334,7 @@ def handle_user_response_subtree():
         memory=True,
         children=[
             wait_and_handle_response_sequence,
-            DecideNextSteps()
+            decide_repeat_and_social_action_sequence
         ]
     )
 

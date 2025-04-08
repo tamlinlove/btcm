@@ -8,7 +8,7 @@ STATE
 class CognitiveSequenceState(State):
     MAX_NUM_REPETITIONS = 3 # Maximum number of times a particular sequence can be provided
     MAX_NUM_SEQUENCES = 3 # Maximum number of sequences that can be provided
-    MAX_TIMEOUT = 10 # seconds
+    MAX_TIMEOUT = 4 # seconds
 
     def __init__(self, values = None):
         super().__init__(values)
@@ -80,15 +80,15 @@ class CognitiveSequenceState(State):
             "ResponseTimerActive":False,
             "UserResponded": False,
             "UserResponseTime": 0,
-            "LatestUserAccuracy":"Good",
+            "LatestUserAccuracy":"Medium",
             "LatestUserSpeed":"Normal",
             "AttemptedReengageUser":False,
             "RepeatSequence":False,
             "NumSequences":0,
 
             # User progress variables
-            "UserAccuracy":"Medium",
-            "UserSpeed":"Medium",
+            "UserAccuracy":"Low",
+            "UserSpeed":"Slow",
 
             # User state variables
             "UserAttention":"High",

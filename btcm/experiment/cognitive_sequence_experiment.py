@@ -40,6 +40,10 @@ def run_default():
     initial_vals = CognitiveSequenceState.default_values()
     user_profile = UserProfile.default_user()
 
+     # Tweak the user profile to be more average
+    user_profile.accuracy = "Medium"
+    user_profile.speed = "Medium"
+
     # Run the experiment
     cognitive_sequence_run(
         initial_vals=initial_vals,

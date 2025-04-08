@@ -83,6 +83,7 @@ class State:
         for var in self.ranges():
             valid = self.valid_var_value(var,values[var])
             if not valid:
+                print(f"Invalid value for {var}: {values[var]}")
                 return False
             
         return True

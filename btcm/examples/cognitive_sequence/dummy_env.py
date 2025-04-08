@@ -24,8 +24,27 @@ class DummyCognitiveSequenceEnvironment(CognitiveSequenceEnvironment):
     def reset_timer(self):
         return True
 
-    def check_timer(self,state:CognitiveSequenceState):
+    def check_timer(self,_):
         pass
 
-    def assess_user_sequence(self,state:CognitiveSequenceState):
+    def assess_user_sequence(self,_):
         pass
+
+    def provide_sequence(self):
+        return True
+    
+    def give_hint(self,state:CognitiveSequenceState):
+        if state.vals["LatestUserAccuracy"] == "Perfect":
+            return False
+        return True
+    
+    def repeat_sequence_social_action(self, state:CognitiveSequenceState):
+        if state.vals["LatestUserAccuracy"] == "Perfect":
+            return False
+        return True
+    
+    def end_sequence_social_action(self, _):
+        return True
+    
+    def recapture_attention(self, _):
+        return True

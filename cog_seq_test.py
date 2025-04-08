@@ -31,15 +31,16 @@ if __name__ == "__main__":
         "ResponseTimerActive":False,
         "UserResponded": False,
         "UserResponseTime": 0,
-        "LatestUserAccuracy":"Perfect",
+        "LatestUserAccuracy":"Good",
         "LatestUserSpeed":"Faster",
+        "AttemptedReengageUser":False,
+        "RepeatSequence":False,
 
         # User progress variables
         "UserAccuracy":"High",
         "UserSpeed":"Fast",
 
         # User state variables
-        "UserStruggling":"No",
         "UserAttention":"High",
         "UserFrustration":"Low",
         "UserConfusion":"Low",

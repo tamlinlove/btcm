@@ -111,15 +111,19 @@ class ProvideSequence(ActionNode):
     def __init__(self, name:str = "ProvideSequence"):
         super(ProvideSequence, self).__init__(name)
 
-        # Requires write access to state
+        # Requires write access to state and environment
         self.board.register_key("state", access=py_trees.common.Access.WRITE)
+        self.board.register_key("environment", access=py_trees.common.Access.WRITE)
 
     def decide(self, _):
         # Always presents the sequence that was selected
         return ProvideSequenceAction()
     
     def execute(self, state:CognitiveSequenceState, action:Action):
-        # TODO: logic for presenting the sequence
+        # Present the sequence to the user
+        status = self.board.environment.provide_sequence()
+        if not status:
+            return py_trees.common.Status.FAILURE
 
         # Update number of sequences
         #self.board.state.vals["NumSequences"] += 1

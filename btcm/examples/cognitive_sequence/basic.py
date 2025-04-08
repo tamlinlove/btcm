@@ -31,7 +31,6 @@ class CognitiveSequenceState(State):
             "UserSpeed":["Fast","Medium","Slow"], # User speed level
 
             # User state variables
-            "UserStruggling":[True,False,None], # User struggling with the task
             "UserAttention":["High","Medium","Low"], # User attention level
             "UserFrustration":["High","Medium","Low"], # User frustration level
             "UserConfusion":["High","Medium","Low"], # User confusion level
@@ -97,7 +96,6 @@ class CognitiveSequenceState(State):
             "UserSpeed":"The speed of the user in repeating the sequence",
 
             # User state variables
-            "UserStruggling":"Whether or not the user is struggling to repeat the sequence. If None, value is unknown",
             "UserAttention":"The level of attention the user is paying to the task",
             "UserFrustration":"The level of frustration the user is experiencing",
             "UserConfusion":"The level of confusion the user is experiencing",

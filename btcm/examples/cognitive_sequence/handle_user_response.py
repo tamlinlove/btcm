@@ -270,17 +270,44 @@ class DecideSocialAction(ActionNode):
         
     
     def execute(self, state:CognitiveSequenceState, action:Action):
-        raise NotImplementedError("Finish me")
+        status = False
+        if action == GiveSequenceHintAction():
+            # Give a hint to the user
+            status = self.board.environment.give_hint(state)
+        elif action == RepeatSequenceSocialAction():
+            # Repeat the sequence
+            status = self.board.environment.repeat_sequence_social_action(state)
+        elif action == EndSequenceSocialAction():
+            # End the sequence
+            status = self.board.environment.end_sequence_social_action(state)
+        elif action == RecaptureAttentionAction():
+            # Recapture attention
+            status = self.board.environment.recapture_attention(state)
+            if status:
+                state.vals["AttemptedReengageUser"] = True
+        if status:
+            return py_trees.common.Status.SUCCESS
+        return py_trees.common.Status.FAILURE
     
     def input_variables(self):
         return ["UserResponded","RepeatSequence","UserConfusion","UserAttention"]
     
     def action_space(self):
-        return [NullAction()]
+        return [GiveSequenceHintAction(),RepeatSequenceSocialAction(),EndSequenceSocialAction(),RecaptureAttentionAction(),NullAction()]
 
 '''
 Composite Nodes
 '''
+def decide_repeat_and_social_action_sequence():
+    return py_trees.composites.Sequence(
+        name="DecideRepeatAndSocialAction",
+        memory=True,
+        children=[
+            RepeatOrEnd(),
+            DecideSocialAction()
+        ]
+    )
+
 def handle_user_response_subtree():
     # Create the composite node
     nudge_timer_and_handle_response_sequence = py_trees.composites.Sequence(
@@ -301,14 +328,7 @@ def handle_user_response_subtree():
         ]
     )
 
-    decide_repeat_and_social_action_sequence = py_trees.composites.Sequence(
-        name="DecideRepeatAndSocialAction",
-        memory=True,
-        children=[
-            RepeatOrEnd(),
-            DecideSocialAction()
-        ]
-    )
+    
 
     assess_sequence_and_handle_sequence = py_trees.composites.Sequence(
         name="AssessSequenceAndHandleUserResponse",
@@ -316,7 +336,7 @@ def handle_user_response_subtree():
         children=[
             AssessUserSequence(),
             HandleUserResponse(),
-            decide_repeat_and_social_action_sequence
+            decide_repeat_and_social_action_sequence()
         ]
     )
 
@@ -334,7 +354,7 @@ def handle_user_response_subtree():
         memory=True,
         children=[
             wait_and_handle_response_sequence,
-            decide_repeat_and_social_action_sequence
+            decide_repeat_and_social_action_sequence()
         ]
     )
 

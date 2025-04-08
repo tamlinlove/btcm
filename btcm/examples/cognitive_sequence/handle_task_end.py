@@ -40,10 +40,14 @@ class EndCurrentSequence(ActionNode):
         state.vals["AttemptedReengageUser"] = False
         state.vals["RepeatSequence"] = False
 
+        # Check if we have reached the maximum number of sequences
+        if state.vals["NumSequences"] >= state.MAX_NUM_SEQUENCES:
+            state.vals["EndGame"] = True
+
         return py_trees.common.Status.SUCCESS
     
     def input_variables(self):
-        return []
+        return ["NumSequences"]
     
     def action_space(self):
         return [EndThisSequenceAction(),NullAction()]

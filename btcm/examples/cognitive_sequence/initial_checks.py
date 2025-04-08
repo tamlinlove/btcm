@@ -14,11 +14,8 @@ class CheckOverride(ConditionNode):
         super(CheckOverride, self).__init__(name)
 
     def execute(self, state, _):
-        # First, check if the override is active
+        # Check if the override is active
         if state.vals["EndGame"]:
-            return py_trees.common.Status.SUCCESS
-        # Next, check if we have reached the maximum number of new sequences
-        if state.vals["NumSequences"] >= state.MAX_NUM_SEQUENCES:
             return py_trees.common.Status.SUCCESS
 
         return py_trees.common.Status.FAILURE

@@ -112,6 +112,9 @@ class UserProfile():
         return ''.join(user_sequence)
     
     def get_base_response_times(self,max_timeout:int = 10):
+        # TODO: FOR FASTER DEBUGGING OVERRIDING MAX_TIMEOUT, REMOVE LATER
+        max_timeout = 4
+
         # Define base response times for different sequence lengths and complexities
         base_times = {
             "Short": {"Simple": 0.2*max_timeout, "Complex": 0.3*max_timeout},
@@ -297,7 +300,7 @@ class CognitiveSequenceEnvironment(Environment):
         return True
     
     def provide_sequence(self,state:CognitiveSequenceState):
-        if self.sequence == "":
+        if not state.vals["SequenceSet"]:
             # Sequence not set!
             return False
         # Provide the sequence to the user
@@ -341,8 +344,6 @@ class CognitiveSequenceEnvironment(Environment):
         # Get time
         curr_time = time.time()
         elapsed_time = min(int(curr_time - self.user_response_timer),CognitiveSequenceState.MAX_TIMEOUT)
-
-        print("Elapsed time: ", elapsed_time)
 
         # Set elapsed time in state
         state.vals["UserResponseTime"] = elapsed_time

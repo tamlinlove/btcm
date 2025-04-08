@@ -42,7 +42,7 @@ if __name__ == "__main__":
         "UserSpeed":"Fast",
 
         # User state variables
-        "UserAttention":"High",
+        "UserAttention":"Low",
         "UserFrustration":"Low",
         "UserConfusion":"Low",
     }
@@ -69,10 +69,14 @@ if __name__ == "__main__":
     try:
         finished = False
         while not finished:
+            # Tick the tree
             tree.tick()
+            # Sleep for a bit to simulate time passing
             time.sleep(0.5)
-            #finished = tree.root.status != py_trees.common.Status.RUNNING
-            finished = board.state.vals["EndGame"]
+            # Check if the game is over
+            finished = board.environment.game_over
+            # Optional, print the tree structure
+            #print(py_trees.display.unicode_tree(tree.root, show_status=True))
     except KeyboardInterrupt:
         print("KILL")
         pass

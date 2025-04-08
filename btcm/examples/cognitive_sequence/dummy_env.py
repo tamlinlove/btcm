@@ -30,7 +30,9 @@ class DummyCognitiveSequenceEnvironment(CognitiveSequenceEnvironment):
     def assess_user_sequence(self,_):
         pass
 
-    def provide_sequence(self):
+    def provide_sequence(self, state:CognitiveSequenceState):
+        if not state.vals["SequenceSet"]:
+            return False
         return True
     
     def give_hint(self,state:CognitiveSequenceState):

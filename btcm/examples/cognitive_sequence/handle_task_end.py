@@ -44,6 +44,9 @@ class EndCurrentSequence(ActionNode):
         if state.vals["NumSequences"] >= state.MAX_NUM_SEQUENCES:
             state.vals["EndGame"] = True
 
+        # To help with reading terminal output
+        print("---------------")
+
         return py_trees.common.Status.SUCCESS
     
     def input_variables(self):

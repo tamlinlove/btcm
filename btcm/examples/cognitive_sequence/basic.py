@@ -6,7 +6,7 @@ from btcm.dm.action import Action,NullAction
 STATE
 '''
 class CognitiveSequenceState(State):
-    MAX_NUM_REPETITIONS = 2 # Maximum number of times a particular sequence can be provided
+    MAX_NUM_REPETITIONS = 3 # Maximum number of times a particular sequence can be provided
     MAX_NUM_SEQUENCES = 3 # Maximum number of sequences that can be provided
     MAX_TIMEOUT = 10 # seconds
 

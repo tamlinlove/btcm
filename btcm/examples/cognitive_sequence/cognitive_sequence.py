@@ -1,4 +1,5 @@
 import py_trees
+import time
 
 from btcm.examples.cognitive_sequence.basic import CognitiveSequenceState
 from btcm.examples.cognitive_sequence.cognitive_sequence_environment import CognitiveSequenceEnvironment,UserProfile
@@ -31,3 +32,24 @@ BT ROOT
 '''
 def make_tree():
     return py_trees.trees.BehaviourTree(root=initial_checks_subtree())
+
+'''
+RUN TREE
+'''
+def run(tree:py_trees.trees.BehaviourTree, board:py_trees.blackboard.Client,display_tree:bool=False):
+    tree.setup()
+    try:
+        finished = False
+        while not finished:
+            # Tick the tree
+            tree.tick()
+            # Sleep for a bit to simulate time passing
+            time.sleep(0.5)
+            # Check if the game is over
+            finished = board.environment.game_over
+            # Optional, print the tree structure
+            if display_tree:
+                print(py_trees.display.unicode_tree(tree.root, show_status=True))
+    except KeyboardInterrupt:
+        print("KILL")
+        pass

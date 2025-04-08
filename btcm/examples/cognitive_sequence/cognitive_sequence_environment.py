@@ -296,12 +296,23 @@ class CognitiveSequenceEnvironment(Environment):
 
         return True
     
-    def provide_sequence(self):
+    def provide_sequence(self,state:CognitiveSequenceState):
         if self.sequence == "":
             # Sequence not set!
             return False
         # Provide the sequence to the user
-        self.robot_speak(f"Here is the sequence. Listen carefully. {self.sequence}")
+        if state.vals["NumRepetitions"] == 0:
+            # First time for this unique sequence
+            if state.vals["NumSequences"] > 1:
+                # Second, third, etc. unique sequence
+                self.robot_speak(f"Here is the new sequence. Listen carefully. {self.sequence}")
+            else:
+                # First time for this unique sequence
+                self.robot_speak(f"Here is the sequence. Listen carefully. {self.sequence}")
+        else:
+            # Sequence has been repeated
+            self.robot_speak(f"Here is the sequence again. Listen carefully. {self.sequence}")
+
         return True
     
     def reset_timer(self):

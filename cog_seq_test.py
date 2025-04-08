@@ -26,7 +26,7 @@ if __name__ == "__main__":
     test_vals = {
         # Game state variables
         "EndGame":False,
-        "NumSequences":0,
+        "NumRepetitions":0,
         "SequenceSet":False,
         "ResponseTimerActive":False,
         "UserResponded": False,
@@ -35,6 +35,7 @@ if __name__ == "__main__":
         "LatestUserSpeed":"Faster",
         "AttemptedReengageUser":False,
         "RepeatSequence":False,
+        "NumSequences":0,
 
         # User progress variables
         "UserAccuracy":"High",
@@ -70,7 +71,8 @@ if __name__ == "__main__":
         while not finished:
             tree.tick()
             time.sleep(0.5)
-            finished = tree.root.status != py_trees.common.Status.RUNNING
+            #finished = tree.root.status != py_trees.common.Status.RUNNING
+            finished = board.state.vals["EndGame"]
     except KeyboardInterrupt:
         print("KILL")
         pass

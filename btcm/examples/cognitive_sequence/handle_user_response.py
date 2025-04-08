@@ -5,6 +5,7 @@ from btcm.dm.action import Action,NullAction
 
 from btcm.examples.cognitive_sequence.basic import CognitiveSequenceState, ResetTimerAction, CheckTimerAction, AssessSequenceAction,EndThisSequenceAction,RepeatThisSequenceAction
 from btcm.examples.cognitive_sequence.basic import RecaptureAttentionAction, EndSequenceSocialAction, RepeatSequenceSocialAction, GiveSequenceHintAction
+from btcm.examples.cognitive_sequence.handle_task_end import handle_task_end_subtree
 
 '''
 LEAF NODES
@@ -196,7 +197,7 @@ class RepeatOrEnd(ActionNode):
 
     def decide(self, state:CognitiveSequenceState):
         # First, check if we have exceeded the maximum number of repetitions
-        if state.vals["NumSequences"] >= state.MAX_NUM_SEQUENCES:
+        if state.vals["NumRepetitions"] >= state.MAX_NUM_REPETITIONS:
             # If so, end this exercise
             return EndThisSequenceAction()
         # Check if the user has responded
@@ -233,7 +234,7 @@ class RepeatOrEnd(ActionNode):
         return py_trees.common.Status.FAILURE
     
     def input_variables(self):
-        return ["NumSequences","UserResponded","LatestUserAccuracy","UserFrustration","UserAttention","AttemptedReengageUser"]
+        return ["NumRepetitions","UserResponded","LatestUserAccuracy","UserFrustration","UserAttention","AttemptedReengageUser"]
     
     def action_space(self):
         return [RepeatThisSequenceAction(),EndThisSequenceAction(),NullAction()]
@@ -358,4 +359,13 @@ def handle_user_response_subtree():
         ]
     )
 
-    return handle_response_or_no_response_fallback
+    handle_response_and_end_repitition_sequence = py_trees.composites.Sequence(
+        name="HandleResponseAndEndRepetition",
+        memory=True,
+        children=[
+            handle_response_or_no_response_fallback,
+            handle_task_end_subtree()
+        ]
+    )
+
+    return handle_response_and_end_repitition_sequence

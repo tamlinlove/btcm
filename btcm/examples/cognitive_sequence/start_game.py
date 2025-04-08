@@ -14,12 +14,12 @@ class CheckInitialSequence(ConditionNode):
         super(CheckInitialSequence, self).__init__(name)
 
     def execute(self, state, _):
-        if state.vals["NumSequences"] == 0:
+        if state.vals["NumRepetitions"] == 0:
             return py_trees.common.Status.SUCCESS
         return py_trees.common.Status.FAILURE
     
     def input_variables(self):
-        return ["NumSequences"]
+        return ["NumRepetitions"]
     
     '''
     SEMANTIC DESCRIPTION
@@ -60,8 +60,8 @@ class SetSequenceParameters(ActionNode):
 
         if status:
             # Update the state with the new sequence
-            #self.board.state.vals["SequenceSet"] = True
             state.vals["SequenceSet"] = True
+            state.vals["NumSequences"] += 1
             return py_trees.common.Status.SUCCESS
         
         # If the action was not successful, return failure
@@ -121,13 +121,12 @@ class ProvideSequence(ActionNode):
     
     def execute(self, state:CognitiveSequenceState, action:Action):
         # Present the sequence to the user
-        status = self.board.environment.provide_sequence()
+        status = self.board.environment.provide_sequence(state)
         if not status:
             return py_trees.common.Status.FAILURE
 
         # Update number of sequences
-        #self.board.state.vals["NumSequences"] += 1
-        state.vals["NumSequences"] += 1
+        state.vals["NumRepetitions"] += 1
         state.vals["UserResponded"] = False
 
         return py_trees.common.Status.SUCCESS

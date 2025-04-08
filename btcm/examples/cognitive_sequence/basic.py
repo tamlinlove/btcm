@@ -6,7 +6,8 @@ from btcm.dm.action import Action,NullAction
 STATE
 '''
 class CognitiveSequenceState(State):
-    MAX_NUM_SEQUENCES = 3
+    MAX_NUM_REPETITIONS = 2 # Maximum number of times a particular sequence can be provided
+    MAX_NUM_SEQUENCES = 3 # Maximum number of sequences that can be provided
     MAX_TIMEOUT = 10 # seconds
 
     def __init__(self, values = None):
@@ -16,7 +17,7 @@ class CognitiveSequenceState(State):
         return {
             # Game state variables
             "EndGame": [True,False], # boolean, if True the game ends
-            "NumSequences": list(range(self.MAX_NUM_SEQUENCES+1)), # Number of times a sequence has been provided, to a maximum of MAX_NUM_SEQUENCES
+            "NumRepetitions": list(range(self.MAX_NUM_REPETITIONS+1)), # Number of times a particular sequence has been provided, to a maximum of MAX_NUM_SEQUENCES
             "SequenceSet": [True,False], # boolean, if True a sequence has been set
             "ResponseTimerActive": [True,False], # boolean, if True the response timer is active
             "UserResponded": [True,False], # boolean, if True the user has responded with a sequence
@@ -25,6 +26,7 @@ class CognitiveSequenceState(State):
             "LatestUserSpeed":["Faster","Normal","Slower"], # User speed in the last sequence attempt, taking into account sequence difficulty
             "AttemptedReengageUser":[True,False], # Whether the robot attempted to reengage the user after a timeout
             "RepeatSequence":[True,False], # Whether the robot should repeat the current sequence or not
+            "NumSequences": list(range(self.MAX_NUM_SEQUENCES+1)), # Number of sequences that have been provided, to a maximum of MAX_NUM_SEQUENCES
 
             # User progress variables
             "UserAccuracy":["High","Medium","Low"], # User accuracy level
@@ -81,7 +83,7 @@ class CognitiveSequenceState(State):
         return {
             # Game state variables
             "EndGame":"Boolean variable indicating if the game must be ended",
-            "NumSequences":f"Number of times a sequence has been provided, up to a maximum of {self.MAX_NUM_SEQUENCES}",
+            "NumRepetitions":f"Number of times a sequence has been provided, up to a maximum of {self.MAX_NUM_REPETITIONS}",
             "SequenceSet":"Boolean, if True a sequence has been set",
             "ResponseTimerActive":"Boolean, if True the robot is waiting for the user to respond",
             "UserResponded":"Boolean, if True the user has responded with a sequence",
@@ -90,6 +92,7 @@ class CognitiveSequenceState(State):
             "LatestUserSpeed":"A measure of how fast the user was in their last sequence attempt, taking into account sequence difficulty",
             "AttemptedReengageUser":"Boolean, if True the robot attempted to reengage the user after a timeout",
             "RepeatSequence":"Boolean, if True the robot should repeat the current sequence",
+            "NumSequences":f"Number of sequences that have been provided, up to a maximum of {self.MAX_NUM_SEQUENCES}",
 
             # User progress variables
             "UserAccuracy":"The user's accuracy thusfar",

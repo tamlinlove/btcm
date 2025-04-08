@@ -7,16 +7,20 @@ from btcm.examples.cognitive_sequence.initial_checks import initial_checks_subtr
 '''
 BLACKBOARD
 '''
-def setup_board(vals:dict,user_profile:UserProfile):
+def setup_board(vals:dict=None,user_profile:UserProfile=None):
     board = py_trees.blackboard.Client(name="Board")
     board.register_key("state", access=py_trees.common.Access.WRITE)
     board.register_key("environment", access=py_trees.common.Access.WRITE)
 
     # State
+    if vals is None:
+        vals = CognitiveSequenceState.default_values()
     state = CognitiveSequenceState(vals)
     board.state = state
 
     # Environment
+    if user_profile is None:
+        user_profile = UserProfile.default_user()
     env = CognitiveSequenceEnvironment(user_profile=user_profile)
     board.environment = env
 

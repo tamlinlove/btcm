@@ -17,6 +17,24 @@ class UserProfile():
         self.frustration = frustration
         self.confusion = confusion
 
+    '''
+    ALTERNATE CONSTRUCTOR
+    '''
+    @staticmethod
+    def default_user():
+        default_state = CognitiveSequenceState.default_values()
+        return UserProfile(
+            speed=default_state["UserSpeed"],
+            accuracy=default_state["UserAccuracy"],
+            attention=default_state["UserAttention"],
+            frustration=default_state["UserFrustration"],
+            confusion=default_state["UserConfusion"]
+        )
+
+    '''
+    TYPING
+    '''
+
     def __str__(self):
         return f"UserProfile(speed={self.speed}, accuracy={self.accuracy}, attention={self.attention}, frustration={self.frustration}, confusion={self.confusion})"
 

@@ -69,6 +69,32 @@ class CognitiveSequenceState(State):
             return AssessSequenceAction()
         else:
             raise ValueError(f"Unknown action name: {action_name}")
+        
+    @staticmethod
+    def default_values():
+        return {
+            # Game state variables
+            "EndGame":False,
+            "NumRepetitions":0,
+            "SequenceSet":False,
+            "ResponseTimerActive":False,
+            "UserResponded": False,
+            "UserResponseTime": 0,
+            "LatestUserAccuracy":"Good",
+            "LatestUserSpeed":"Normal",
+            "AttemptedReengageUser":False,
+            "RepeatSequence":False,
+            "NumSequences":0,
+
+            # User progress variables
+            "UserAccuracy":"Medium",
+            "UserSpeed":"Medium",
+
+            # User state variables
+            "UserAttention":"High",
+            "UserFrustration":"Low",
+            "UserConfusion":"Low",
+        }
 
     '''
     CAUSAL MODEL

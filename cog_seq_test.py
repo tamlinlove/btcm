@@ -6,60 +6,27 @@ from btcm.cm.causalmodel import build_state_model
 from btcm.bt.logger import Logger
 
 from btcm.examples.cognitive_sequence.cognitive_sequence_environment import UserProfile
+from btcm.examples.cognitive_sequence.basic import CognitiveSequenceState
 
 if __name__ == "__main__":
 
     '''
-    User Profile
+    Tweak Default State and User
     '''
-    user_profile = UserProfile(
-        speed="Fast",
-        accuracy="High",
-        attention="High",
-        frustration="Low",
-        confusion="Low"
-    )
-
-    '''
-    Initial Game State
-    '''
-    test_vals = {
-        # Game state variables
-        "EndGame":False,
-        "NumRepetitions":0,
-        "SequenceSet":False,
-        "ResponseTimerActive":False,
-        "UserResponded": False,
-        "UserResponseTime": 0,
-        "LatestUserAccuracy":"Good",
-        "LatestUserSpeed":"Faster",
-        "AttemptedReengageUser":False,
-        "RepeatSequence":False,
-        "NumSequences":0,
-
-        # User progress variables
-        "UserAccuracy":"High",
-        "UserSpeed":"Fast",
-
-        # User state variables
-        "UserAttention":"Low",
-        "UserFrustration":"Low",
-        "UserConfusion":"Low",
-    }
+    initial_vals = CognitiveSequenceState.default_values()
+    user_profile = UserProfile.default_user()
 
     '''
     Tree
     '''
-    board = cognitive_sequence.setup_board(test_vals,user_profile=user_profile)
+    board = cognitive_sequence.setup_board(vals=initial_vals,user_profile=user_profile)
     tree = cognitive_sequence.make_tree()
 
     '''
     Visitor
     '''
     logger = Logger(tree=tree,filename="cog_log")
-    tree.visitors.append(logger)
-
-    
+    tree.visitors.append(logger)    
 
     '''
     Run

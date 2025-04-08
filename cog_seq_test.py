@@ -10,9 +10,12 @@ from btcm.examples.cognitive_sequence.basic import CognitiveSequenceState
 
 if __name__ == "__main__":
     # Default User Profile
-    cognitive_sequence_experiment.run_default()
+    #cognitive_sequence_experiment.run_default()
 
     # Distracted User Profile
-    cognitive_sequence_experiment.run_distracted()
+    #cognitive_sequence_experiment.run_distracted()
+
+    # Slow User Profile
+    cognitive_sequence_experiment.run_slow()
 
     

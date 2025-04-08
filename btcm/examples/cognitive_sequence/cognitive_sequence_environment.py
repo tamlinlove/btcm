@@ -148,7 +148,7 @@ class UserProfile():
         if self.speed == "Fast":
             base_time *= 0.8
         elif self.speed == "Slow":
-            base_time *= 1.2
+            base_time *= 1.5 #1.2
 
         # Adjust the base time based on user attention
         if self.attention == "High":

@@ -1,3 +1,5 @@
+import py_trees
+
 from btcm.bt.btstate import BTStateManager
 from btcm.cfx.explainer import Explainer
 
@@ -16,6 +18,8 @@ if __name__ == "__main__":
     manager.load_state(tick=tick,time="end")
     #manager.visualise_tree()
     #manager.visualise(show_values=True)
+    #py_trees.display.render_dot_tree(manager.tree.root)
+
 
     explainer = Explainer(manager.model,node_names=manager.node_names)
     

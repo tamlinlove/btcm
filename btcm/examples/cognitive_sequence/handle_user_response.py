@@ -181,6 +181,9 @@ class HandleUserResponse(ActionNode):
             # Very bad performance, straight to bottom
             state.vals["UserAccuracy"] = "Low"
 
+        # Print
+        print(f"Updates to user model: Speed - {state.vals['UserSpeed']}, Accuracy - {state.vals['UserAccuracy']}")
+
         return py_trees.common.Status.SUCCESS
             
     
@@ -197,7 +200,7 @@ class RepeatOrEnd(ActionNode):
 
     def decide(self, state:CognitiveSequenceState):
         # First, check if we have exceeded the maximum number of repetitions
-        if state.vals["NumRepetitions"] >= state.MAX_NUM_REPETITIONS:
+        if state.vals["NumRepetitions"] >= CognitiveSequenceState.MAX_NUM_REPETITIONS: # TODO: change this to state.MAX_NUM_REPETITIONS for debugging the use of BTstate vs var_state
             # If so, end this exercise
             return EndThisSequenceAction()
         # Check if the user has responded

@@ -67,6 +67,18 @@ class CognitiveSequenceState(State):
             return CheckTimerAction()
         elif action_name == "AssessSequence":
             return AssessSequenceAction()
+        elif action_name == "EndThisSequence":
+            return EndThisSequenceAction()
+        elif action_name == "RepeatThisSequence":
+            return RepeatThisSequenceAction()
+        elif action_name == "RecaptureAttention":
+            return RecaptureAttentionAction()
+        elif action_name == "EndSequenceSocial":
+            return EndSequenceSocialAction()
+        elif action_name == "RepeatSequenceSocial":
+            return RepeatSequenceSocialAction()
+        elif action_name == "GiveSequenceHint":
+            return GiveSequenceHintAction()
         else:
             raise ValueError(f"Unknown action name: {action_name}")
         

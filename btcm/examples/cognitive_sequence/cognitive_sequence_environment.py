@@ -24,8 +24,8 @@ class UserProfile():
     def default_user():
         default_state = CognitiveSequenceState.default_values()
         return UserProfile(
-            speed=default_state["UserSpeed"],
-            accuracy=default_state["UserAccuracy"],
+            speed="Medium",
+            accuracy="High",
             attention=default_state["UserAttention"],
             frustration=default_state["UserFrustration"],
             confusion=default_state["UserConfusion"]
@@ -49,13 +49,13 @@ class UserProfile():
         error_rate_dict = {
             "Simple": {
                 "High": 0.01,
-                "Medium": 0.1,
-                "Low": 0.2
+                "Medium": 0.15,
+                "Low": 0.3
             },
             "Complex": {
-                "High": 0.1,
-                "Medium": 0.2,
-                "Low": 0.35
+                "High": 0.02,
+                "Medium": 0.22,
+                "Low": 0.5
             }
         }
 
@@ -74,6 +74,7 @@ class UserProfile():
                 
                 user_sequence[i] = random.choice(allowed_characters)
 
+        '''
         # Shuffle rate based on confusion and length
         shuffle_rate_dict = {
             "Short": {
@@ -98,22 +99,24 @@ class UserProfile():
         if random.random() < shuffle_rate:
             random.shuffle(user_sequence)
 
+        '''
+
         # Drop rate based on attention and length
         drop_rate_dict = {
             "Short": {
-                "High": 0.01,
-                "Medium": 0.02,
-                "Low": 0.08
+                "High": 0,
+                "Medium": 0.01,
+                "Low": 0.2
             },
             "Medium": {
-                "High": 0.03,
-                "Medium": 0.06,
-                "Low": 0.12
+                "High": 0.01,
+                "Medium": 0.03,
+                "Low": 0.4
             },
             "Long": {
                 "High": 0.05,
                 "Medium": 0.1,
-                "Low": 0.2
+                "Low": 0.6
             }
         }
 
@@ -122,6 +125,7 @@ class UserProfile():
         user_sequence = [
             char for char in user_sequence if random.random() > drop_rate
         ]
+        
 
         # Ensure the sequence is not empty
         if not user_sequence:
@@ -154,7 +158,7 @@ class UserProfile():
         if self.attention == "High":
             base_time *= 0.9
         elif self.attention == "Low":
-            base_time *= 1.1
+            base_time *= 1.8
 
         # Add some randomness to simulate variability in response times
         if self.attention == "High":
@@ -222,6 +226,8 @@ class CognitiveSequenceEnvironment(Environment):
             seq_length = 9
         else:
             raise ValueError("Invalid length. Choose 'Short', 'Medium', or 'Long'.")
+        
+        print(f"ROBOT SETS SEQUENCE TO LENGTH {seq_length} AND COMPLEXITY {self.sequence_complexity}")
 
         sequence = [random.choice(characters) for _ in range(seq_length)]
         return ''.join(sequence)
@@ -398,14 +404,16 @@ class CognitiveSequenceEnvironment(Environment):
         # Update latest accuracy
         if score == 1.0:
             state.vals["LatestUserAccuracy"] = "Perfect"
-        elif score >= 0.8:
+        elif score >= 0.9:
             state.vals["LatestUserAccuracy"] = "Good"
-        elif score >= 0.5:
+        elif score >= 0.7:
             state.vals["LatestUserAccuracy"] = "Medium"
-        elif score >= 0.1:
+        elif score >= 0.3:
             state.vals["LatestUserAccuracy"] = "Poor"
         else:
             state.vals["LatestUserAccuracy"] = "CompletelyWrong"
+
+        print(f"USER SCORED {score} AND GOT EVALUATED AS {state.vals['LatestUserAccuracy']}")
 
     '''
     SOCIAL ACTIONS

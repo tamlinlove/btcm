@@ -18,4 +18,7 @@ if __name__ == "__main__":
     # Slow User Profile
     cognitive_sequence_experiment.run_slow()
 
+    # Inaccurate User Profile
+    #cognitive_sequence_experiment.run_inaccurate()
+
     

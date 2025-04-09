@@ -436,6 +436,7 @@ class BTStateManager:
         self.set_initial_state()
         # Iterate through timesteps until current time
         curr_tick = 0
+        curr_time = 0
         found_time = False
         state_vals = None
 
@@ -445,7 +446,7 @@ class BTStateManager:
         node_updates = {}
         while str(curr_tick) in self.data and not found_time:
             data_tick = self.data[str(curr_tick)]
-            curr_time = 0
+            #curr_time = 0
             while str(curr_time) in data_tick and not found_time:
                 # Make Update
                 if "update" in data_tick[str(curr_time)]:

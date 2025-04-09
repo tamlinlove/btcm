@@ -312,6 +312,9 @@ class BTStateManager:
         # Create causal model
         self.model = self.create_causal_model(causal_edges)
 
+        # Get node names
+        self.node_names = self.get_node_name_dict()
+
 
     def read_from_file(self,filename:str):
         with open(filename, 'r') as file:
@@ -403,6 +406,19 @@ class BTStateManager:
             return f"decision_{node_id}"
         else:
             raise ValueError(f"Unknown node type '{node_type}'")
+        
+    def get_node_name_dict(self):
+        # Get node names
+        node_names = {}
+        for node in self.data["tree"]:
+            node_names["return_"+node] = "return_"+self.data["tree"][node]["name"]
+            node_names["executed_"+node] = "executed_"+self.data["tree"][node]["name"]
+            if self.data["tree"][node]["category"] == "Action":
+                node_names["decision_"+node] = "decision_"+self.data["tree"][node]["name"]
+        # Add names of state variables
+        for var in self.state.var_state.ranges():
+            node_names[var] = var
+        return node_names
     
     '''
     VALUES

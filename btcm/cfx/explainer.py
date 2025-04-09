@@ -36,27 +36,34 @@ class CounterfactualExplanation:
         self.counterfactual_foil = counterfactual_foil
         self.state_vals = copy.deepcopy(state.vals)
 
-    def assignment_string(self,names:dict,values:dict=None):
+    def assignment_string(self,names:dict,values:dict=None,node_names:dict[str,str]=None):
         if values is None:
             values = names
         text = ""
         val_list = list(names.keys())
         for i in range(len(val_list)):
             node = val_list[i]
-            text += f"{node} = {values[node]}"
+            if node_names is not None:
+                node_name = node_names[node]
+            else:
+                node_name = node
+            text += f"{node_name} = {values[node]}"
             if i == len(val_list) - 1:
                 continue
             elif i == len(val_list) - 2:
-                text += ", and "
+                if len(val_list) > 2:
+                    text += ", and "
+                else:
+                    text += " and "
             else:
                 text += ", "
         return text
 
-    def text(self):
-        fact_text = self.assignment_string(self.counterfactual_foil,self.state_vals)
-        reason_text = self.assignment_string(self.reason)
-        intervention_text = self.assignment_string(self.counterfactual_intervention)
-        foil_text = self.assignment_string(self.counterfactual_foil)
+    def text(self,names:dict[str,str]=None):
+        fact_text = self.assignment_string(self.counterfactual_foil,self.state_vals,node_names=names)
+        reason_text = self.assignment_string(self.reason,node_names=names)
+        intervention_text = self.assignment_string(self.counterfactual_intervention,node_names=names)
+        foil_text = self.assignment_string(self.counterfactual_foil,node_names=names)
 
         return f"The reason that {fact_text} is because {reason_text}. If instead {intervention_text}, then what would have happened is that {foil_text}."
 
@@ -65,8 +72,9 @@ class CounterfactualExplanation:
 
 
 class Explainer:
-    def __init__(self,model:CausalModel):
+    def __init__(self,model:CausalModel,node_names:dict[str,str]=None):
         self.model = model
+        self.node_names = node_names
 
     '''
     QUERY
@@ -154,7 +162,7 @@ class Explainer:
                 explanations.append(CounterfactualExplanation(combo,new_state.get_values(query.foil_vars()),self.model.state))
 
         for exp in explanations:
-            print("---",exp.text())
+            print("---",exp.text(names=self.node_names))
         
         
 

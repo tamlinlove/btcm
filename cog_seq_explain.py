@@ -17,7 +17,7 @@ if __name__ == "__main__":
     #manager.visualise_tree()
     #manager.visualise(show_values=True)
 
-    explainer = Explainer(manager.model)
+    explainer = Explainer(manager.model,node_names=manager.node_names)
     
     # Query set parameter decision
     node_id = manager.get_node_from_name("SetSequenceParameters","Decision")

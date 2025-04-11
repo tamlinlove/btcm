@@ -118,3 +118,17 @@ class State:
     '''
     def semantic_dict(self) -> dict[str,str]:
         return {var:"A state variable" for var in self.vars()}
+    
+    '''
+    INFORMATION FOR LOGGING
+    '''
+    def info_dict(self) -> dict:
+        semantics = self.semantic_dict()
+        internals = self.internal()
+
+        info = {"internal":{},"external":{}}
+        for var in self.vars():
+            int_text = "internal" if internals[var] else "external"
+            info[int_text][var] = semantics[var]
+
+        return info

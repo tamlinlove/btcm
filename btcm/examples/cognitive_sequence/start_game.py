@@ -56,16 +56,9 @@ class SetSequenceParameters(ActionNode):
 
     def execute(self, state:CognitiveSequenceState, action:Action):
         # Ask environment for a sequence based on parameters
-        status = self.board.environment.set_sequence(action)
+        status = self.board.environment.set_sequence(state,action)
 
-        if status:
-            # Update the state with the new sequence
-            state.vals["SequenceSet"] = True
-            state.vals["NumSequences"] += 1
-            return py_trees.common.Status.SUCCESS
-        
-        # If the action was not successful, return failure
-        return py_trees.common.Status.FAILURE
+        return py_trees.common.Status.SUCCESS if status else py_trees.common.Status.FAILURE
     
     def input_variables(self):
         return ["UserSpeed","UserAccuracy","UserAttention","UserFrustration","UserConfusion"]
@@ -122,14 +115,8 @@ class ProvideSequence(ActionNode):
     def execute(self, state:CognitiveSequenceState, action:Action):
         # Present the sequence to the user
         status = self.board.environment.provide_sequence(state)
-        if not status:
-            return py_trees.common.Status.FAILURE
 
-        # Update number of sequences
-        state.vals["NumRepetitions"] += 1
-        state.vals["UserResponded"] = False
-
-        return py_trees.common.Status.SUCCESS
+        return py_trees.common.Status.SUCCESS if status else py_trees.common.Status.FAILURE
     
     def input_variables(self):
         return []

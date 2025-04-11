@@ -8,6 +8,7 @@ class DummyCognitiveSequenceEnvironment(CognitiveSequenceEnvironment):
     Mocks the real CognitiveSequenceEnvironment class, but doesn't enact any changes on the input states, to allow for sensible interventions
     '''
     def __init__(self):
+        # TODO: Use causal model structure to avoid overriding intervened variables? Or maybe not?
         pass
 
     '''
@@ -19,9 +20,11 @@ class DummyCognitiveSequenceEnvironment(CognitiveSequenceEnvironment):
     def set_sequence(self,set_params_action:SetSequenceParametersAction):
         if set_params_action == NullAction():
             return False
+        # TODO: State changes
         return True
     
     def reset_timer(self):
+        # TODO: State changes
         return True
 
     def check_timer(self,_):
@@ -33,6 +36,11 @@ class DummyCognitiveSequenceEnvironment(CognitiveSequenceEnvironment):
     def provide_sequence(self, state:CognitiveSequenceState):
         if not state.vals["SequenceSet"]:
             return False
+        # TODO: State changes
+        return True
+    
+    def reset_sequence_state(self,state:CognitiveSequenceState):
+        # TODO: State changes
         return True
     
     def give_hint(self,state:CognitiveSequenceState):
@@ -49,4 +57,5 @@ class DummyCognitiveSequenceEnvironment(CognitiveSequenceEnvironment):
         return True
     
     def recapture_attention(self, _):
+        # TODO: State changes
         return True

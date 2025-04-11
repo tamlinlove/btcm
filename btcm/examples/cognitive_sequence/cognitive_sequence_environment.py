@@ -309,7 +309,7 @@ class CognitiveSequenceEnvironment(Environment):
         self.game_over = True
         return True
     
-    def set_sequence(self,set_params_action:SetSequenceParametersAction):
+    def set_sequence(self,state:CognitiveSequenceState,set_params_action:SetSequenceParametersAction):
         if set_params_action == NullAction():
             return False
 
@@ -317,6 +317,10 @@ class CognitiveSequenceEnvironment(Environment):
         self.sequence_length = set_params_action.sequence_length
         self.sequence_complexity = set_params_action.sequence_complexity
         self.sequence = self.generate_sequence()
+
+        # Update state
+        state.vals["SequenceSet"] = True
+        state.vals["NumSequences"] += 1
 
         return True
     
@@ -337,9 +341,13 @@ class CognitiveSequenceEnvironment(Environment):
             # Sequence has been repeated
             self.robot_speak(f"Here is the sequence again. Listen carefully. {self.sequence}")
 
+        # Update number of sequences
+        state.vals["NumRepetitions"] += 1
+        state.vals["UserResponded"] = False
+
         return True
     
-    def reset_timer(self):
+    def reset_timer(self,state:CognitiveSequenceState):
         # Ask the user to respond
         self.robot_speak("Ok, now it's your turn. Please repeat the sequence.")
 
@@ -359,6 +367,9 @@ class CognitiveSequenceEnvironment(Environment):
             self.sequence_complexity
         )
 
+        # Update state
+        state.vals["ResponseTimerActive"] = True
+
         return True
     
     def check_timer(self,state:CognitiveSequenceState):
@@ -373,6 +384,7 @@ class CognitiveSequenceEnvironment(Environment):
         if elapsed_time > self.user_response_time:
             # User has responded
             state.vals["UserResponded"] = True
+            state.vals["ResponseTimerActive"] = False
             self.user_speak(self.user_sequence)
         else:
             # User has not responded yet
@@ -414,6 +426,25 @@ class CognitiveSequenceEnvironment(Environment):
             state.vals["LatestUserAccuracy"] = "CompletelyWrong"
 
         print(f"USER SCORED {score} AND GOT EVALUATED AS {state.vals['LatestUserAccuracy']}")
+
+    def reset_sequence_state(self,state:CognitiveSequenceState):
+        # End the current sequence, reset for new sequence
+        state.vals["NumRepetitions"] = 0
+        state.vals["SequenceSet"] = False
+        state.vals["ResponseTimerActive"] = False
+        state.vals["UserResponded"] = False
+        state.vals["UserResponseTime"] = 0
+        state.vals["AttemptedReengageUser"] = False
+        state.vals["RepeatSequence"] = False
+
+        # Check if we have reached the maximum number of sequences
+        if state.vals["NumSequences"] >= state.MAX_NUM_SEQUENCES:
+            state.vals["EndGame"] = True
+
+        # To help with reading terminal output
+        print("---------------")
+
+        return True
 
     '''
     SOCIAL ACTIONS
@@ -483,6 +514,9 @@ class CognitiveSequenceEnvironment(Environment):
             self.robot_speak("You seem distracted. Let's focus on the task at hand.")
         else:
             self.robot_speak("Hey there! I need your attention!")
+
+        state.vals["AttemptedReengageUser"] = True
+
         return True
         
 

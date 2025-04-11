@@ -28,11 +28,9 @@ class StartResponseTimer(ActionNode):
     def execute(self, state:CognitiveSequenceState, action:Action):
         # Reset env timer
         if action == ResetTimerAction():
-            status = self.board.environment.reset_timer()
-            if status:
-                state.vals["ResponseTimerActive"] = True
-                return py_trees.common.Status.SUCCESS
-            return py_trees.common.Status.FAILURE
+            status = self.board.environment.reset_timer(state)
+
+            return py_trees.common.Status.SUCCESS if status else py_trees.common.Status.FAILURE
         # If action is NullAction, do nothing
         return py_trees.common.Status.SUCCESS
     
@@ -82,7 +80,6 @@ class HandleTimerResponse(ActionNode):
         # First, check if the user has responded
         if state.vals["UserResponded"]:
             # If so, return success
-            state.vals["ResponseTimerActive"] = False
             return py_trees.common.Status.SUCCESS
 
         # Check if the timer has expired
@@ -287,11 +284,8 @@ class DecideSocialAction(ActionNode):
         elif action == RecaptureAttentionAction():
             # Recapture attention
             status = self.board.environment.recapture_attention(state)
-            if status:
-                state.vals["AttemptedReengageUser"] = True
-        if status:
-            return py_trees.common.Status.SUCCESS
-        return py_trees.common.Status.FAILURE
+
+        return py_trees.common.Status.SUCCESS if status else py_trees.common.Status.FAILURE
     
     def input_variables(self):
         return ["UserResponded","RepeatSequence","UserConfusion","UserAttention"]

@@ -15,9 +15,7 @@ class CheckEndCurrentSequence(ConditionNode):
 
     def execute(self, state:CognitiveSequenceState, _):
         # Check if the current sequence is over
-        if not state.vals["RepeatSequence"]:
-            return py_trees.common.Status.SUCCESS
-        return py_trees.common.Status.FAILURE
+        return py_trees.common.Status.SUCCESS if not state.vals["RepeatSequence"] else py_trees.common.Status.FAILURE
     
     def input_variables(self):
         return ["RepeatSequence"]
@@ -26,28 +24,17 @@ class EndCurrentSequence(ActionNode):
     def __init__(self, name:str = "EndCurrentSequence"):
         super(EndCurrentSequence, self).__init__(name)
 
+        # Requires write access to environment
+        self.board.register_key("environment", access=py_trees.common.Access.WRITE)
+
     def decide(self, _):
         # Always ends the current sequence
         return EndThisSequenceAction()
     
     def execute(self, state:CognitiveSequenceState, action:Action):
-        # End the current sequence, reset for new sequence
-        state.vals["NumRepetitions"] = 0
-        state.vals["SequenceSet"] = False
-        state.vals["ResponseTimerActive"] = False
-        state.vals["UserResponded"] = False
-        state.vals["UserResponseTime"] = 0
-        state.vals["AttemptedReengageUser"] = False
-        state.vals["RepeatSequence"] = False
+        status = self.board.environment.reset_sequence_state(state)
 
-        # Check if we have reached the maximum number of sequences
-        if state.vals["NumSequences"] >= state.MAX_NUM_SEQUENCES:
-            state.vals["EndGame"] = True
-
-        # To help with reading terminal output
-        print("---------------")
-
-        return py_trees.common.Status.SUCCESS
+        return py_trees.common.Status.SUCCESS if status else py_trees.common.Status.FAILURE
     
     def input_variables(self):
         return ["NumSequences"]

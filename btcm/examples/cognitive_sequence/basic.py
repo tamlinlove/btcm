@@ -50,7 +50,6 @@ class CognitiveSequenceState(State):
     
     def internal(self):
         return {
-            # Internal
             "EndGame": True,
             "NumRepetitions": False,
             "SequenceSet": False,
@@ -71,7 +70,6 @@ class CognitiveSequenceState(State):
             "UserAttention":False,
             "UserFrustration":False,
             "UserConfusion":False,
-
         }
     
     '''

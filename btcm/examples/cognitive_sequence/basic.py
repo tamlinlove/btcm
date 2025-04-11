@@ -13,6 +13,10 @@ class CognitiveSequenceState(State):
     def __init__(self, values = None):
         super().__init__(values)
 
+    '''
+    VARIABLES
+    '''
+
     def ranges(self) -> dict:
         return {
             # Game state variables
@@ -44,8 +48,42 @@ class CognitiveSequenceState(State):
             for key in self.ranges().keys()
         }
     
+    def internal(self):
+        return {
+            # Internal
+            "EndGame": True,
+            "NumRepetitions": False,
+            "SequenceSet": False,
+            "ResponseTimerActive": False,
+            "UserResponded": False,
+            "UserResponseTime": False,
+            "LatestUserAccuracy":False,
+            "LatestUserSpeed":False,
+            "AttemptedReengageUser":False,
+            "RepeatSequence":True,
+            "NumSequences": False,
+
+            # User progress variables
+            "UserAccuracy":True,
+            "UserSpeed":True,
+
+            # User state variables
+            "UserAttention":False,
+            "UserFrustration":False,
+            "UserConfusion":False,
+
+        }
+    
+    '''
+    EXECUTION
+    '''
+
     def run(self,node:str,state:State):
         return self.var_funcs()[node](state)
+    
+    '''
+    ACTIONS
+    '''
     
     def retrieve_action(self, action_name):
         if action_name == "NullAction":
@@ -81,6 +119,10 @@ class CognitiveSequenceState(State):
             return GiveSequenceHintAction()
         else:
             raise ValueError(f"Unknown action name: {action_name}")
+        
+    '''
+    VALUES
+    '''
         
     @staticmethod
     def default_values():

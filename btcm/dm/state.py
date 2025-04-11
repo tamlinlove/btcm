@@ -14,6 +14,10 @@ class State:
         
     def __str__(self):
         return str(self.vals)
+    
+    '''
+    VARIABLE INFO
+    '''
         
     def ranges(self) -> dict:
         '''
@@ -33,11 +37,26 @@ class State:
         '''
         return list(self.ranges().keys())
     
+    def internal(self) -> dict[str,bool]:
+        '''
+        Return a mapping of each variable to a boolean, where True indicates the variable is internal to the BT, and False external
+        '''
+        raise NotImplementedError
+
+    
+    '''
+    ACTION INFO
+    '''
+    
     def retrieve_action(self,action_name:str) -> Action:
         '''
         Given a string id of an action, return an Action object
         '''
         raise NotImplementedError
+    
+    '''
+    VALUES
+    '''
      
     def set_values(self,values:dict):
         if self.valid_state_assignment(values):

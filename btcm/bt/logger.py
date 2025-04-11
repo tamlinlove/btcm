@@ -2,6 +2,7 @@ import py_trees
 import networkx as nx
 import json
 import copy
+from pathlib import Path
 
 from typing import Dict
 
@@ -155,6 +156,7 @@ class Logger(py_trees.visitors.VisitorBase):
         }
 
     def save_log(self):
+        Path(self.logfile).parent.mkdir(exist_ok=True, parents=True)
         with open(self.logfile, 'w') as f:
             json.dump(self.log_dict, f, indent=4)
 

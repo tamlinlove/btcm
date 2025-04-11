@@ -294,9 +294,9 @@ class BTStateManager:
         "Status.INVALID":py_trees.common.Status.INVALID,
     }
 
-    def __init__(self,filename:str,causal_edges:list[tuple[str,str]] = None,dummy_env:Environment=None):
+    def __init__(self,filename:str,causal_edges:list[tuple[str,str]] = None,dummy_env:Environment=None,directory=""):
         # Read Data
-        self.read_from_file(filename)
+        self.read_from_file(filename,directory)
 
         # Reconstruct BT
         self.behaviours = {} # Stores mapping from node id string to behaviour object
@@ -316,8 +316,12 @@ class BTStateManager:
         self.node_names = self.get_node_name_dict()
 
 
-    def read_from_file(self,filename:str):
-        with open(filename, 'r') as file:
+    def read_from_file(self,filename:str,directory:str):
+        if directory == "":
+            filepath = filename
+        else:
+            filepath = f"{directory}/{filename}"
+        with open(filepath, 'r') as file:
             self.data = json.load(file)
 
     def reconstruct_bt(self):

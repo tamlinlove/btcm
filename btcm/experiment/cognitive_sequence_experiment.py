@@ -4,6 +4,8 @@ from btcm.bt.logger import Logger
 
 from btcm.examples.cognitive_sequence.basic import CognitiveSequenceState
 
+LOG_DIRECTORY = "logs/cognitive_sequence"
+
 '''
 BASIC RUN EXPERIMENT
 '''
@@ -18,7 +20,7 @@ def cognitive_sequence_run(initial_vals:dict,user_profile:UserProfile,log_file:s
     '''
     Visitor
     '''
-    logger = Logger(tree=tree,filename=log_file)
+    logger = Logger(tree=tree,filename=f"{LOG_DIRECTORY}/{log_file}")
     tree.visitors.append(logger)    
 
     '''

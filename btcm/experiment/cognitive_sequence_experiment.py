@@ -32,7 +32,7 @@ def cognitive_sequence_run(initial_vals:dict,user_profile:UserProfile,log_file:s
 '''
 RUNNING EXPERIMENT FOR DIFFERENT USER PROFILES
 '''
-def run_default():
+def run_default(filename:str="cog_log_default"):
     # Print
     print("==========================")
     print("Running default user profile experiment...")
@@ -50,11 +50,11 @@ def run_default():
     cognitive_sequence_run(
         initial_vals=initial_vals,
         user_profile=user_profile,
-        log_file="cog_log_default"
+        log_file=filename,
     )
     
 
-def run_distracted():
+def run_distracted(filename:str="cog_log_distracted"):
     # Print
     print("==========================")
     print("Running distracted user profile experiment...")
@@ -72,10 +72,10 @@ def run_distracted():
     cognitive_sequence_run(
         initial_vals=initial_vals,
         user_profile=user_profile,
-        log_file="cog_log_distracted"
+        log_file=filename,
     )
 
-def run_slow():
+def run_slow(filename:str="cog_log_slow"):
     # Print
     print("==========================")
     print("Running slow user profile experiment...")
@@ -92,10 +92,10 @@ def run_slow():
     cognitive_sequence_run(
         initial_vals=initial_vals,
         user_profile=user_profile,
-        log_file="cog_log_slow"
+        log_file=filename,
     )
 
-def run_inaccurate():
+def run_inaccurate(filename:str="cog_log_inaccurate"):
     # Print
     print("==========================")
     print("Running inaccurate user profile experiment...")
@@ -112,5 +112,5 @@ def run_inaccurate():
     cognitive_sequence_run(
         initial_vals=initial_vals,
         user_profile=user_profile,
-        log_file="cog_log_inaccurate"
+        log_file=filename,
     )

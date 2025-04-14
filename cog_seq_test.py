@@ -1,24 +1,42 @@
-import time
-import py_trees
-
-import btcm
+import argparse
 
 from btcm.experiment import cognitive_sequence_experiment
 
 from btcm.examples.cognitive_sequence.cognitive_sequence_environment import UserProfile
 from btcm.examples.cognitive_sequence.basic import CognitiveSequenceState
 
+profile_experiments = {
+    "default":cognitive_sequence_experiment.run_default,
+    "distracted":cognitive_sequence_experiment.run_distracted,
+    "innacurate":cognitive_sequence_experiment.run_inaccurate,
+    "slow":cognitive_sequence_experiment.run_slow,
+}
+
 if __name__ == "__main__":
-    # Default User Profile
-    cognitive_sequence_experiment.run_default()
+    '''
+    Parse Arguments
+    '''
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-p', '--profile', type=str, required=True)
+    parser.add_argument('-f', '--filename', type=str)
+    args = parser.parse_args()
 
-    # Distracted User Profile
-    #cognitive_sequence_experiment.run_distracted()
+    '''
+    Validation and Defaults
+    '''
+    # Profile
+    profile_name = args.profile.lower()
+    if profile_name not in profile_experiments:
+        raise ValueError(f"Profile {args.profile} is not valid")
+    
+    # Filename
+    filename = args.filename
+    if args.filename is None:
+        filename = f"cog_log_{profile_name}"
 
-    # Slow User Profile
-    #cognitive_sequence_experiment.run_slow()
-
-    # Inaccurate User Profile
-    #cognitive_sequence_experiment.run_inaccurate()
+    '''
+    Run Experiment
+    '''
+    profile_experiments[profile_name](filename=filename)
 
     

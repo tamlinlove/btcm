@@ -1,4 +1,4 @@
-from btcm.dm.state import State
+from btcm.dm.state import State,VarRange
 from btcm.dm.action import Action,NullAction
 
 
@@ -6,6 +6,7 @@ from btcm.dm.action import Action,NullAction
 STATE
 '''
 class CognitiveSequenceState(State):
+    # Environmental Constants that cannot be intervened on
     MAX_NUM_REPETITIONS = 3 # Maximum number of times a particular sequence can be provided
     MAX_NUM_SEQUENCES = 3 # Maximum number of sequences that can be provided
     MAX_TIMEOUT = 4 # seconds
@@ -17,29 +18,31 @@ class CognitiveSequenceState(State):
     VARIABLES
     '''
 
-    def ranges(self) -> dict:
+    def get_range_dict(self) -> dict:
         return {
-            # Game state variables
-            "EndGame": [True,False], # boolean, if True the game ends
-            "NumRepetitions": list(range(self.MAX_NUM_REPETITIONS+1)), # Number of times a particular sequence has been provided, to a maximum of MAX_NUM_SEQUENCES
-            "SequenceSet": [True,False], # boolean, if True a sequence has been set
-            "ResponseTimerActive": [True,False], # boolean, if True the response timer is active
-            "UserResponded": [True,False], # boolean, if True the user has responded with a sequence
-            "UserResponseTime": list(range(self.MAX_TIMEOUT+1)), # User response time in seconds, to a maximum of MAX_TIMEOUT
-            "LatestUserAccuracy":["Perfect","Good","Medium","Poor","CompletelyWrong"], # User accuracy in the last sequence attempt
-            "LatestUserSpeed":["Faster","Normal","Slower"], # User speed in the last sequence attempt, taking into account sequence difficulty
-            "AttemptedReengageUser":[True,False], # Whether the robot attempted to reengage the user after a timeout
-            "RepeatSequence":[True,False], # Whether the robot should repeat the current sequence or not
-            "NumSequences": list(range(self.MAX_NUM_SEQUENCES+1)), # Number of sequences that have been provided, to a maximum of MAX_NUM_SEQUENCES
+            # Internal Game Variables
+            "EndGame":VarRange.boolean(), # boolean, if True the game ends
+            "RepeatSequence":VarRange.boolean(), # Whether the robot should repeat the current sequence or not
+            "SequenceComplexity":VarRange.int_range(2,4), # The complexity of the sequence - the number of unique symbols used
+            "SequenceLength":VarRange.int_range(4,8), # The length of the sequence - how many symbols used
 
-            # User progress variables
-            "UserAccuracy":["High","Medium","Low"], # User accuracy level
-            "UserSpeed":["Fast","Medium","Slow"], # User speed level
+            # External Game Variables
+            "NumRepetitions":VarRange.int_range(0,self.MAX_NUM_REPETITIONS), # Number of times a particular sequence has been provided, to a maximum of MAX_NUM_SEQUENCES
+            "NumSequences": VarRange.int_range(0,self.MAX_NUM_SEQUENCES), # Number of sequences that have been provided, to a maximum of MAX_NUM_SEQUENCES
+            "SequenceSet": VarRange.boolean(), # boolean, if True a sequence has been set
+            "ResponseTimerActive": VarRange.boolean(), # boolean, if True the response timer is active
+            "UserResponded": VarRange.boolean(), # boolean, if True the user has responded with a sequence
+            "AttemptedReengageUser":VarRange.boolean(), # Whether the robot attempted to reengage the user after a timeout
 
-            # User state variables
-            "UserAttention":["High","Medium","Low"], # User attention level
-            "UserFrustration":["High","Medium","Low"], # User frustration level
-            "UserConfusion":["High","Medium","Low"], # User confusion level
+            # External User Variables
+            "UserMemory":VarRange.normalised_float(), # The memory score of the user, between 0 and 1
+            "UserAttention":VarRange.normalised_float(), # The attention score of the user, between 0 and 1
+            "UserReactivity":VarRange.normalised_float(), # The reactivity score of the user, between 0 and 1
+            "UserConfusion":VarRange.normalised_float(), # The confusion score of the user, between 0 and 1
+            "UserEngagement":VarRange.normalised_float(), # The engagement score of the user, between 0 and 1
+            "UserFrustration":VarRange.normalised_float(), # The frustration score of the user, between 0 and 1
+            "UserAccuracy":VarRange.normalised_float(), # The observed accuracy of the user for a given sequence, between 0 and 1
+            "UserResponseTime":VarRange.float_range(0,self.MAX_TIMEOUT), # The time taken for a user to respond to a given sequence, between 0 and MAX_TIMEOUT
         }
     
     def var_funcs(self) -> dict:
@@ -48,29 +51,15 @@ class CognitiveSequenceState(State):
             for key in self.ranges().keys()
         }
     
-    def internal(self):
-        return {
-            "EndGame": True,
-            "NumRepetitions": False,
-            "SequenceSet": False,
-            "ResponseTimerActive": False,
-            "UserResponded": False,
-            "UserResponseTime": False,
-            "LatestUserAccuracy":False,
-            "LatestUserSpeed":False,
-            "AttemptedReengageUser":False,
-            "RepeatSequence":True,
-            "NumSequences": False,
+    def internal(self,var):
+        internals = [
+            "EndGame",
+            "RepeatSequence",
+            "SequenceComplexity",
+            "SequenceLength"
+        ]
 
-            # User progress variables
-            "UserAccuracy":True,
-            "UserSpeed":True,
-
-            # User state variables
-            "UserAttention":False,
-            "UserFrustration":False,
-            "UserConfusion":False,
-        }
+        return var in internals
     
     '''
     EXECUTION
@@ -125,27 +114,29 @@ class CognitiveSequenceState(State):
     @staticmethod
     def default_values():
         return {
-            # Game state variables
+            # Internal Game Variables
             "EndGame":False,
-            "NumRepetitions":0,
-            "SequenceSet":False,
-            "ResponseTimerActive":False,
-            "UserResponded": False,
-            "UserResponseTime": 0,
-            "LatestUserAccuracy":"Medium",
-            "LatestUserSpeed":"Normal",
-            "AttemptedReengageUser":False,
             "RepeatSequence":False,
-            "NumSequences":0,
+            "SequenceComplexity":3,
+            "SequenceLength":4,
 
-            # User progress variables
-            "UserAccuracy":"Low",
-            "UserSpeed":"Slow",
+            # External Game Variables
+            "NumRepetitions":0,
+            "NumSequences": 0,
+            "SequenceSet": False,
+            "ResponseTimerActive": False,
+            "UserResponded": False,
+            "AttemptedReengageUser":False,
 
-            # User state variables
-            "UserAttention":"High",
-            "UserFrustration":"Low",
-            "UserConfusion":"Low",
+            # External User Variables
+            "UserMemory":0.8,
+            "UserAttention":0.8,
+            "UserReactivity":0.8,
+            "UserConfusion":0,
+            "UserEngagement":0.8,
+            "UserFrustration":0,
+            "UserAccuracy":0,
+            "UserResponseTime":0,
         }
 
     '''
@@ -159,27 +150,29 @@ class CognitiveSequenceState(State):
     '''
     def semantic_dict(self) -> dict[str,str]:
         return {
-            # Game state variables
-            "EndGame":"Boolean variable indicating if the game must be ended",
-            "NumRepetitions":f"Number of times a sequence has been provided, up to a maximum of {self.MAX_NUM_REPETITIONS}",
-            "SequenceSet":"Boolean, if True a sequence has been set",
-            "ResponseTimerActive":"Boolean, if True the robot is waiting for the user to respond",
-            "UserResponded":"Boolean, if True the user has responded with a sequence",
-            "UserResponseTime":"The time taken by the user to respond, in seconds",
-            "LatestUserAccuracy":"A measure of how well the user did in their last sequence attempt",
-            "LatestUserSpeed":"A measure of how fast the user was in their last sequence attempt, taking into account sequence difficulty",
-            "AttemptedReengageUser":"Boolean, if True the robot attempted to reengage the user after a timeout",
-            "RepeatSequence":"Boolean, if True the robot should repeat the current sequence",
-            "NumSequences":f"Number of sequences that have been provided, up to a maximum of {self.MAX_NUM_SEQUENCES}",
+            # Internal Game Variables
+            "EndGame":"Represents the decision to end the game at the next available moment.",
+            "RepeatSequence":"Represents the decision to repeat the current sequence rather than end the game or move to a new sequence.",
+            "SequenceComplexity":"The complexity of the sequence - determined by the number of unique symbols used.",
+            "SequenceLength":"The length of the sequence - determined by the number of characters in the sequence.",
 
-            # User progress variables
-            "UserAccuracy":"The user's accuracy thusfar",
-            "UserSpeed":"The speed of the user in repeating the sequence",
+            # External Game Variables
+            "NumRepetitions":"The number of times the current sequence has been repeated.",
+            "NumSequences": "The number of unique sequences that have been provided thus far.",
+            "SequenceSet": "If true, the sequence has been decided upon this round. False otherwise.",
+            "ResponseTimerActive": "If true, the robot has activated a timer and is waiting for the user to repeat a sequence.",
+            "UserResponded": "If true, the user has repeated (successfully or not) the sequence back to the robot.",
+            "AttemptedReengageUser":"If true, the robot has attempted to reengage the user in the task.",
 
-            # User state variables
-            "UserAttention":"The level of attention the user is paying to the task",
-            "UserFrustration":"The level of frustration the user is experiencing",
-            "UserConfusion":"The level of confusion the user is experiencing",
+            # External User Variables
+            "UserMemory":"A number from 0 to 1 representing the user's ability to recall sequences and instructions.",
+            "UserAttention":"A number from 0 to 1 representing the user's attention span.",
+            "UserReactivity":"A number from 0 to 1 representing the user's ability to respond quickly to sequences.",
+            "UserConfusion":"A number from 0 to 1 representing the user's confusion about the current sequence, with 1 indicating complete confusion.",
+            "UserEngagement":"A number from 0 to 1 representing the user's engagement in the task at the moment.",
+            "UserFrustration":"A number from 0 to 1 representing the user's frustration with the current task.",
+            "UserAccuracy":"A number from 0 to 1 representing the accuracy of the sequence a user has provided.",
+            "UserResponseTime":f"The time it has taken for the user to respond to a sequence. If it equals the maximum value {CognitiveSequenceState.MAX_TIMEOUT}, then the user did not respond in time.",
         }
 
 

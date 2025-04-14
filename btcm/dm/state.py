@@ -1,9 +1,91 @@
-from typing import Self
+from typing import Self,Dict
 
 from btcm.dm.action import Action
 
+class VarRange:
+    def __init__(self,range_type:str="cat",values:list=None,var_type:type=None,min:float=None,max:float=None):
+        self.range_type = range_type
+        self.values = values
+        self.var_type = var_type
+        self.min = min
+        self.max = max
+
+    '''
+    Constructors
+    '''
+    @staticmethod
+    def normalised_float():
+        return VarRange(range_type="cont",var_type=float,min=0,max=1)
+    
+    @staticmethod
+    def categorical(values:list[str]):
+        return VarRange(range_type="cat",values=values,var_type=str)
+    
+    @staticmethod
+    def boolean():
+        return VarRange(range_type="bool",values=[True,False],var_type=bool)
+    
+    @staticmethod
+    def int_range(min:int,max:int):
+        if min>max:
+            raise ValueError(f"Minimum {min} must be smaller than or equal to maximum {max}")
+        
+        return VarRange(range_type="cat",values=list(range(min,max+1)),var_type=int,min=min,max=max)
+    
+    @staticmethod
+    def float_range(min:float,max:float):
+        if min>max:
+            raise ValueError(f"Minimum {min} must be smaller than or equal to maximum {max}")
+        
+        return VarRange(range_type="cont",var_type=float,min=min,max=max)
+    
+    @staticmethod
+    def discretised_float_range(min:float,max:float,step:float,dec_places:int=10):
+        if min>max:
+            raise ValueError(f"Minimum {min} must be smaller than or equal to maximum {max}")
+
+        float_range = [round(min + i * step, dec_places) for i in range(int((max - min) / step) + 1)]
+        return VarRange(range_type="disc_cont",values=float_range,var_type=float,min=min,max=max)
+    
+    '''
+    Utility
+    '''
+    def get_max(self):
+        if self.max is None:
+            raise TypeError(f"Cannot get max value for VarRange type {self.var_type}")
+        else:
+            return self.max
+    
+    '''
+    Checks
+    '''
+    def valid(self,value):
+        # First, check typing
+        if self.var_type == float:
+            # Allow floats and ints
+            if not isinstance(value,(float,int)):
+                print(f"Value {value} of type {type(value)} is not of type {self.var_type}")
+                return False
+        elif not type(value) is self.var_type:
+            # For others, must match type exactly
+            print(f"Value {value} of type {type(value)} is not of type {self.var_type}")
+            return False
+            
+
+        if self.range_type in ["cont","disc_cont"]:
+            # Continuous between a min and max
+            return value >= self.min and value <= self.max
+        elif self.range_type in ["cat","bool"]:
+            # Categorical, can check values
+            return value in self.values
+        else:
+            raise ValueError(f"Unrecognised VarRange type {self.range_type}")
+    
+
 class State:
     def __init__(self,values:dict=None):
+       self.range_dict = self.get_range_dict()
+
        self.vals = None
        if values is not None:
            self.set_values(values)
@@ -18,12 +100,15 @@ class State:
     '''
     VARIABLE INFO
     '''
-        
-    def ranges(self) -> dict:
+
+    def get_range_dict(self) -> Dict[str,VarRange]:
         '''
-        Return a mapping from each variable in self.vars() to a list of possible values
+        Return a mapping from each variable in self.vars() to a corresponding VarRange object
         '''
         raise NotImplementedError
+        
+    def ranges(self) -> Dict[str,VarRange]:
+        return self.range_dict
     
     def var_funcs(self) -> dict:
         '''
@@ -62,10 +147,10 @@ class State:
         if self.valid_state_assignment(values):
             self.vals = values
         else:
-            raise ValueError("Invalid values: doesn't match defines ranges")
+            raise ValueError("Invalid values: doesn't match defined ranges")
     
     def set_value(self,var:str,value):
-        if not self.valid_var_value(var,value):
+        if not self.ranges()[var].valid(value):
             raise ValueError(f"Cannot set {var} to {value}")
         
         self.vals[var] = value
@@ -100,17 +185,11 @@ class State:
             return False
         
         for var in self.ranges():
-            valid = self.valid_var_value(var,values[var])
+            valid = self.ranges()[var].valid(values[var])
             if not valid:
                 print(f"Invalid value for {var}: {values[var]}")
                 return False
             
-        return True
-    
-    def valid_var_value(self,var:str,value) -> bool:
-        if value not in self.ranges()[var]:
-            # Variable value outside range
-            return False
         return True
     
     '''

@@ -10,12 +10,12 @@ from btcm.examples.cognitive_sequence.basic import SetSequenceParametersAction,C
 SIMULATED USER
 '''
 class UserProfile():
-    def __init__(self, speed:str, accuracy:str, attention:str, frustration:str, confusion:str):
-        self.speed = speed
-        self.accuracy = accuracy
-        self.attention = attention
-        self.frustration = frustration
-        self.confusion = confusion
+    def __init__(self, memory:float=0, attention:float=0, reactivity:int=0):
+        # Profile characteristics
+        self.memory = memory # The capacity for the user to remember
+        self.attention = attention # The attention span of the user
+        self.reactivity = reactivity # The ability for the user to react quickly
+
 
     '''
     ALTERNATE CONSTRUCTOR
@@ -24,19 +24,51 @@ class UserProfile():
     def default_user():
         default_state = CognitiveSequenceState.default_values()
         return UserProfile(
-            speed="Medium",
-            accuracy="High",
-            attention=default_state["UserAttention"],
-            frustration=default_state["UserFrustration"],
-            confusion=default_state["UserConfusion"]
+            memory = default_state["UserMemory"],
+            attention = default_state["UserAttention"],
+            reactivity = default_state["UserReactivity"],
         )
 
     '''
-    TYPING
+    DERIVED VARIABLES
     '''
+    @staticmethod
+    def get_confusion(state:CognitiveSequenceState,memory_weight=0.5,complexity_weight=0.5) -> float:
+        normalised_complexity = 0.5*state["SequenceComplexity"] - 1
+        confusion = memory_weight * (1 - state["UserMemory"]) + complexity_weight * normalised_complexity
+        return max(0, min(1, confusion))
+    
+    @staticmethod
+    def get_engagement(state:CognitiveSequenceState,confusion_weight=0.5,attention_weight=0.5) -> float:
+        engagement = confusion_weight * (1 - state["UserConfusion"]) + attention_weight * state["UserAttention"]
+        return max(0, min(1, engagement))
+    
+    @staticmethod
+    def get_accuracy(state:CognitiveSequenceState) -> float:
+        if state["SequenceComplexity"] == 2:
+            # Very simple
+            accuracy = -0.75 * state["UserConfusion"] + 0.95
+        elif state["SequenceComplexity"] == 3:
+            # Medium
+            accuracy = -0.8 * state["UserConfusion"] + 0.9
+        elif state["SequenceComplexity"] == 4:
+            # Complex
+            accuracy = -0.85 * state["UserConfusion"] + 0.85
 
-    def __str__(self):
-        return f"UserProfile(speed={self.speed}, accuracy={self.accuracy}, attention={self.attention}, frustration={self.frustration}, confusion={self.confusion})"
+        return max(0, min(1, accuracy))
+    
+    @staticmethod
+    def get_time(state:CognitiveSequenceState,reactivity_weight=0.4,confusion_weight=0.3,engagement_weight=0.3) -> float:
+        time_factor = reactivity_weight*state["UserReactivity"] + confusion_weight*state["UserConfusion"] + engagement_weight*state["UserEngagement"]
+        time_factor = max(0, min(1, time_factor))
+
+        base_time_gradient = 0.625 * state["SequenceLength"]
+        base_min_time = 0.5 * state["SequenceLength"]
+
+        base_time_taken = base_time_gradient * (1 - time_factor) + base_min_time
+
+        return base_time_taken
+
 
     '''
     USER SIMULATION

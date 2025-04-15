@@ -28,9 +28,12 @@ class StartResponseTimer(ActionNode):
     def execute(self, state:CognitiveSequenceState, action:Action):
         # Reset env timer
         if action == ResetTimerAction():
-            status = self.board.environment.reset_timer(state)
+            self.board.environment.reset_timer(state)
 
-            return py_trees.common.Status.SUCCESS if status else py_trees.common.Status.FAILURE
+            # Update state
+            state.vals["ResponseTimerActive"] = True
+
+            return py_trees.common.Status.SUCCESS
         # If action is NullAction, do nothing
         return py_trees.common.Status.SUCCESS
     
@@ -69,9 +72,6 @@ class HandleTimerResponse(ActionNode):
     def __init__(self, name:str = "HandleTimerResponse"):
         super(HandleTimerResponse, self).__init__(name)
 
-        # Requires write access to environment
-        self.board.register_key("environment", access=py_trees.common.Access.WRITE)
-
     def decide(self, state:CognitiveSequenceState):
         # Never takes an action
         return NullAction()
@@ -80,11 +80,14 @@ class HandleTimerResponse(ActionNode):
         # First, check if the user has responded
         if state.vals["UserResponded"]:
             # If so, return success
+            state.vals["ResponseTimerActive"] = False
             return py_trees.common.Status.SUCCESS
 
         # Check if the timer has expired
-        if state.vals["UserResponseTime"] >= state.MAX_TIMEOUT:
+        if state.vals["UserResponseTime"] >= CognitiveSequenceState.MAX_TIMEOUT:
             # If so, return failure
+            state.vals["ResponseTimerActive"] = False
+            state.vals["UserTimeout"] = True
             return py_trees.common.Status.FAILURE
         # Otherwise, return running
         return py_trees.common.Status.RUNNING
@@ -108,8 +111,7 @@ class AssessUserSequence(ActionNode):
     
     def execute(self, state:CognitiveSequenceState, action:Action):
         if action == AssessSequenceAction():
-            # Check with the environment
-            self.board.environment.assess_user_sequence(state)
+            # TODO: do something here
             return py_trees.common.Status.SUCCESS
         # Should never get here
         return py_trees.common.Status.FAILURE
@@ -133,59 +135,13 @@ class HandleUserResponse(ActionNode):
         if not state.vals["UserResponded"]:
             return py_trees.common.Status.FAILURE
         
-        # Update the user speed and accuracy estimates based on latest response
-        # First, update speed
-        if state.vals["LatestUserSpeed"] == "Faster":
-            # User faster than expected given difficulty
-            if state.vals["UserSpeed"] == "Slow":
-                state.vals["UserSpeed"] = "Medium"
-            elif state.vals["UserSpeed"] == "Medium":
-                state.vals["UserSpeed"] = "Fast"
-        elif state.vals["LatestUserSpeed"] == "Normal":
-            # User normal speed given difficulty
-            if state.vals["UserSpeed"] == "Slow":
-                state.vals["UserSpeed"] = "Medium"
-        else:
-            # User slower than expected given difficulty
-            if state.vals["UserSpeed"] == "Fast":
-                state.vals["UserSpeed"] = "Medium"
-            elif state.vals["UserSpeed"] == "Medium":
-                state.vals["UserSpeed"] = "Slow"
-
-        # Now, update accuracy
-        if state.vals["LatestUserAccuracy"] == "Perfect":
-            # Improve user accuracy
-            if state.vals["UserAccuracy"] == "Low":
-                state.vals["UserAccuracy"] = "Medium"
-            elif state.vals["UserAccuracy"] == "Medium":
-                state.vals["UserAccuracy"] = "High"
-        elif state.vals["LatestUserAccuracy"] == "Good":
-            # Improve user accuracy
-            if state.vals["UserAccuracy"] == "Low":
-                state.vals["UserAccuracy"] = "Medium"
-            elif state.vals["UserAccuracy"] == "Medium":
-                state.vals["UserAccuracy"] = "High"
-        elif state.vals["LatestUserAccuracy"] == "Medium":
-            # Move user accuracy to medium
-            state.vals["UserAccuracy"] = "Medium"
-        elif state.vals["LatestUserAccuracy"] == "Poor":
-            # Decrease user accuracy
-            if state.vals["UserAccuracy"] == "High":
-                state.vals["UserAccuracy"] = "Medium"
-            elif state.vals["UserAccuracy"] == "Medium":
-                state.vals["UserAccuracy"] = "Low"
-        else:
-            # Very bad performance, straight to bottom
-            state.vals["UserAccuracy"] = "Low"
-
-        # Print
-        print(f"Updates to user model: Speed - {state.vals['UserSpeed']}, Accuracy - {state.vals['UserAccuracy']}")
+        # TODO: Do something here?
 
         return py_trees.common.Status.SUCCESS
             
     
     def input_variables(self):
-        return ["UserResponded","LatestUserSpeed","LatestUserAccuracy","UserSpeed","UserAccuracy"]
+        return ["UserResponded"]
     
     def action_space(self):
         return [NullAction()]
@@ -195,33 +151,28 @@ class RepeatOrEnd(ActionNode):
     def __init__(self, name:str = "RepeatOrEnd"):
         super(RepeatOrEnd, self).__init__(name)
 
-    def decide(self, state:CognitiveSequenceState):
+    def decide(self, state:CognitiveSequenceState,engagement_threshold = 0.4,frustration_threshold=0.8):
         # First, check if we have exceeded the maximum number of repetitions
-        if state.vals["NumRepetitions"] >= CognitiveSequenceState.MAX_NUM_REPETITIONS: # TODO: change this to state.MAX_NUM_REPETITIONS for debugging the use of BTstate vs var_state
-            # If so, end this exercise
+        if state.vals["NumRepetitions"] >= CognitiveSequenceState.MAX_NUM_REPETITIONS:
             return EndThisSequenceAction()
-        # Check if the user has responded
+        
+        # Check if user has responded
         if state.vals["UserResponded"]:
-            # End if the response is very good or very bad
-            if state.vals["LatestUserAccuracy"] == "Perfect" or state.vals["LatestUserAccuracy"] == "CompletelyWrong":
+            if state.vals["UserNumErrors"] == 0 or state.vals["UserNumErrors"] == state.ranges()["UserNumErrors"].get_max():
+                # Either perfect or really bad, so we need to move on
                 return EndThisSequenceAction()
-            # If the user is frustrated, end the exercise
-            if state.vals["UserFrustration"] == "High":
-                return EndThisSequenceAction()
-            # Otherwise, repeat the sequence
-            return RepeatThisSequenceAction()
         else:
-            # Check if user is not paying attention and we've already tried to recapture attention
-            if state.vals["UserAttention"] == "Low" and state.vals["AttemptedReengageUser"]:
-                # If so, end the exercise
+            # Check if engagement is low
+            if state.vals["UserEngagement"] < engagement_threshold and state.vals["AttemptedReengageUser"]:
+                # We have already tried to reengage, move on
                 return EndThisSequenceAction()
-            # Check if user is frustrated
-            if state.vals["UserFrustration"] == "High":
-                # If so, end the exercise
-                return EndThisSequenceAction()
-            # Otherwise, repeat the sequence
-            return RepeatThisSequenceAction()
-
+            
+        if state.vals["UserFrustration"] > frustration_threshold:
+            # User is too frustrated, move on
+            return EndThisSequenceAction()
+        
+        # Otherwise, repeat
+        return RepeatThisSequenceAction()
     
     def execute(self, state:CognitiveSequenceState, action:Action):
         if action == EndThisSequenceAction():
@@ -234,7 +185,7 @@ class RepeatOrEnd(ActionNode):
         return py_trees.common.Status.FAILURE
     
     def input_variables(self):
-        return ["NumRepetitions","UserResponded","LatestUserAccuracy","UserFrustration","UserAttention","AttemptedReengageUser"]
+        return ["NumRepetitions","UserResponded","UserFrustration","UserEngagement","AttemptedReengageUser","UserNumErrors"]
     
     def action_space(self):
         return [RepeatThisSequenceAction(),EndThisSequenceAction(),NullAction()]
@@ -246,12 +197,12 @@ class DecideSocialAction(ActionNode):
         # Requires write access to environment
         self.board.register_key("environment", access=py_trees.common.Access.WRITE)
 
-    def decide(self, state:CognitiveSequenceState):
+    def decide(self, state:CognitiveSequenceState, confusion_threshold=0.6, engagement_threshold = 0.4):
         # Check if repeat sequence is set
         if state.vals["UserResponded"]:
             if state.vals["RepeatSequence"]:
                 # Repeating - check if user is confused
-                if state.vals["UserConfusion"] == "High":
+                if state.vals["UserConfusion"] >= confusion_threshold:
                     return GiveSequenceHintAction()
                 # Otherwise, just repeat the sequence
                 return RepeatSequenceSocialAction()
@@ -260,7 +211,7 @@ class DecideSocialAction(ActionNode):
                 return EndSequenceSocialAction()
         else:
             if state.vals["RepeatSequence"]:
-                if state.vals["UserAttention"] == "Low":
+                if state.vals["UserEngagement"] < engagement_threshold:
                     # Repeating - check if user is not paying attention
                     return RecaptureAttentionAction()
                 # Otherwise, just repeat the sequence
@@ -284,11 +235,12 @@ class DecideSocialAction(ActionNode):
         elif action == RecaptureAttentionAction():
             # Recapture attention
             status = self.board.environment.recapture_attention(state)
+            state.vals["AttemptedReengageUser"] = True
 
         return py_trees.common.Status.SUCCESS if status else py_trees.common.Status.FAILURE
     
     def input_variables(self):
-        return ["UserResponded","RepeatSequence","UserConfusion","UserAttention"]
+        return ["UserResponded","RepeatSequence","UserConfusion","UserEngagement"]
     
     def action_space(self):
         return [GiveSequenceHintAction(),RepeatSequenceSocialAction(),EndSequenceSocialAction(),RecaptureAttentionAction(),NullAction()]

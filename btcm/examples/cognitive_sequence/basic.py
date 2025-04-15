@@ -1,3 +1,5 @@
+import numpy as np
+
 from typing import Self
 
 from btcm.dm.state import State,VarRange
@@ -33,12 +35,12 @@ class CognitiveSequenceState(State):
             "NumRepetitions":VarRange.int_range(0,self.MAX_NUM_REPETITIONS), # Number of times a particular sequence has been provided, to a maximum of MAX_NUM_SEQUENCES
             "NumSequences": VarRange.int_range(0,self.MAX_NUM_SEQUENCES), # Number of sequences that have been provided, to a maximum of MAX_NUM_SEQUENCES
             "SequenceSet": VarRange.boolean(), # boolean, if True a sequence has been set
-
-            # External Game Variables
             "ResponseTimerActive": VarRange.boolean(), # boolean, if True the response timer is active
-            "UserResponded": VarRange.boolean(), # boolean, if True the user has responded with a sequence
             "UserTimeout": VarRange.boolean(), # boolean, if True the timeout expired before the user could respond
             "AttemptedReengageUser":VarRange.boolean(), # Whether the robot attempted to reengage the user after a timeout
+
+            # External Game Variables
+            "UserResponded": VarRange.boolean(), # boolean, if True the user has responded with a sequence
 
             # Non-intervenable Game Variables
             "CurrentSequence": VarRange.any_string(), # The current sequence provided to the user
@@ -54,6 +56,7 @@ class CognitiveSequenceState(State):
             "UserEngagement":VarRange.normalised_float(), # The engagement score of the user, between 0 and 1
             "UserFrustration":VarRange.normalised_float(), # The frustration score of the user, between 0 and 1
             "BaseUserAccuracy":VarRange.normalised_float(), # The base accuracy of the user for a given sequence, between 0 and 1
+            "UserNumErrors":VarRange.int_range(0,3), # The number of erros the user has made in their latest sequence
             "BaseUserResponseTime":VarRange.float_range(0,self.MAX_TIMEOUT), # The base time taken for a user to respond to a given sequence, between 0 and MAX_TIMEOUT
             "ObservedUserResponseTime":VarRange.float_range(0,self.MAX_TIMEOUT), # The observed time taken for a user to respond to a given sequence, between 0 and MAX_TIMEOUT
         }
@@ -67,10 +70,11 @@ class CognitiveSequenceState(State):
             "NumRepetitions",
             "NumSequences",
             "SequenceSet",
+            "ResponseTimerActive",
+            "UserTimeout",
+            "AttemptedReengageUser",
             # Non-intervenable
             "CurrentSequence",
-            "AccuracySeed",
-            "ResponseTimeSeed",
         ]
 
         return var in internals
@@ -88,8 +92,10 @@ class CognitiveSequenceState(State):
         # ...but some do:
         func_dict["UserConfusion"] = self.get_confusion
         func_dict["UserEngagement"] = self.get_engagement
-        func_dict["UserAccuracy"] = self.get_accuracy
-        func_dict["UserResponseTime"] = self.get_time
+        func_dict["BaseUserAccuracy"] = self.get_accuracy
+        func_dict["UserNumErrors"] = self.get_num_errors
+        func_dict["BaseUserResponseTime"] = self.get_time
+        func_dict["ObservedUserResponseTime"] = self.get_observed_time
 
         return func_dict
     
@@ -106,17 +112,33 @@ class CognitiveSequenceState(State):
     
     @staticmethod
     def get_accuracy(state:Self) -> float:
-        if state["SequenceComplexity"] == 2:
-            # Very simple
-            accuracy = -0.75 * state["UserConfusion"] + 0.95
-        elif state["SequenceComplexity"] == 3:
-            # Medium
-            accuracy = -0.8 * state["UserConfusion"] + 0.9
-        elif state["SequenceComplexity"] == 4:
-            # Complex
-            accuracy = -0.85 * state["UserConfusion"] + 0.85
+        complexity_range = state.vals["SequenceComplexity"]-CognitiveSequenceState.MIN_COMPLEXITY
+        accuracy = -(0.75+0.05*complexity_range)*state.vals["UserConfusion"] + 0.95 - 0.05*complexity_range
 
         return max(0, min(1, accuracy))
+    
+    @staticmethod
+    def get_num_errors(state:Self) -> int:
+        # Determine if the sequence will be incorrect
+        np.random.seed(state.vals["AccuracySeed"])
+        accuracy_score = min(1,max(0,np.random.normal(state.vals["BaseUserAccuracy"],0.05)))
+
+        if accuracy_score > 0.6:
+            # Perfect sequence
+            num_errors = 0
+        elif accuracy_score > 0.4:
+            # One error
+            num_errors = 1
+        elif accuracy_score > 0.2:
+            # Two errors
+            num_errors = 2
+        else:
+            # Three errors
+            num_errors = 3
+
+        num_errors = min(num_errors,state.vals["SequenceLength"])
+
+        return num_errors
     
     @staticmethod
     def get_time(state:Self,reactivity_weight=0.4,confusion_weight=0.3,engagement_weight=0.3) -> float:
@@ -129,6 +151,13 @@ class CognitiveSequenceState(State):
         base_time_taken = base_time_gradient * (1 - time_factor) + base_min_time
 
         return base_time_taken
+    
+    @staticmethod
+    def get_observed_time(state:Self):
+        np.random.seed(state.vals["ResponseTimeSeed"])
+        response_time = min(CognitiveSequenceState.MAX_TIMEOUT,max(0,np.random.normal(state.vals["BaseUserResponseTime"],1)))
+
+        return response_time
     
     '''
     EXECUTION
@@ -188,15 +217,15 @@ class CognitiveSequenceState(State):
             "RepeatSequence":False,
             "SequenceComplexity":3,
             "SequenceLength":4,
-
-            # External Game Variables
             "NumRepetitions":0,
             "NumSequences": 0,
             "SequenceSet": False,
             "ResponseTimerActive": False,
-            "UserResponded": False,
             "UserTimeout": False,
             "AttemptedReengageUser":False,
+
+            # External Game Variables
+            "UserResponded": False,
 
             # Non-intervenable Game Variables
             "CurrentSequence": "",
@@ -212,6 +241,7 @@ class CognitiveSequenceState(State):
             "UserEngagement":0.8,
             "UserFrustration":0,
             "BaseUserAccuracy":0,
+            "UserNumErrors":0,
             "BaseUserResponseTime":0,
             "ObservedUserResponseTime":0,
         }
@@ -232,15 +262,15 @@ class CognitiveSequenceState(State):
             "RepeatSequence":"Represents the decision to repeat the current sequence rather than end the game or move to a new sequence.",
             "SequenceComplexity":"The complexity of the sequence - determined by the number of unique symbols used.",
             "SequenceLength":"The length of the sequence - determined by the number of characters in the sequence.",
-
-            # External Game Variables
             "NumRepetitions":"The number of times the current sequence has been repeated.",
             "NumSequences": "The number of unique sequences that have been provided thus far.",
             "SequenceSet": "If true, the sequence has been decided upon this round. False otherwise.",
             "ResponseTimerActive": "If true, the robot has activated a timer and is waiting for the user to repeat a sequence.",
-            "UserResponded": "If true, the user has repeated (successfully or not) the sequence back to the robot.",
             "UserTimeout": "If true the timeout expired before the user could respond.",
             "AttemptedReengageUser":"If true, the robot has attempted to reengage the user in the task.",
+
+            # External Game Variables
+            "UserResponded": "If true, the user has repeated (successfully or not) the sequence back to the robot.",
 
             # Non-intervenable Game Variables
             "CurrentSequence": "A string of characters representing the current sequence provided to the user.",
@@ -256,6 +286,7 @@ class CognitiveSequenceState(State):
             "UserEngagement":"A number from 0 to 1 representing the user's engagement in the task at the moment.",
             "UserFrustration":"A number from 0 to 1 representing the user's frustration with the current task.",
             "BaseUserAccuracy":"A number from 0 to 1 representing the base accuracy of the sequence a user has provided.",
+            "UserNumErrors":"The number of erros the user has made in their latest sequence.",
             "BaseUserResponseTime":f"The base time it takes for the user to respond to a sequence. If it equals the maximum value {CognitiveSequenceState.MAX_TIMEOUT}, then the user did not respond in time.",
             "ObservedUserResponseTime":f"The observed time it has taken for the user to respond to a sequence. If it equals the maximum value {CognitiveSequenceState.MAX_TIMEOUT}, then the user did not respond in time.",
         }

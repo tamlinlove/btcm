@@ -1,4 +1,5 @@
 import py_trees
+import numpy as np
 
 from btcm.bt.nodes import ActionNode,ConditionNode
 from btcm.dm.action import Action,NullAction
@@ -31,37 +32,80 @@ class SetSequenceParameters(ActionNode):
     def __init__(self, name:str = "SetSequenceParameters"):
         super(SetSequenceParameters, self).__init__(name)
 
-        # Requires write access to environment and state
-        self.board.register_key("environment", access=py_trees.common.Access.WRITE)
-        self.board.register_key("state", access=py_trees.common.Access.WRITE)
-
     def decide(self, state:CognitiveSequenceState):
         # Initialise difficulty parameters
-        length = "Medium"
-        complexity = "Simple"
 
-        # Adjust length based on user's speed and accuracy
-        if state.vals["UserSpeed"] == "Fast" and state.vals["UserAccuracy"] == "High":
-            length = "Long"
-        elif state.vals["UserSpeed"] == "Slow" or state.vals["UserAccuracy"] == "Low":
-            length = "Short"
+        if state.vals["NumSequences"] == 0:
+            # This is the very first parameter setting, cannot use previous sequences
+            
+            # First, decide on complexity using memory and attention
+            complexity_score = state.vals["UserMemory"] * state.vals["UserAttention"]
 
-        # Adjust complexity based on user's attention, frustration, and confusion
-        if state.vals["UserAttention"] == "High" and state.vals["UserFrustration"] == "Low" and state.vals["UserConfusion"] == "Low":
-            complexity = "Complex"
-        elif state.vals["UserAttention"] == "Low" or state.vals["UserFrustration"] == "High" or state.vals["UserConfusion"] == "High":
-            complexity = "Simple"
+            # Now, decide on length using reactivity
+            length_score = state.vals["UserReactivity"]
+        else:
+            # Can use data from previous sequences to tune this one
+            
+            # First, decide on complexity using confusion, engagement and accuracy
+            complexity_score = state.vals["UserConfusion"] * state.vals["UserEngagement"] * state.vals["BaseUserAccuracy"]
+
+            # Next, decide on length using response time, accuracy and whether or not the user timed out
+            timeout_score = 1 if state.vals["UserTimeout"] else 0
+            default_reactivity = 0.8
+            default_attention = 0.8
+            default_memory = 0.8
+            default_time_factor = 0.4*default_reactivity - 0.075*default_memory + 0.15*default_attention + 0.075*state.vals["SequenceComplexity"] + 0.225
+            base_time_gradient = 0.625 * state.vals["SequenceLength"]
+            base_min_time = 0.5 * state.vals["SequenceLength"]
+            base_time_taken = base_time_gradient * (1 - default_time_factor) + base_min_time
+            time_score = max(0,min(1,1-(state.vals["ObservedUserResponseTime"]/base_time_taken)))
+            length_score = 0.5*timeout_score + 0.5*state.vals["BaseUserAccuracy"]*time_score
+
+        # Determine actual values
+        complexity = round(complexity_score*(CognitiveSequenceState.MAX_COMPLEXITY-CognitiveSequenceState.MIN_COMPLEXITY))+CognitiveSequenceState.MIN_COMPLEXITY
+        length = round(length_score*(CognitiveSequenceState.MAX_LENGTH-CognitiveSequenceState.MIN_LENGTH))+CognitiveSequenceState.MIN_LENGTH
 
         return SetSequenceParametersAction(length, complexity)
 
     def execute(self, state:CognitiveSequenceState, action:Action):
-        # Ask environment for a sequence based on parameters
-        status = self.board.environment.set_sequence(state,action)
+        if isinstance(action,SetSequenceParametersAction):
+            # Update internal state
+            state.vals["SequenceComplexity"] = action.sequence_complexity
+            state.vals["SequenceLength"] = action.sequence_length
+            state.vals["SequenceSet"] = True
+            state.vals["NumSequences"] += 1
 
-        return py_trees.common.Status.SUCCESS if status else py_trees.common.Status.FAILURE
+            # Generate the sequence
+            state.vals["CurrentSequence"] = self.generate_sequence(action)
+
+            return py_trees.common.Status.SUCCESS
+        return py_trees.common.Status.FAILURE
+    
+    def generate_sequence(self,action:SetSequenceParametersAction):
+        character_set = ["A","B","C","D"]
+        allowed_characters = character_set[0:action.sequence_complexity]
+
+        # TODO: If we care about reproducibility here, add a seed variable
+        sequence = [np.random.choice(allowed_characters) for _ in range(action.sequence_length)]
+
+        print(f"ROBOT SETS SEQUENCE TO LENGTH {action.sequence_length} AND COMPLEXITY {action.sequence_complexity}")
+
+        return ''.join(sequence)
     
     def input_variables(self):
-        return ["UserSpeed","UserAccuracy","UserAttention","UserFrustration","UserConfusion"]
+        return [
+            "NumSequences",
+            "UserMemory",
+            "UserAttention",
+            "UserReactivity",
+            "UserConfusion",
+            "UserEngagement",
+            "BaseUserAccuracy",
+            "UserTimeout",
+            "SequenceComplexity",
+            "SequenceLength",
+            "ObservedUserResponseTime",
+        ]
     
     def action_space(self):
         all_combos = SetSequenceParametersAction.action_combos()
@@ -113,13 +157,20 @@ class ProvideSequence(ActionNode):
         return ProvideSequenceAction()
     
     def execute(self, state:CognitiveSequenceState, action:Action):
-        # Present the sequence to the user
-        status = self.board.environment.provide_sequence(state)
+        if not state.vals["SequenceSet"]:
+            # Sequence not set!
+            return py_trees.common.Status.FAILURE
 
-        return py_trees.common.Status.SUCCESS if status else py_trees.common.Status.FAILURE
+        # Present the sequence to the user
+        self.board.environment.provide_sequence(state)
+
+        # Update internal variables
+        state.vals["NumRepetitions"] += 1
+
+        return py_trees.common.Status.SUCCESS
     
     def input_variables(self):
-        return []
+        return ["SequenceSet"]
     
     def action_space(self):
         return [ProvideSequenceAction(),NullAction()]

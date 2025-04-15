@@ -63,6 +63,13 @@ class VarRange:
             raise TypeError(f"Cannot get max value for VarRange type {self.var_type}")
         else:
             return self.max
+        
+    def get_middle_value(self):
+        if self.values is None:
+            raise TypeError(f"Cannot get median value for VarRange type {self.var_type}")
+        else:
+            middleIndex = (len(self.values) - 1)//2
+            return self.values[middleIndex] 
     
     '''
     Checks

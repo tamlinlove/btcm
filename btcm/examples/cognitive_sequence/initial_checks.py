@@ -55,7 +55,7 @@ class EndGame(ActionNode):
     SEMANTIC DESCRIPTION
     '''
     def semantic_description(self) -> str:
-        return "Executes the EndGame action."
+        return "Ends the cognitive sequence task."
     
 '''
 Composite Nodes

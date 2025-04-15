@@ -38,7 +38,7 @@ class UserProfile():
 
         # Determine if the sequence will be incorrect
         np.random.seed(state.vals["AccuracySeed"])
-        error_prob = min(1,max(0,np.random.normal(state.vals["UserAccuracy"],0.05)))
+        error_prob = min(1,max(0,np.random.normal(state.vals["BaseUserAccuracy"],0.05)))
 
         error = np.random.rand() <= error_prob
 
@@ -95,7 +95,7 @@ class UserProfile():
         
     def calculate_response_time(self,state:CognitiveSequenceState):
         np.random.seed(state.vals["ResponseTimeSeed"])
-        response_time = min(state.MAX_TIMEOUT,max(0,np.random.normal(state.vals["UserResponseTime"],1)))
+        response_time = min(state.MAX_TIMEOUT,max(0,np.random.normal(state.vals["BaseUserResponseTime"],1)))
 
         return response_time
 
@@ -109,10 +109,6 @@ class CognitiveSequenceEnvironment(Environment):
 
         # Internal State
         self.game_over = False
-        self.number_of_sequences = 0
-        self.sequence_length = None
-        self.sequence_complexity = None
-        self.sequence = ""
         
         # User
         self.user_responding = False
@@ -131,32 +127,6 @@ class CognitiveSequenceEnvironment(Environment):
     def user_speak(self, text:str):
         # Simulate the user speaking
         print(f"USER SAYS: {text}")
-
-    def generate_sequence(self):
-        if self.sequence_length is None or self.sequence_complexity is None:
-            raise ValueError("Sequence length and complexity must be set before generating a sequence.")
-        
-        # Generate a sequence based on the parameters
-        if self.sequence_complexity == "Simple":
-            characters = ["A", "B"]
-        elif self.sequence_complexity == "Complex":
-            characters = ["A", "B", "C", "D"]
-        else:
-            raise ValueError("Invalid complexity level. Choose 'Simple' or 'Complex'.")
-
-        if self.sequence_length == "Short":
-            seq_length = 3
-        elif self.sequence_length == "Medium":
-            seq_length = 6
-        elif self.sequence_length == "Long":
-            seq_length = 9
-        else:
-            raise ValueError("Invalid length. Choose 'Short', 'Medium', or 'Long'.")
-        
-        print(f"ROBOT SETS SEQUENCE TO LENGTH {seq_length} AND COMPLEXITY {self.sequence_complexity}")
-
-        sequence = [random.choice(characters) for _ in range(seq_length)]
-        return ''.join(sequence)
     
     def calculate_substring_score(self, string_a: str, string_b: str) -> float:
         if not string_a or not string_b:
@@ -235,25 +205,7 @@ class CognitiveSequenceEnvironment(Environment):
         self.game_over = True
         return True
     
-    def set_sequence(self,state:CognitiveSequenceState,set_params_action:SetSequenceParametersAction):
-        if set_params_action == NullAction():
-            return False
-
-        # Set the parameters in the state
-        self.sequence_length = set_params_action.sequence_length
-        self.sequence_complexity = set_params_action.sequence_complexity
-        self.sequence = self.generate_sequence()
-
-        # Update state
-        state.vals["SequenceSet"] = True
-        state.vals["NumSequences"] += 1
-
-        return True
-    
     def provide_sequence(self,state:CognitiveSequenceState):
-        if not state.vals["SequenceSet"]:
-            # Sequence not set!
-            return False
         # Provide the sequence to the user
         if state.vals["NumRepetitions"] == 0:
             # First time for this unique sequence
@@ -267,10 +219,9 @@ class CognitiveSequenceEnvironment(Environment):
             # Sequence has been repeated
             self.robot_speak(f"Here is the sequence again. Listen carefully. {self.sequence}")
 
-        # Update number of sequences
-        state.vals["NumRepetitions"] += 1
+        # Update user response now that new sequence is here
         state.vals["UserResponded"] = False
-
+        
         return True
     
     def reset_timer(self,state:CognitiveSequenceState):

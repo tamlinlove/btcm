@@ -17,12 +17,6 @@ class DummyCognitiveSequenceEnvironment(CognitiveSequenceEnvironment):
     def end_game(self):
         return True
     
-    def set_sequence(self,state:CognitiveSequenceState,set_params_action:SetSequenceParametersAction):
-        if set_params_action == NullAction():
-            return False
-        # TODO: State changes
-        return True
-    
     def reset_timer(self):
         # TODO: State changes
         return True
@@ -34,8 +28,6 @@ class DummyCognitiveSequenceEnvironment(CognitiveSequenceEnvironment):
         pass
 
     def provide_sequence(self, state:CognitiveSequenceState):
-        if not state.vals["SequenceSet"]:
-            return False
         # TODO: State changes
         return True
     

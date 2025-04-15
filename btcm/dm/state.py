@@ -53,7 +53,7 @@ class VarRange:
     
     @staticmethod
     def any_int():
-        return VarRange(range_type="any",var_type=str)
+        return VarRange(range_type="any",var_type=int)
     
     '''
     Utility

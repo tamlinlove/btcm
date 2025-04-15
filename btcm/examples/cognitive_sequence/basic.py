@@ -1,6 +1,7 @@
+from typing import Self
+
 from btcm.dm.state import State,VarRange
 from btcm.dm.action import Action,NullAction
-
 
 '''
 STATE
@@ -34,6 +35,12 @@ class CognitiveSequenceState(State):
             "UserResponded": VarRange.boolean(), # boolean, if True the user has responded with a sequence
             "AttemptedReengageUser":VarRange.boolean(), # Whether the robot attempted to reengage the user after a timeout
 
+            # Non-intervenable Game Variables
+            "CurrentSequence": VarRange.any_string(), # The current sequence provided to the user
+            "UserSequence": VarRange.any_string(), # The current sequence responded by the user
+            "AccuracySeed": VarRange.any_int(), # The seed used to generate random errors by the user, saved for reproducibility
+            "ResponseTimeSeed": VarRange.any_int(), # The seed used to generate random response times by the user, saved for reproducibility
+
             # External User Variables
             "UserMemory":VarRange.normalised_float(), # The memory score of the user, between 0 and 1
             "UserAttention":VarRange.normalised_float(), # The attention score of the user, between 0 and 1
@@ -45,12 +52,6 @@ class CognitiveSequenceState(State):
             "UserResponseTime":VarRange.float_range(0,self.MAX_TIMEOUT), # The time taken for a user to respond to a given sequence, between 0 and MAX_TIMEOUT
         }
     
-    def var_funcs(self) -> dict:
-        return {
-            key: (lambda key: lambda state: state.vals[key])(key)
-            for key in self.ranges().keys()
-        }
-    
     def internal(self,var):
         internals = [
             "EndGame",
@@ -60,6 +61,61 @@ class CognitiveSequenceState(State):
         ]
 
         return var in internals
+    
+    '''
+    VARIABLE FUNCTIONS
+    '''
+    def var_funcs(self) -> dict:
+        # Most variables don't have a special function...
+        func_dict = {
+            key: (lambda key: lambda state: state.vals[key])(key)
+            for key in self.ranges().keys()
+        }
+
+        # ...but some do:
+        func_dict["UserConfusion"] = self.get_confusion
+        func_dict["UserEngagement"] = self.get_engagement
+        func_dict["UserAccuracy"] = self.get_accuracy
+        func_dict["UserResponseTime"] = self.get_time
+
+        return func_dict
+    
+    @staticmethod
+    def get_confusion(state:Self,memory_weight=0.5,complexity_weight=0.5) -> float:
+        normalised_complexity = 0.5*state["SequenceComplexity"] - 1
+        confusion = memory_weight * (1 - state["UserMemory"]) + complexity_weight * normalised_complexity
+        return max(0, min(1, confusion))
+    
+    @staticmethod
+    def get_engagement(state:Self,confusion_weight=0.5,attention_weight=0.5) -> float:
+        engagement = confusion_weight * (1 - state["UserConfusion"]) + attention_weight * state["UserAttention"]
+        return max(0, min(1, engagement))
+    
+    @staticmethod
+    def get_accuracy(state:Self) -> float:
+        if state["SequenceComplexity"] == 2:
+            # Very simple
+            accuracy = -0.75 * state["UserConfusion"] + 0.95
+        elif state["SequenceComplexity"] == 3:
+            # Medium
+            accuracy = -0.8 * state["UserConfusion"] + 0.9
+        elif state["SequenceComplexity"] == 4:
+            # Complex
+            accuracy = -0.85 * state["UserConfusion"] + 0.85
+
+        return max(0, min(1, accuracy))
+    
+    @staticmethod
+    def get_time(state:Self,reactivity_weight=0.4,confusion_weight=0.3,engagement_weight=0.3) -> float:
+        time_factor = reactivity_weight*state["UserReactivity"] + confusion_weight*state["UserConfusion"] + engagement_weight*state["UserEngagement"]
+        time_factor = max(0, min(1, time_factor))
+
+        base_time_gradient = 0.625 * state["SequenceLength"]
+        base_min_time = 0.5 * state["SequenceLength"]
+
+        base_time_taken = base_time_gradient * (1 - time_factor) + base_min_time
+
+        return base_time_taken
     
     '''
     EXECUTION
@@ -128,6 +184,12 @@ class CognitiveSequenceState(State):
             "UserResponded": False,
             "AttemptedReengageUser":False,
 
+            # Non-intervenable Game Variables
+            "CurrentSequence": "",
+            "UserSequence": "",
+            "AccuracySeed": 0,
+            "ResponseTimeSeed": 0,
+
             # External User Variables
             "UserMemory":0.8,
             "UserAttention":0.8,
@@ -163,6 +225,12 @@ class CognitiveSequenceState(State):
             "ResponseTimerActive": "If true, the robot has activated a timer and is waiting for the user to repeat a sequence.",
             "UserResponded": "If true, the user has repeated (successfully or not) the sequence back to the robot.",
             "AttemptedReengageUser":"If true, the robot has attempted to reengage the user in the task.",
+
+            # Non-intervenable Game Variables
+            "CurrentSequence": "A string of characters representing the current sequence provided to the user.",
+            "UserSequence": "A string of characters representing the current sequence responded by the user.",
+            "AccuracySeed": "The seed used to generate random errors by the user, saved for reproducibility.",
+            "ResponseTimeSeed": "The seed used to generate random response times by the user, saved for reproducibility.",
 
             # External User Variables
             "UserMemory":"A number from 0 to 1 representing the user's ability to recall sequences and instructions.",

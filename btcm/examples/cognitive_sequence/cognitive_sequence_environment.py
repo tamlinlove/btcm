@@ -1,5 +1,5 @@
-import random
 import time
+import numpy as np
 
 from btcm.dm.environment import Environment
 from btcm.dm.action import NullAction
@@ -30,178 +30,72 @@ class UserProfile():
         )
 
     '''
-    DERIVED VARIABLES
-    '''
-    @staticmethod
-    def get_confusion(state:CognitiveSequenceState,memory_weight=0.5,complexity_weight=0.5) -> float:
-        normalised_complexity = 0.5*state["SequenceComplexity"] - 1
-        confusion = memory_weight * (1 - state["UserMemory"]) + complexity_weight * normalised_complexity
-        return max(0, min(1, confusion))
-    
-    @staticmethod
-    def get_engagement(state:CognitiveSequenceState,confusion_weight=0.5,attention_weight=0.5) -> float:
-        engagement = confusion_weight * (1 - state["UserConfusion"]) + attention_weight * state["UserAttention"]
-        return max(0, min(1, engagement))
-    
-    @staticmethod
-    def get_accuracy(state:CognitiveSequenceState) -> float:
-        if state["SequenceComplexity"] == 2:
-            # Very simple
-            accuracy = -0.75 * state["UserConfusion"] + 0.95
-        elif state["SequenceComplexity"] == 3:
-            # Medium
-            accuracy = -0.8 * state["UserConfusion"] + 0.9
-        elif state["SequenceComplexity"] == 4:
-            # Complex
-            accuracy = -0.85 * state["UserConfusion"] + 0.85
-
-        return max(0, min(1, accuracy))
-    
-    @staticmethod
-    def get_time(state:CognitiveSequenceState,reactivity_weight=0.4,confusion_weight=0.3,engagement_weight=0.3) -> float:
-        time_factor = reactivity_weight*state["UserReactivity"] + confusion_weight*state["UserConfusion"] + engagement_weight*state["UserEngagement"]
-        time_factor = max(0, min(1, time_factor))
-
-        base_time_gradient = 0.625 * state["SequenceLength"]
-        base_min_time = 0.5 * state["SequenceLength"]
-
-        base_time_taken = base_time_gradient * (1 - time_factor) + base_min_time
-
-        return base_time_taken
-
-
-    '''
     USER SIMULATION
     '''
-    def generate_sequence(self,true_sequence,sequence_length:str,sequence_complexity:str):
+    def generate_sequence(self,state:CognitiveSequenceState):
         # Start with the true sequence
-        user_sequence = list(true_sequence)
+        user_sequence = state.vals["CurrentSequence"]
 
-        # Error rate based on complexity and accuracy
-        error_rate_dict = {
-            "Simple": {
-                "High": 0.01,
-                "Medium": 0.15,
-                "Low": 0.3
-            },
-            "Complex": {
-                "High": 0.02,
-                "Medium": 0.22,
-                "Low": 0.5
-            }
-        }
+        # Determine if the sequence will be incorrect
+        np.random.seed(state.vals["AccuracySeed"])
+        error_prob = min(1,max(0,np.random.normal(state.vals["UserAccuracy"],0.05)))
 
-        error_rate = error_rate_dict[sequence_complexity][self.accuracy]
+        error = np.random.rand() <= error_prob
 
-        # Introduce errors based on accuracy
-        for i in range(len(user_sequence)):
-            if random.random() < error_rate:
-                # Replace with a random character from the allowed set
-                if sequence_complexity == "Simple":
-                    allowed_characters = ["A", "B"]
-                elif sequence_complexity == "Complex":
-                    allowed_characters = ["A", "B", "C", "D"]
+        if error:
+            # Edit user sequence in some way
+            errors = ["swap","drop","replace"]
+            error_type = np.random.choice(errors)
+            if error_type == "swap":
+                # Randomly swap two characters
+                index1 = np.random.randint(0, len(user_sequence))
+                index2 = np.random.randint(0, len(user_sequence))
+
+                # Ensure the indices are distinct
+                while index2 == index1:
+                    index2 = np.random.randint(0, len(user_sequence))
+
+                # Convert the string to a list to allow mutation
+                char_list = list(user_sequence)
+
+                # Swap the characters
+                char_list[index1], char_list[index2] = char_list[index2], char_list[index1]
+
+                # Convert the list back to a string
+                user_sequence = ''.join(char_list)
+            elif error_type == "drop":
+                # Randomly drop a character
+                random_index = np.random.randint(0, len(user_sequence))
+                user_sequence = user_sequence[:random_index] + user_sequence[random_index + 1:]
+            else:
+                # Randomly replace a character with another symbol
+                if state.vals["SequenceComplexity"] == 2:
+                    allowed_symbols = ["A","B"]
+                elif state.vals["SequenceComplexity"] == 3:
+                    allowed_symbols = ["A","B","C"]
                 else:
-                    raise ValueError("Invalid complexity level. Choose 'Simple' or 'Complex'.")
-                
-                user_sequence[i] = random.choice(allowed_characters)
+                    allowed_symbols = ["A","B","C","D"]
 
-        '''
-        # Shuffle rate based on confusion and length
-        shuffle_rate_dict = {
-            "Short": {
-                "High": 0.15,
-                "Medium": 0.1,
-                "Low": 0.01
-            },
-            "Medium": {
-                "High": 0.25,
-                "Medium": 0.18,
-                "Low": 0.03
-            },
-            "Long": {
-                "High": 0.3,
-                "Medium": 0.25,
-                "Low": 0.05
-            }
-        }
+                # Generate a random index
+                random_index = np.random.randint(0, len(user_sequence))
 
-        shuffle_rate = shuffle_rate_dict[sequence_length][self.confusion]
+                # Select a random allowed symbol
+                random_symbol = np.random.choice(allowed_symbols)
 
-        if random.random() < shuffle_rate:
-            random.shuffle(user_sequence)
+                # Convert the string to a list to allow mutation
+                char_list = list(user_sequence)
 
-        '''
+                # Replace the character at the random index with the random allowed symbol
+                char_list[random_index] = random_symbol
 
-        # Drop rate based on attention and length
-        drop_rate_dict = {
-            "Short": {
-                "High": 0,
-                "Medium": 0.01,
-                "Low": 0.2
-            },
-            "Medium": {
-                "High": 0.01,
-                "Medium": 0.03,
-                "Low": 0.4
-            },
-            "Long": {
-                "High": 0.05,
-                "Medium": 0.1,
-                "Low": 0.6
-            }
-        }
+                # Convert the list back to a string
+                user_sequence = ''.join(char_list)
 
-        drop_rate = drop_rate_dict[sequence_length][self.attention]
-
-        user_sequence = [
-            char for char in user_sequence if random.random() > drop_rate
-        ]
+        return user_sequence,error     
         
-
-        # Ensure the sequence is not empty
-        if not user_sequence:
-            user_sequence = [random.choice(true_sequence)]
-
-        return ''.join(user_sequence)
-    
-    def get_base_response_times(self,max_timeout:int = 10):
-        # Define base response times for different sequence lengths and complexities
-        base_times = {
-            "Short": {"Simple": 0.2*max_timeout, "Complex": 0.3*max_timeout},
-            "Medium": {"Simple": 0.4*max_timeout, "Complex": 0.6*max_timeout},
-            "Long": {"Simple": 0.6*max_timeout, "Complex": 0.9*max_timeout}
-        }
-        return base_times
-
-    def calculate_response_time(self,sequence_length:str,sequence_complexity:str,max_timeout:int = 10):
-        base_times = self.get_base_response_times(max_timeout)
-
-        # Get the base response time based on sequence length and complexity
-        base_time = base_times[sequence_length][sequence_complexity]
-
-        # Adjust the base time based on user speed
-        if self.speed == "Fast":
-            base_time *= 0.8
-        elif self.speed == "Slow":
-            base_time *= 1.5 #1.2
-
-        # Adjust the base time based on user attention
-        if self.attention == "High":
-            base_time *= 0.9
-        elif self.attention == "Low":
-            base_time *= 1.8
-
-        # Add some randomness to simulate variability in response times
-        if self.attention == "High":
-            response_time = int(base_time + random.uniform(-1, 1))
-        elif self.attention == "Medium":
-            response_time = int(base_time + random.uniform(-1, 1.2))
-        elif self.attention == "Low":
-            response_time = int(base_time + random.uniform(-1, 2))
-
-        # Ensure the response time is within a reasonable range
-        response_time = max(1, min(response_time, max_timeout))
+    def calculate_response_time(self,state:CognitiveSequenceState):
+        np.random.seed(state.vals["ResponseTimeSeed"])
+        response_time = min(state.MAX_TIMEOUT,max(0,np.random.normal(state.vals["UserResponseTime"],1)))
 
         return response_time
 

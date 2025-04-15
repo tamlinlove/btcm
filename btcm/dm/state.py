@@ -47,6 +47,14 @@ class VarRange:
         float_range = [round(min + i * step, dec_places) for i in range(int((max - min) / step) + 1)]
         return VarRange(range_type="disc_cont",values=float_range,var_type=float,min=min,max=max)
     
+    @staticmethod
+    def any_string():
+        return VarRange(range_type="any",var_type=str)
+    
+    @staticmethod
+    def any_int():
+        return VarRange(range_type="any",var_type=str)
+    
     '''
     Utility
     '''
@@ -78,6 +86,9 @@ class VarRange:
         elif self.range_type in ["cat","bool"]:
             # Categorical, can check values
             return value in self.values
+        elif self.range_type == "any":
+            # Allows any variable of the right type
+            return True
         else:
             raise ValueError(f"Unrecognised VarRange type {self.range_type}")
     

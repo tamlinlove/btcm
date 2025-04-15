@@ -22,15 +22,12 @@ class DummyCognitiveSequenceEnvironment(CognitiveSequenceEnvironment):
         return True
     
     def reset_timer(self):
+        # TODO: State changes
         return True
 
     def check_timer(self,_):
         # TODO: State changes
         pass
-    
-    def reset_sequence_state(self,state:CognitiveSequenceState):
-        # TODO: State changes
-        return True
     
     def give_hint(self,state:CognitiveSequenceState):
         pass

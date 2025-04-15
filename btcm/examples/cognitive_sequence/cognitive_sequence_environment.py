@@ -135,6 +135,8 @@ class CognitiveSequenceEnvironment(Environment):
         self.user_responding = True
         self.user_response_timer = time.time()
 
+        state.vals["UserResponded"] = False
+
         return True
     
     def check_timer(self,state:CognitiveSequenceState):
@@ -150,25 +152,6 @@ class CognitiveSequenceEnvironment(Environment):
         else:
             # User has not responded yet
             state.vals["UserResponded"] = False
-
-    def reset_sequence_state(self,state:CognitiveSequenceState):
-        # End the current sequence, reset for new sequence
-        state.vals["NumRepetitions"] = 0
-        state.vals["SequenceSet"] = False
-        state.vals["ResponseTimerActive"] = False
-        state.vals["UserResponded"] = False
-        state.vals["UserResponseTime"] = 0
-        state.vals["AttemptedReengageUser"] = False
-        state.vals["RepeatSequence"] = False
-
-        # Check if we have reached the maximum number of sequences
-        if state.vals["NumSequences"] >= state.MAX_NUM_SEQUENCES:
-            state.vals["EndGame"] = True
-
-        # To help with reading terminal output
-        print("---------------")
-
-        return True
 
     '''
     SOCIAL ACTIONS

@@ -32,7 +32,8 @@ class UserProfile():
     '''
     USER SIMULATION
     '''
-    def generate_sequence(self,state:CognitiveSequenceState):
+    @staticmethod
+    def generate_sequence(state:CognitiveSequenceState):
         # Start with the true sequence
         user_sequence = state.vals["CurrentSequence"]
 
@@ -77,10 +78,6 @@ class CognitiveSequenceEnvironment(Environment):
         self.user_response_timer = None
         self.user_sequence = None
 
-        self.user_accuracy = None
-        self.user_base_response_time = None
-        self.user_observed_response_time = None
-
 
     '''
     ENVIRONMENT FUNCTIONS
@@ -124,6 +121,11 @@ class CognitiveSequenceEnvironment(Environment):
         state.vals["UserNumErrors"] = CognitiveSequenceState.get_num_errors(state)
         state.vals["BaseUserResponseTime"] = CognitiveSequenceState.get_time(state)
         state.vals["ObservedUserResponseTime"] = CognitiveSequenceState.get_observed_time(state)
+        state.vals["UserSequence"] = UserProfile.generate_sequence(state)
+
+        # Update seeds
+        state.vals["AccuracySeed"] = np.random.randint(0,1000000000)
+        state.vals["ResponseTimeSeed"] = np.random.randint(0,1000000000)
 
         return True
     
@@ -145,10 +147,10 @@ class CognitiveSequenceEnvironment(Environment):
         elapsed_time = min(int(curr_time - self.user_response_timer),CognitiveSequenceState.MAX_TIMEOUT)
 
         # Check if the user has responded
-        if elapsed_time > self.user_response_time:
+        if elapsed_time > state.vals["ObservedUserResponseTime"]:
             # User has responded
             state.vals["UserResponded"] = True
-            self.user_speak(self.user_sequence)
+            self.user_speak(state.vals["UserSequence"])
         else:
             # User has not responded yet
             state.vals["UserResponded"] = False

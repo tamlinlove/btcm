@@ -101,13 +101,13 @@ class CognitiveSequenceState(State):
     
     @staticmethod
     def get_confusion(state:Self,memory_weight=0.5,complexity_weight=0.5) -> float:
-        normalised_complexity = 0.5*state["SequenceComplexity"] - 1
-        confusion = memory_weight * (1 - state["UserMemory"]) + complexity_weight * normalised_complexity
+        normalised_complexity = 0.5*state.vals["SequenceComplexity"] - 1
+        confusion = memory_weight * (1 - state.vals["UserMemory"]) + complexity_weight * normalised_complexity
         return max(0, min(1, confusion))
     
     @staticmethod
     def get_engagement(state:Self,confusion_weight=0.5,attention_weight=0.5) -> float:
-        engagement = confusion_weight * (1 - state["UserConfusion"]) + attention_weight * state["UserAttention"]
+        engagement = confusion_weight * (1 - state.vals["UserConfusion"]) + attention_weight * state.vals["UserAttention"]
         return max(0, min(1, engagement))
     
     @staticmethod
@@ -121,9 +121,11 @@ class CognitiveSequenceState(State):
     def get_num_errors(state:Self) -> int:
         # Determine if the sequence will be incorrect
         np.random.seed(state.vals["AccuracySeed"])
-        accuracy_score = min(1,max(0,np.random.normal(state.vals["BaseUserAccuracy"],0.05)))
+        accuracy_score = min(1,max(0,np.random.normal(state.vals["BaseUserAccuracy"],0.1)))
 
-        if accuracy_score > 0.6:
+        print(state.vals["BaseUserAccuracy"],accuracy_score)
+
+        if accuracy_score > 0.7:
             # Perfect sequence
             num_errors = 0
         elif accuracy_score > 0.4:
@@ -142,11 +144,11 @@ class CognitiveSequenceState(State):
     
     @staticmethod
     def get_time(state:Self,reactivity_weight=0.4,confusion_weight=0.3,engagement_weight=0.3) -> float:
-        time_factor = reactivity_weight*state["UserReactivity"] + confusion_weight*(1-state["UserConfusion"]) + engagement_weight*state["UserEngagement"]
+        time_factor = reactivity_weight*state.vals["UserReactivity"] + confusion_weight*(1-state.vals["UserConfusion"]) + engagement_weight*state.vals["UserEngagement"]
         time_factor = max(0, min(1, time_factor))
 
-        base_time_gradient = 0.625 * state["SequenceLength"]
-        base_min_time = 0.5 * state["SequenceLength"]
+        base_time_gradient = 0.625 * state.vals["SequenceLength"]
+        base_min_time = 0.5 * state.vals["SequenceLength"]
 
         base_time_taken = base_time_gradient * (1 - time_factor) + base_min_time
 

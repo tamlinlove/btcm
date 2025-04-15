@@ -84,7 +84,7 @@ class HandleTimerResponse(ActionNode):
             return py_trees.common.Status.SUCCESS
 
         # Check if the timer has expired
-        if state.vals["UserResponseTime"] >= CognitiveSequenceState.MAX_TIMEOUT:
+        if state.vals["ObservedUserResponseTime"] >= CognitiveSequenceState.MAX_TIMEOUT:
             # If so, return failure
             state.vals["ResponseTimerActive"] = False
             state.vals["UserTimeout"] = True
@@ -93,7 +93,7 @@ class HandleTimerResponse(ActionNode):
         return py_trees.common.Status.RUNNING
     
     def input_variables(self):
-        return ["UserResponded","UserResponseTime"]
+        return ["UserResponded","ObservedUserResponseTime"]
     
     def action_space(self):
         return [NullAction()]
@@ -222,22 +222,21 @@ class DecideSocialAction(ActionNode):
         
     
     def execute(self, state:CognitiveSequenceState, action:Action):
-        status = False
         if action == GiveSequenceHintAction():
             # Give a hint to the user
-            status = self.board.environment.give_hint(state)
+            self.board.environment.give_hint(state)
         elif action == RepeatSequenceSocialAction():
             # Repeat the sequence
-            status = self.board.environment.repeat_sequence_social_action(state)
+            self.board.environment.repeat_sequence_social_action(state)
         elif action == EndSequenceSocialAction():
             # End the sequence
-            status = self.board.environment.end_sequence_social_action(state)
+            self.board.environment.end_sequence_social_action(state)
         elif action == RecaptureAttentionAction():
             # Recapture attention
-            status = self.board.environment.recapture_attention(state)
+            self.board.environment.recapture_attention(state)
             state.vals["AttemptedReengageUser"] = True
 
-        return py_trees.common.Status.SUCCESS if status else py_trees.common.Status.FAILURE
+        return py_trees.common.Status.SUCCESS
     
     def input_variables(self):
         return ["UserResponded","RepeatSequence","UserConfusion","UserEngagement"]

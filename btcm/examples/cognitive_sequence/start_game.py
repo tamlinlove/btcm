@@ -54,7 +54,7 @@ class SetSequenceParameters(ActionNode):
             default_reactivity = 0.8
             default_attention = 0.8
             default_memory = 0.8
-            default_time_factor = 0.4*default_reactivity - 0.075*default_memory + 0.15*default_attention + 0.075*state.vals["SequenceComplexity"] + 0.225
+            default_time_factor = max(0,min(1,0.4*default_reactivity +0.225*default_memory + 0.15*default_attention + 0.225*state.vals["SequenceComplexity"] + 0.225))
             base_time_gradient = 0.625 * state.vals["SequenceLength"]
             base_min_time = 0.5 * state.vals["SequenceLength"]
             base_time_taken = base_time_gradient * (1 - default_time_factor) + base_min_time

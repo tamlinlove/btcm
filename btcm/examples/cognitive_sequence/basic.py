@@ -10,7 +10,7 @@ class CognitiveSequenceState(State):
     # Environmental Constants that cannot be intervened on
     MAX_NUM_REPETITIONS = 3 # Maximum number of times a particular sequence can be provided
     MAX_NUM_SEQUENCES = 3 # Maximum number of sequences that can be provided
-    MAX_TIMEOUT = 4 # seconds
+    MAX_TIMEOUT = 7 # seconds
     MIN_COMPLEXITY = 2
     MAX_COMPLEXITY = 4
     MIN_LENGTH = 4
@@ -120,7 +120,7 @@ class CognitiveSequenceState(State):
     
     @staticmethod
     def get_time(state:Self,reactivity_weight=0.4,confusion_weight=0.3,engagement_weight=0.3) -> float:
-        time_factor = reactivity_weight*state["UserReactivity"] + confusion_weight*state["UserConfusion"] + engagement_weight*state["UserEngagement"]
+        time_factor = reactivity_weight*state["UserReactivity"] + confusion_weight*(1-state["UserConfusion"]) + engagement_weight*state["UserEngagement"]
         time_factor = max(0, min(1, time_factor))
 
         base_time_gradient = 0.625 * state["SequenceLength"]

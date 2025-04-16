@@ -218,11 +218,11 @@ class CognitiveSequenceState(State):
             "NumSequences": 0,
             "SequenceSet": False,
             "ResponseTimerActive": False,
-            "UserTimeout": False,
             "AttemptedReengageUser":False,
 
             # External Game Variables
             "UserResponded": False,
+            "UserTimeout": False,
 
             # Non-intervenable Game Variables
             "CurrentSequence": "",
@@ -263,11 +263,11 @@ class CognitiveSequenceState(State):
             "NumSequences": "The number of unique sequences that have been provided thus far.",
             "SequenceSet": "If true, the sequence has been decided upon this round. False otherwise.",
             "ResponseTimerActive": "If true, the robot has activated a timer and is waiting for the user to repeat a sequence.",
-            "UserTimeout": "If true the timeout expired before the user could respond.",
             "AttemptedReengageUser":"If true, the robot has attempted to reengage the user in the task.",
 
             # External Game Variables
             "UserResponded": "If true, the user has repeated (successfully or not) the sequence back to the robot.",
+            "UserTimeout": "If true the timeout expired before the user could respond.",
 
             # Non-intervenable Game Variables
             "CurrentSequence": "A string of characters representing the current sequence provided to the user.",

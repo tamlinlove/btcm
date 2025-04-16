@@ -30,6 +30,14 @@ class UserProfile():
         )
 
     '''
+    UTILITY
+    '''
+    def update_state(self,state:CognitiveSequenceState):
+        state.vals["UserMemory"] = self.memory
+        state.vals["UserAttention"] = self.attention
+        state.vals["UserReactivity"] = self.reactivity
+
+    '''
     USER SIMULATION
     '''
     @staticmethod
@@ -89,6 +97,10 @@ class CognitiveSequenceEnvironment(Environment):
     def user_speak(self, text:str):
         # Simulate the user speaking
         print(f"USER SAYS: {text}")
+
+    def env_speak(self, text:str):
+        # Asides from the environments
+        print(f"[{text}]")
     
     '''
     ROBOT ACTIONS
@@ -138,19 +150,26 @@ class CognitiveSequenceEnvironment(Environment):
         self.user_response_timer = time.time()
 
         state.vals["UserResponded"] = False
+        state.vals["UserTimeout"] = False
 
         return True
     
     def check_timer(self,state:CognitiveSequenceState):
         # Get time
         curr_time = time.time()
-        elapsed_time = min(int(curr_time - self.user_response_timer),CognitiveSequenceState.MAX_TIMEOUT)
+        elapsed_time = curr_time - self.user_response_timer
 
         # Check if the user has responded
         if elapsed_time > state.vals["ObservedUserResponseTime"]:
-            # User has responded
-            state.vals["UserResponded"] = True
-            self.user_speak(state.vals["UserSequence"])
+            if elapsed_time >= CognitiveSequenceState.MAX_TIMEOUT and state.vals["ObservedUserResponseTime"]>=CognitiveSequenceState.MAX_TIMEOUT:
+                # Timeout
+                state.vals["UserResponded"] = False
+                state.vals["UserTimeout"] = True
+            else:
+                # User has responded
+                state.vals["UserResponded"] = True
+                self.user_speak(state.vals["UserSequence"])
+                self.env_speak(f"User responded in {state.vals["ObservedUserResponseTime"]} seconds")
         else:
             # User has not responded yet
             state.vals["UserResponded"] = False

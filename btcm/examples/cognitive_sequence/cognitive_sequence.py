@@ -25,6 +25,9 @@ def setup_board(vals:dict=None,user_profile:UserProfile=None):
     env = CognitiveSequenceEnvironment(user_profile=user_profile)
     board.environment = env
 
+    # User Profile
+    user_profile.update_state(board.state)
+
     return board
 
 '''

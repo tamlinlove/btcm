@@ -42,32 +42,6 @@ def run_default(filename:str="cog_log_default"):
     initial_vals = CognitiveSequenceState.default_values()
     user_profile = UserProfile.default_user()
 
-     # Tweak the user profile to be more average
-    user_profile.accuracy = "Medium"
-    user_profile.speed = "Medium"
-
-    # Run the experiment
-    cognitive_sequence_run(
-        initial_vals=initial_vals,
-        user_profile=user_profile,
-        log_file=filename,
-    )
-    
-
-def run_distracted(filename:str="cog_log_distracted"):
-    # Print
-    print("==========================")
-    print("Running distracted user profile experiment...")
-    print("==========================")
-
-    # Set up default state values and user profile
-    initial_vals = CognitiveSequenceState.default_values()
-    user_profile = UserProfile.default_user()
-
-    # Tweak the user profile to be distracted
-    initial_vals["UserAttention"] = "Low"
-    user_profile.attention = "Low"
-
     # Run the experiment
     cognitive_sequence_run(
         initial_vals=initial_vals,
@@ -75,18 +49,20 @@ def run_distracted(filename:str="cog_log_distracted"):
         log_file=filename,
     )
 
-def run_slow(filename:str="cog_log_slow"):
+def run_perfect(filename:str="cog_log_default"):
     # Print
     print("==========================")
-    print("Running slow user profile experiment...")
+    print("Running perfect user profile experiment...")
     print("==========================")
 
     # Set up default state values and user profile
     initial_vals = CognitiveSequenceState.default_values()
     user_profile = UserProfile.default_user()
 
-    # Tweak the user profile to be slow
-    user_profile.speed = "Slow"
+    # Tweak to match a perfect user
+    user_profile.memory = 1
+    user_profile.reactivity = 1
+    user_profile.attention = 1
 
     # Run the experiment
     cognitive_sequence_run(
@@ -95,18 +71,60 @@ def run_slow(filename:str="cog_log_slow"):
         log_file=filename,
     )
 
-def run_inaccurate(filename:str="cog_log_inaccurate"):
+def run_worst(filename:str="cog_log_default"):
     # Print
     print("==========================")
-    print("Running inaccurate user profile experiment...")
+    print("Running worst user profile experiment...")
     print("==========================")
 
     # Set up default state values and user profile
     initial_vals = CognitiveSequenceState.default_values()
     user_profile = UserProfile.default_user()
 
-    # Tweak the user profile to be slow
-    user_profile.accuracy = "Low"
+    # Tweak to match a very bad user
+    user_profile.memory = 0
+    user_profile.reactivity = 0
+    user_profile.attention = 0
+
+    # Run the experiment
+    cognitive_sequence_run(
+        initial_vals=initial_vals,
+        user_profile=user_profile,
+        log_file=filename,
+    )
+
+def run_no_attention(filename:str="cog_log_default"):
+    # Print
+    print("==========================")
+    print("Running no_attention user profile experiment...")
+    print("==========================")
+
+    # Set up default state values and user profile
+    initial_vals = CognitiveSequenceState.default_values()
+    user_profile = UserProfile.default_user()
+
+    # Tweak to match a user with no attention span
+    user_profile.attention = 0
+
+    # Run the experiment
+    cognitive_sequence_run(
+        initial_vals=initial_vals,
+        user_profile=user_profile,
+        log_file=filename,
+    )
+
+def run_no_reactivity(filename:str="cog_log_default"):
+    # Print
+    print("==========================")
+    print("Running no_reactivity user profile experiment...")
+    print("==========================")
+
+    # Set up default state values and user profile
+    initial_vals = CognitiveSequenceState.default_values()
+    user_profile = UserProfile.default_user()
+
+    # Tweak to match a user with no reactivity
+    user_profile.reactivity = 0
 
     # Run the experiment
     cognitive_sequence_run(

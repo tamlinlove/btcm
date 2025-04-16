@@ -7,9 +7,10 @@ from btcm.examples.cognitive_sequence.basic import CognitiveSequenceState
 
 profile_experiments = {
     "default":cognitive_sequence_experiment.run_default,
-    "distracted":cognitive_sequence_experiment.run_distracted,
-    "innacurate":cognitive_sequence_experiment.run_inaccurate,
-    "slow":cognitive_sequence_experiment.run_slow,
+    "perfect":cognitive_sequence_experiment.run_perfect,
+    "worst":cognitive_sequence_experiment.run_worst,
+    "no_attention":cognitive_sequence_experiment.run_no_attention,
+    "no_reactivity":cognitive_sequence_experiment.run_no_reactivity,
 }
 
 if __name__ == "__main__":

@@ -84,16 +84,15 @@ class HandleTimerResponse(ActionNode):
             return py_trees.common.Status.SUCCESS
 
         # Check if the timer has expired
-        if state.vals["ObservedUserResponseTime"] >= CognitiveSequenceState.MAX_TIMEOUT:
+        if state.vals["UserTimeout"]:
             # If so, return failure
             state.vals["ResponseTimerActive"] = False
-            state.vals["UserTimeout"] = True
             return py_trees.common.Status.FAILURE
         # Otherwise, return running
         return py_trees.common.Status.RUNNING
     
     def input_variables(self):
-        return ["UserResponded","ObservedUserResponseTime"]
+        return ["UserResponded","UserTimeout"]
     
     def action_space(self):
         return [NullAction()]
@@ -204,6 +203,9 @@ class DecideSocialAction(ActionNode):
                 # Repeating - check if user is confused
                 if state.vals["UserConfusion"] >= confusion_threshold:
                     return GiveSequenceHintAction()
+                if state.vals["UserEngagement"] < engagement_threshold and not state.vals["AttemptedReengageUser"]:
+                    # Check if user is not paying attention
+                    return RecaptureAttentionAction()
                 # Otherwise, just repeat the sequence
                 return RepeatSequenceSocialAction()
             else:
@@ -211,7 +213,7 @@ class DecideSocialAction(ActionNode):
                 return EndSequenceSocialAction()
         else:
             if state.vals["RepeatSequence"]:
-                if state.vals["UserEngagement"] < engagement_threshold:
+                if state.vals["UserEngagement"] < engagement_threshold and not state.vals["AttemptedReengageUser"]:
                     # Repeating - check if user is not paying attention
                     return RecaptureAttentionAction()
                 # Otherwise, just repeat the sequence
@@ -239,7 +241,7 @@ class DecideSocialAction(ActionNode):
         return py_trees.common.Status.SUCCESS
     
     def input_variables(self):
-        return ["UserResponded","RepeatSequence","UserConfusion","UserEngagement"]
+        return ["UserResponded","RepeatSequence","UserConfusion","UserEngagement","AttemptedReengageUser"]
     
     def action_space(self):
         return [GiveSequenceHintAction(),RepeatSequenceSocialAction(),EndSequenceSocialAction(),RecaptureAttentionAction(),NullAction()]

@@ -36,11 +36,11 @@ class CognitiveSequenceState(State):
             "NumSequences": VarRange.int_range(0,self.MAX_NUM_SEQUENCES), # Number of sequences that have been provided, to a maximum of MAX_NUM_SEQUENCES
             "SequenceSet": VarRange.boolean(), # boolean, if True a sequence has been set
             "ResponseTimerActive": VarRange.boolean(), # boolean, if True the response timer is active
-            "UserTimeout": VarRange.boolean(), # boolean, if True the timeout expired before the user could respond
             "AttemptedReengageUser":VarRange.boolean(), # Whether the robot attempted to reengage the user after a timeout
 
             # External Game Variables
             "UserResponded": VarRange.boolean(), # boolean, if True the user has responded with a sequence
+            "UserTimeout": VarRange.boolean(), # boolean, if True the timeout expired before the user could respond
 
             # Non-intervenable Game Variables
             "CurrentSequence": VarRange.any_string(), # The current sequence provided to the user
@@ -71,7 +71,6 @@ class CognitiveSequenceState(State):
             "NumSequences",
             "SequenceSet",
             "ResponseTimerActive",
-            "UserTimeout",
             "AttemptedReengageUser",
             # Non-intervenable
             "CurrentSequence",
@@ -100,8 +99,8 @@ class CognitiveSequenceState(State):
         return func_dict
     
     @staticmethod
-    def get_confusion(state:Self,memory_weight=0.5,complexity_weight=0.5) -> float:
-        normalised_complexity = 0.5*state.vals["SequenceComplexity"] - 1
+    def get_confusion(state:Self,memory_weight=0.7,complexity_weight=0.3) -> float:
+        normalised_complexity = (state.vals["SequenceComplexity"]-CognitiveSequenceState.MIN_COMPLEXITY)/(CognitiveSequenceState.MAX_COMPLEXITY-CognitiveSequenceState.MIN_COMPLEXITY)
         confusion = memory_weight * (1 - state.vals["UserMemory"]) + complexity_weight * normalised_complexity
         return max(0, min(1, confusion))
     
@@ -111,9 +110,9 @@ class CognitiveSequenceState(State):
         return max(0, min(1, engagement))
     
     @staticmethod
-    def get_accuracy(state:Self) -> float:
-        complexity_range = state.vals["SequenceComplexity"]-CognitiveSequenceState.MIN_COMPLEXITY
-        accuracy = -(0.75+0.05*complexity_range)*state.vals["UserConfusion"] + 0.95 - 0.05*complexity_range
+    def get_accuracy(state:Self,complexity_weight=0.2,confusion_weight=0.8) -> float:
+        normalised_complexity = (state.vals["SequenceComplexity"]-CognitiveSequenceState.MIN_COMPLEXITY)/(CognitiveSequenceState.MAX_COMPLEXITY-CognitiveSequenceState.MIN_COMPLEXITY)
+        accuracy = complexity_weight*(1-normalised_complexity) + confusion_weight*(1-state.vals["UserConfusion"])
 
         return max(0, min(1, accuracy))
     
@@ -122,8 +121,6 @@ class CognitiveSequenceState(State):
         # Determine if the sequence will be incorrect
         np.random.seed(state.vals["AccuracySeed"])
         accuracy_score = min(1,max(0,np.random.normal(state.vals["BaseUserAccuracy"],0.1)))
-
-        print(state.vals["BaseUserAccuracy"],accuracy_score)
 
         if accuracy_score > 0.7:
             # Perfect sequence
@@ -143,14 +140,12 @@ class CognitiveSequenceState(State):
         return num_errors
     
     @staticmethod
-    def get_time(state:Self,reactivity_weight=0.4,confusion_weight=0.3,engagement_weight=0.3) -> float:
+    def get_time(state:Self,reactivity_weight=0.4,confusion_weight=0.2,engagement_weight=0.4) -> float:
         time_factor = reactivity_weight*state.vals["UserReactivity"] + confusion_weight*(1-state.vals["UserConfusion"]) + engagement_weight*state.vals["UserEngagement"]
         time_factor = max(0, min(1, time_factor))
 
-        base_time_gradient = 0.625 * state.vals["SequenceLength"]
-        base_min_time = 0.5 * state.vals["SequenceLength"]
-
-        base_time_taken = base_time_gradient * (1 - time_factor) + base_min_time
+        expected_time_taken = 0.8*state.vals["SequenceLength"]
+        base_time_taken = (2 - 1.5*time_factor)*expected_time_taken
 
         return base_time_taken
     

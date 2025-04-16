@@ -36,46 +36,43 @@ class SetSequenceParameters(ActionNode):
         # Initialise difficulty parameters
 
         if state.vals["NumSequences"] == 0:
-            # This is the very first parameter setting, cannot use previous sequences
-            
-            # First, decide on complexity using memory and attention
-            complexity_score = state.vals["UserMemory"] * state.vals["UserAttention"]
-
-            # Now, decide on length using reactivity
-            length_score = state.vals["UserReactivity"]
-
-            # Determine actual values
-            complexity = round(complexity_score*(CognitiveSequenceState.MAX_COMPLEXITY-CognitiveSequenceState.MIN_COMPLEXITY)+CognitiveSequenceState.MIN_COMPLEXITY)
-            complexity = min(CognitiveSequenceState.MAX_COMPLEXITY,max(CognitiveSequenceState.MIN_COMPLEXITY,complexity))
-            length = round(length_score*(CognitiveSequenceState.MAX_LENGTH-CognitiveSequenceState.MIN_LENGTH))+CognitiveSequenceState.MIN_LENGTH
-            length = min(CognitiveSequenceState.MAX_LENGTH,max(CognitiveSequenceState.MIN_LENGTH,length))
+            # This is the very first parameter setting, always start with the same length and complexity
+            length = round(0.3*(CognitiveSequenceState.MAX_LENGTH-CognitiveSequenceState.MIN_LENGTH)) + CognitiveSequenceState.MIN_LENGTH
+            complexity = round(0.5*(CognitiveSequenceState.MAX_COMPLEXITY-CognitiveSequenceState.MIN_COMPLEXITY)) + CognitiveSequenceState.MIN_COMPLEXITY
         else:
             # Can use data from previous sequences to tune this one
            
             # First, decide on complexity using confusion and number of errors
-            existing_complexity = state.vals["SequenceComplexity"]
-            existing_length = state.vals["SequenceLength"]
+            complexity = state.vals["SequenceComplexity"]
+            length = state.vals["SequenceLength"]
 
             # Add/Subtract based on number of errors
-            # TODO
+            complexity -= state.vals["UserNumErrors"]-1
 
             # Add/Subtract based on confusion
-            # TODO
+            if state.vals["UserConfusion"] >= 0.7:
+                complexity -= 1
+            elif state.vals["UserConfusion"] < 0.3:
+                complexity += 1
+
+            complexity = min(CognitiveSequenceState.MAX_COMPLEXITY,max(CognitiveSequenceState.MIN_COMPLEXITY,complexity))
 
             # Now do length, based on response time, accuracy and timeout
 
-            # Halve length if timeout
-            # TODO
+            
+            if state.vals["UserTimeout"]:
+                # Halve length if timeout
+                length = round(0.5*length)
+            else:
+                # Otherwise, add/subtract based on response time
+                expected_time = 0.8*state.vals["SequenceLength"]
+                time_diff = expected_time - state.vals["ObservedUserResponseTime"]
+                length += round(min(2,max(-2,time_diff)))
 
-            # Otherwise, add/subtract based on response time
-            # TODO
+                # Add/subtract based on number of errors
+                length -= state.vals["UserNumErrors"]-1
 
-            # Add/subtract based on number of errors
-            # TODO
-
-        # Determine actual values
-        complexity = round(complexity_score*(CognitiveSequenceState.MAX_COMPLEXITY-CognitiveSequenceState.MIN_COMPLEXITY)+CognitiveSequenceState.MIN_COMPLEXITY)
-        length = round(length_score*(CognitiveSequenceState.MAX_LENGTH-CognitiveSequenceState.MIN_LENGTH)+CognitiveSequenceState.MIN_LENGTH)
+            length = min(CognitiveSequenceState.MAX_LENGTH,max(CognitiveSequenceState.MIN_LENGTH,length))
 
         return SetSequenceParametersAction(length, complexity)
 
@@ -178,7 +175,6 @@ class ProvideSequence(ActionNode):
 
         # Update internal variables
         state.vals["NumRepetitions"] += 1
-        state.vals["UserTimeout"] = False
 
         return py_trees.common.Status.SUCCESS
     

@@ -43,40 +43,39 @@ class SetSequenceParameters(ActionNode):
 
             # Now, decide on length using reactivity
             length_score = state.vals["UserReactivity"]
+
+            # Determine actual values
+            complexity = round(complexity_score*(CognitiveSequenceState.MAX_COMPLEXITY-CognitiveSequenceState.MIN_COMPLEXITY)+CognitiveSequenceState.MIN_COMPLEXITY)
+            complexity = min(CognitiveSequenceState.MAX_COMPLEXITY,max(CognitiveSequenceState.MIN_COMPLEXITY,complexity))
+            length = round(length_score*(CognitiveSequenceState.MAX_LENGTH-CognitiveSequenceState.MIN_LENGTH))+CognitiveSequenceState.MIN_LENGTH
+            length = min(CognitiveSequenceState.MAX_LENGTH,max(CognitiveSequenceState.MIN_LENGTH,length))
         else:
             # Can use data from previous sequences to tune this one
-            
-            # First, decide on complexity using confusion, engagement and number of errors
+           
+            # First, decide on complexity using confusion and number of errors
+            existing_complexity = state.vals["SequenceComplexity"]
+            existing_length = state.vals["SequenceLength"]
 
-            performance_score = 1 - (state.vals["UserNumErrors"]/state.ranges()["UserNumErrors"].get_max())
-            complexity_score = (1-state.vals["UserConfusion"]) * state.vals["UserEngagement"] * performance_score
+            # Add/Subtract based on number of errors
+            # TODO
 
-            # Next, decide on length using response time, accuracy and whether or not the user timed out
-            timeout_score = 1 if state.vals["UserTimeout"] else 0
-            default_reactivity = 0.8
-            default_attention = 0.8
-            default_memory = 0.8
-            default_time_factor = max(0,min(1,0.4*default_reactivity +0.225*default_memory + 0.15*default_attention + 0.225*state.vals["SequenceComplexity"] + 0.225))
-            base_time_gradient = 0.625 * state.vals["SequenceLength"]
-            base_min_time = 0.5 * state.vals["SequenceLength"]
-            base_time_taken = base_time_gradient * (1 - default_time_factor) + base_min_time
-            time_score = 1-(state.vals["ObservedUserResponseTime"]/base_time_taken)
-            length_score = max(0,min(1,0.5*timeout_score + 0.5*performance_score*time_score))
+            # Add/Subtract based on confusion
+            # TODO
 
-            print("default_time_factor: ",default_time_factor)
-            print("base_time_gradient: ",base_time_gradient)
-            print("base_min_time: ",base_min_time)
-            print("base_time_taken: ",base_time_taken)
-            print("Timeout score: ",timeout_score)
-            print("Observed time: ", state.vals["ObservedUserResponseTime"])
-            print("Time score: ",time_score)
-            print("Performance score: ",performance_score)
-            print("Complexity score: ",complexity_score)
-            print("Length score: ",length_score)
+            # Now do length, based on response time, accuracy and timeout
+
+            # Halve length if timeout
+            # TODO
+
+            # Otherwise, add/subtract based on response time
+            # TODO
+
+            # Add/subtract based on number of errors
+            # TODO
 
         # Determine actual values
-        complexity = round(complexity_score*(CognitiveSequenceState.MAX_COMPLEXITY-CognitiveSequenceState.MIN_COMPLEXITY))+CognitiveSequenceState.MIN_COMPLEXITY
-        length = round(length_score*(CognitiveSequenceState.MAX_LENGTH-CognitiveSequenceState.MIN_LENGTH))+CognitiveSequenceState.MIN_LENGTH
+        complexity = round(complexity_score*(CognitiveSequenceState.MAX_COMPLEXITY-CognitiveSequenceState.MIN_COMPLEXITY)+CognitiveSequenceState.MIN_COMPLEXITY)
+        length = round(length_score*(CognitiveSequenceState.MAX_LENGTH-CognitiveSequenceState.MIN_LENGTH)+CognitiveSequenceState.MIN_LENGTH)
 
         return SetSequenceParametersAction(length, complexity)
 

@@ -10,11 +10,11 @@ LOG_DIRECTORY = "logs/cognitive_sequence"
 BASIC RUN EXPERIMENT
 '''
 
-def cognitive_sequence_run(initial_vals:dict,user_profile:UserProfile,log_file:str="cog_log"):
+def cognitive_sequence_run(initial_vals:dict,user_profile:UserProfile,log_file:str="cog_log",skip=False):
     '''
     Tree
     '''
-    board = cognitive_sequence.setup_board(vals=initial_vals,user_profile=user_profile)
+    board = cognitive_sequence.setup_board(vals=initial_vals,user_profile=user_profile,skip=skip)
     tree = cognitive_sequence.make_tree()
 
     '''
@@ -32,7 +32,7 @@ def cognitive_sequence_run(initial_vals:dict,user_profile:UserProfile,log_file:s
 '''
 RUNNING EXPERIMENT FOR DIFFERENT USER PROFILES
 '''
-def run_default(filename:str="cog_log_default"):
+def run_default(filename:str="cog_log_default",skip=False):
     # Print
     print("==========================")
     print("Running default user profile experiment...")
@@ -47,9 +47,10 @@ def run_default(filename:str="cog_log_default"):
         initial_vals=initial_vals,
         user_profile=user_profile,
         log_file=filename,
+        skip=skip,
     )
 
-def run_perfect(filename:str="cog_log_default"):
+def run_perfect(filename:str="cog_log_default",skip=False):
     # Print
     print("==========================")
     print("Running perfect user profile experiment...")
@@ -69,9 +70,10 @@ def run_perfect(filename:str="cog_log_default"):
         initial_vals=initial_vals,
         user_profile=user_profile,
         log_file=filename,
+        skip=skip,
     )
 
-def run_worst(filename:str="cog_log_default"):
+def run_worst(filename:str="cog_log_default",skip=False):
     # Print
     print("==========================")
     print("Running worst user profile experiment...")
@@ -91,9 +93,10 @@ def run_worst(filename:str="cog_log_default"):
         initial_vals=initial_vals,
         user_profile=user_profile,
         log_file=filename,
+        skip=skip,
     )
 
-def run_no_attention(filename:str="cog_log_default"):
+def run_no_attention(filename:str="cog_log_default",skip=False):
     # Print
     print("==========================")
     print("Running no_attention user profile experiment...")
@@ -111,9 +114,10 @@ def run_no_attention(filename:str="cog_log_default"):
         initial_vals=initial_vals,
         user_profile=user_profile,
         log_file=filename,
+        skip=skip,
     )
 
-def run_no_reactivity(filename:str="cog_log_default"):
+def run_no_reactivity(filename:str="cog_log_default",skip=False):
     # Print
     print("==========================")
     print("Running no_reactivity user profile experiment...")
@@ -131,4 +135,5 @@ def run_no_reactivity(filename:str="cog_log_default"):
         initial_vals=initial_vals,
         user_profile=user_profile,
         log_file=filename,
+        skip=skip,
     )

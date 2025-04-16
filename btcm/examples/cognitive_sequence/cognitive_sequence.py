@@ -8,7 +8,7 @@ from btcm.examples.cognitive_sequence.initial_checks import initial_checks_subtr
 '''
 BLACKBOARD
 '''
-def setup_board(vals:dict=None,user_profile:UserProfile=None):
+def setup_board(vals:dict=None,user_profile:UserProfile=None,skip=False):
     board = py_trees.blackboard.Client(name="Board")
     board.register_key("state", access=py_trees.common.Access.WRITE)
     board.register_key("environment", access=py_trees.common.Access.WRITE)
@@ -22,7 +22,7 @@ def setup_board(vals:dict=None,user_profile:UserProfile=None):
     # Environment
     if user_profile is None:
         user_profile = UserProfile.default_user()
-    env = CognitiveSequenceEnvironment(user_profile=user_profile)
+    env = CognitiveSequenceEnvironment(user_profile=user_profile,skip=skip)
     board.environment = env
 
     # User Profile

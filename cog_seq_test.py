@@ -20,6 +20,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('-p', '--profile', type=str, required=True)
     parser.add_argument('-f', '--filename', type=str)
+    parser.add_argument('--skip', action='store_true')
     args = parser.parse_args()
 
     '''
@@ -38,6 +39,6 @@ if __name__ == "__main__":
     '''
     Run Experiment
     '''
-    profile_experiments[profile_name](filename=filename)
+    profile_experiments[profile_name](filename=filename,skip=args.skip)
 
     

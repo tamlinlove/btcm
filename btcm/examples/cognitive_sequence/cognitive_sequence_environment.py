@@ -74,9 +74,10 @@ class UserProfile():
 ENVIRONMENT
 '''
 class CognitiveSequenceEnvironment(Environment):
-    def __init__(self,user_profile:UserProfile):
+    def __init__(self,user_profile:UserProfile,skip:bool=False):
         super().__init__()
         self.user_profile = user_profile
+        self.skip = skip
 
         # Internal State
         self.game_over = False
@@ -85,6 +86,9 @@ class CognitiveSequenceEnvironment(Environment):
         self.user_responding = False
         self.user_response_timer = None
         self.user_sequence = None
+
+        # Skip
+        self.first_check = False
 
 
     '''
@@ -148,6 +152,7 @@ class CognitiveSequenceEnvironment(Environment):
         # Update variables
         self.user_responding = True
         self.user_response_timer = time.time()
+        self.first_check = False
 
         state.vals["UserResponded"] = False
         state.vals["UserTimeout"] = False
@@ -156,7 +161,10 @@ class CognitiveSequenceEnvironment(Environment):
     
     def check_timer(self,state:CognitiveSequenceState):
         # Get time
-        curr_time = time.time()
+        if self.skip and self.first_check:
+            curr_time = time.time() + CognitiveSequenceState.MAX_TIMEOUT + 1
+        else:
+            curr_time = time.time()
         elapsed_time = curr_time - self.user_response_timer
 
         # Check if the user has responded
@@ -173,6 +181,8 @@ class CognitiveSequenceEnvironment(Environment):
         else:
             # User has not responded yet
             state.vals["UserResponded"] = False
+
+        self.first_check = True
 
     '''
     SOCIAL ACTIONS

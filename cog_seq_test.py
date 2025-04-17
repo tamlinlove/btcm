@@ -11,6 +11,7 @@ profile_experiments = {
     "worst":cognitive_sequence_experiment.run_worst,
     "no_attention":cognitive_sequence_experiment.run_no_attention,
     "no_reactivity":cognitive_sequence_experiment.run_no_reactivity,
+    "frustrated":cognitive_sequence_experiment.run_frustrated,
 }
 
 if __name__ == "__main__":

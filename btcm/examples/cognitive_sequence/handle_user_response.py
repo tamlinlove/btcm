@@ -150,7 +150,7 @@ class RepeatOrEnd(ActionNode):
     def __init__(self, name:str = "RepeatOrEnd"):
         super(RepeatOrEnd, self).__init__(name)
 
-    def decide(self, state:CognitiveSequenceState,engagement_threshold = 0.4,frustration_threshold=0.8):
+    def decide(self, state:CognitiveSequenceState,engagement_threshold = 0.4,frustration_threshold=0.7):
         # First, check if we have exceeded the maximum number of repetitions
         if state.vals["NumRepetitions"] >= CognitiveSequenceState.MAX_NUM_REPETITIONS:
             return EndThisSequenceAction()

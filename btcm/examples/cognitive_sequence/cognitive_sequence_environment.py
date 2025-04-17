@@ -10,11 +10,12 @@ from btcm.examples.cognitive_sequence.basic import SetSequenceParametersAction,C
 SIMULATED USER
 '''
 class UserProfile():
-    def __init__(self, memory:float=0, attention:float=0, reactivity:int=0):
+    def __init__(self, memory:float=0, attention:float=0, reactivity:float=0, initial_frustration:float=0.2):
         # Profile characteristics
         self.memory = memory # The capacity for the user to remember
         self.attention = attention # The attention span of the user
         self.reactivity = reactivity # The ability for the user to react quickly
+        self.initial_frustration = initial_frustration
 
 
     '''
@@ -27,6 +28,7 @@ class UserProfile():
             memory = default_state["UserMemory"],
             attention = default_state["UserAttention"],
             reactivity = default_state["UserReactivity"],
+            initial_frustration = default_state["UserFrustration"]
         )
 
     '''
@@ -36,6 +38,7 @@ class UserProfile():
         state.vals["UserMemory"] = self.memory
         state.vals["UserAttention"] = self.attention
         state.vals["UserReactivity"] = self.reactivity
+        state.vals["UserFrustration"] = self.initial_frustration
 
     '''
     USER SIMULATION
@@ -69,6 +72,10 @@ class UserProfile():
 
         modified_list = [symbol for symbol in sequence_list if symbol is not None]
         return ''.join(modified_list)
+    
+    def update_frustration(self,state:CognitiveSequenceState):
+        state.vals["UserFrustration"] = CognitiveSequenceState.get_frustration(state)
+        print(state.vals["UserFrustration"])
 
 '''
 ENVIRONMENT
@@ -195,6 +202,9 @@ class CognitiveSequenceEnvironment(Environment):
         else:
             self.robot_speak(f"Hmmm...that's not quite right. Here's a hint: you made {str(state.vals["UserNumErrors"])} mistakes.")
 
+        # Update frustration
+        self.user_profile.update_frustration(state)
+
         return True
     
     def repeat_sequence_social_action(self,state:CognitiveSequenceState):
@@ -210,6 +220,9 @@ class CognitiveSequenceEnvironment(Environment):
             ]
 
             self.robot_speak(sentences[state.vals["UserNumErrors"]])
+
+        # Update frustration
+        self.user_profile.update_frustration(state)
     
     def end_sequence_social_action(self,state:CognitiveSequenceState):
         if not state.vals["UserResponded"]:
@@ -224,6 +237,9 @@ class CognitiveSequenceEnvironment(Environment):
             ]
 
             self.robot_speak(sentences[state.vals["UserNumErrors"]])
+
+        # Update frustration
+        self.user_profile.update_frustration(state)
     
     def recapture_attention(self,state:CognitiveSequenceState):
         # Check if the user responded or not, and try to recapture their attention accordingly
@@ -231,6 +247,9 @@ class CognitiveSequenceEnvironment(Environment):
             self.robot_speak("You seem distracted. Let's focus on the task at hand.")
         else:
             self.robot_speak("Hey there! I need your attention!")
+
+        # Update frustration
+        self.user_profile.update_frustration(state)
 
         return True
         

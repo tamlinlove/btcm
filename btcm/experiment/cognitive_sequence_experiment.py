@@ -137,3 +137,24 @@ def run_no_reactivity(filename:str="cog_log_default",skip=False):
         log_file=filename,
         skip=skip,
     )
+
+def run_frustrated(filename:str="cog_log_default",skip=False):
+    # Print
+    print("==========================")
+    print("Running frustrated user profile experiment...")
+    print("==========================")
+
+    # Set up default state values and user profile
+    initial_vals = CognitiveSequenceState.default_values()
+    user_profile = UserProfile.default_user()
+
+    # Tweak to match a user with very high frustration
+    user_profile.initial_frustration = 0.8
+
+    # Run the experiment
+    cognitive_sequence_run(
+        initial_vals=initial_vals,
+        user_profile=user_profile,
+        log_file=filename,
+        skip=skip,
+    )

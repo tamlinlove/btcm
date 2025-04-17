@@ -156,6 +156,10 @@ class CognitiveSequenceState(State):
 
         return response_time
     
+    @staticmethod
+    def get_frustration(state:Self):
+        return (0.2 * state.vals["UserNumErrors"] + 0.8)*state.vals["UserFrustration"] + 0.05*state.vals["UserNumErrors"]
+    
     '''
     EXECUTION
     '''
@@ -236,7 +240,7 @@ class CognitiveSequenceState(State):
             "UserReactivity":0.8,
             "UserConfusion":0,
             "UserEngagement":0.8,
-            "UserFrustration":0,
+            "UserFrustration":0.2,
             "BaseUserAccuracy":0,
             "UserNumErrors":0,
             "BaseUserResponseTime":0,

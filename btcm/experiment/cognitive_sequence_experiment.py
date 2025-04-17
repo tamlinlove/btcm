@@ -158,3 +158,16 @@ def run_frustrated(filename:str="cog_log_default",skip=False):
         log_file=filename,
         skip=skip,
     )
+
+
+'''
+PROFILES
+'''
+profile_experiments = {
+    "default":run_default,
+    "perfect":run_perfect,
+    "worst":run_worst,
+    "no_attention":run_no_attention,
+    "no_reactivity":run_no_reactivity,
+    "frustrated":run_frustrated,
+}

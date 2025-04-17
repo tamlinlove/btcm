@@ -19,6 +19,9 @@ class CheckEndCurrentSequence(ConditionNode):
     
     def input_variables(self):
         return ["RepeatSequence"]
+    
+    def output_variables(self):
+        return []
 
 class EndCurrentSequence(ActionNode):
     def __init__(self, name:str = "EndCurrentSequence"):
@@ -51,6 +54,9 @@ class EndCurrentSequence(ActionNode):
     def input_variables(self):
         return ["NumSequences"]
     
+    def output_variables(self):
+        return ["NumRepetitions","SequenceSet","ResponseTimerActive","AttemptedReengageUser","RepeatSequence","EndGame",]
+    
     def action_space(self):
         return [EndThisSequenceAction(),NullAction()]
     
@@ -68,6 +74,9 @@ class RepeatCurrentSequence(ActionNode):
         return py_trees.common.Status.SUCCESS
     
     def input_variables(self):
+        return []
+    
+    def output_variables(self):
         return []
     
     def action_space(self):

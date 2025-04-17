@@ -40,6 +40,9 @@ class StartResponseTimer(ActionNode):
     def input_variables(self):
         return ["ResponseTimerActive"]
     
+    def output_variables(self):
+        return ["ResponseTimerActive"]
+    
     def action_space(self):
         return [ResetTimerAction(),NullAction()]
     
@@ -63,6 +66,9 @@ class NudgeTimer(ActionNode):
         return py_trees.common.Status.FAILURE
 
     def input_variables(self):
+        return []
+    
+    def output_variables(self):
         return []
     
     def action_space(self):
@@ -94,6 +100,9 @@ class HandleTimerResponse(ActionNode):
     def input_variables(self):
         return ["UserResponded","UserTimeout"]
     
+    def output_variables(self):
+        return ["ResponseTimerActive"]
+    
     def action_space(self):
         return [NullAction()]
     
@@ -116,6 +125,9 @@ class AssessUserSequence(ActionNode):
         return py_trees.common.Status.FAILURE
     
     def input_variables(self):
+        return []
+    
+    def output_variables(self):
         return []
     
     def action_space(self):
@@ -141,6 +153,9 @@ class HandleUserResponse(ActionNode):
     
     def input_variables(self):
         return ["UserResponded"]
+    
+    def output_variables(self):
+        return []
     
     def action_space(self):
         return [NullAction()]
@@ -185,6 +200,9 @@ class RepeatOrEnd(ActionNode):
     
     def input_variables(self):
         return ["NumRepetitions","UserResponded","UserFrustration","UserEngagement","AttemptedReengageUser","UserNumErrors"]
+    
+    def output_variables(self):
+        return ["RepeatSequence"]
     
     def action_space(self):
         return [RepeatThisSequenceAction(),EndThisSequenceAction(),NullAction()]
@@ -242,6 +260,9 @@ class DecideSocialAction(ActionNode):
     
     def input_variables(self):
         return ["UserResponded","RepeatSequence","UserConfusion","UserEngagement","AttemptedReengageUser"]
+    
+    def output_variables(self):
+        return ["AttemptedReengageUser"]
     
     def action_space(self):
         return [GiveSequenceHintAction(),RepeatSequenceSocialAction(),EndSequenceSocialAction(),RecaptureAttentionAction(),NullAction()]

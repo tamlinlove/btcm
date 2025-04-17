@@ -48,6 +48,12 @@ class Leaf(py_trees.behaviour.Behaviour):
         This function returns a list of State variables (strings as keys) that are used as input by the node
         '''
         raise NotImplementedError
+    
+    def output_variables(self) -> List[str]:
+        '''
+        This function returns a list of State variables (strings as keys) that have their value changed by the node
+        '''
+        raise NotImplementedError
 
     '''
     BT NODE FUNCTIONALITY

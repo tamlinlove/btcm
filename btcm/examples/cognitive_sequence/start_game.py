@@ -22,6 +22,9 @@ class CheckInitialSequence(ConditionNode):
     def input_variables(self):
         return ["NumRepetitions"]
     
+    def output_variables(self):
+        return []
+    
     '''
     SEMANTIC DESCRIPTION
     '''
@@ -116,6 +119,9 @@ class SetSequenceParameters(ActionNode):
             "ObservedUserResponseTime",
         ]
     
+    def output_variables(self):
+        return ["SequenceLength","SequenceComplexity","SequenceSet","NumSequences","CurrentSequence"]
+
     def action_space(self):
         all_combos = SetSequenceParametersAction.action_combos()
         return all_combos + [NullAction()]
@@ -143,6 +149,9 @@ class HandleRepeatedSequence(ActionNode):
     
     def input_variables(self):
         return ["SequenceSet"]
+    
+    def output_variables(self):
+        return []
     
     def action_space(self):
         return [CrashAction(),NullAction()]
@@ -180,6 +189,9 @@ class ProvideSequence(ActionNode):
     
     def input_variables(self):
         return ["SequenceSet","NumRepetitions"]
+    
+    def output_variables(self):
+        return ["NumRepetitions"]
     
     def action_space(self):
         return [ProvideSequenceAction(),NullAction()]

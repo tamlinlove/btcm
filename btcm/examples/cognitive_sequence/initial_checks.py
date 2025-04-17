@@ -23,6 +23,9 @@ class CheckOverride(ConditionNode):
     def input_variables(self):
         return ["EndGame"]
     
+    def output_variables(self):
+        return []
+    
     '''
     SEMANTIC DESCRIPTION
     '''
@@ -46,6 +49,9 @@ class EndGame(ActionNode):
         return py_trees.common.Status.FAILURE
     
     def input_variables(self):
+        return []
+    
+    def output_variables(self):
         return []
     
     def action_space(self):

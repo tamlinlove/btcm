@@ -29,6 +29,7 @@ class EndCurrentSequence(ActionNode):
 
         # Requires write access to environment
         self.board.register_key("environment", access=py_trees.common.Access.WRITE)
+        self.board.register_key("display", access=py_trees.common.Access.READ)
 
     def decide(self, _):
         # Always ends the current sequence
@@ -47,7 +48,8 @@ class EndCurrentSequence(ActionNode):
             state.set_value("EndGame",True)
 
         # To help with reading terminal output
-        print("---------------")
+        if self.board.display:
+            print("---------------")
 
         return py_trees.common.Status.SUCCESS
     

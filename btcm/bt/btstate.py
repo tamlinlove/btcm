@@ -411,7 +411,10 @@ class BTStateManager:
             # Create new environment based on logger data
             module = importlib.import_module(self.data["environment"]["module"])
             cls = getattr(module, self.data["environment"]["class"])
-            board.set("environment", cls(board.state)) 
+            board.set("environment", cls(board.state))
+        # Register other experiment parameters
+        board.register_key("display", access=py_trees.common.Access.WRITE)
+        board.set("display", False) # No output for explanations
 
         return board
     

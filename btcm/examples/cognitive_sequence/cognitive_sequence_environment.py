@@ -80,10 +80,11 @@ class UserProfile():
 ENVIRONMENT
 '''
 class CognitiveSequenceEnvironment(Environment):
-    def __init__(self,user_profile:UserProfile,skip:bool=False):
+    def __init__(self,user_profile:UserProfile,skip:bool=False,display:bool=True):
         super().__init__()
         self.user_profile = user_profile
         self.skip = skip
+        self.display = display
 
         # Internal State
         self.game_over = False
@@ -102,15 +103,18 @@ class CognitiveSequenceEnvironment(Environment):
     '''
     def robot_speak(self, text:str):
         # Simulate the robot speaking
-        print(f"ROBOT SAYS: {text}")
+        if self.display:
+            print(f"ROBOT SAYS: {text}")
 
     def user_speak(self, text:str):
         # Simulate the user speaking
-        print(f"USER SAYS: {text}")
+        if self.display:
+            print(f"USER SAYS: {text}")
 
     def env_speak(self, text:str):
         # Asides from the environments
-        print(f"[{text}]")
+        if self.display:
+            print(f"[{text}]")
     
     '''
     ROBOT ACTIONS

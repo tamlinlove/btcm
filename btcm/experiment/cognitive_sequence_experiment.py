@@ -10,11 +10,11 @@ LOG_DIRECTORY = "logs/cognitive_sequence"
 BASIC RUN EXPERIMENT
 '''
 
-def cognitive_sequence_run(initial_vals:dict,user_profile:UserProfile,log_file:str="cog_log",skip=False):
+def cognitive_sequence_run(initial_vals:dict,user_profile:UserProfile,log_file:str="cog_log",skip=False,display=True):
     '''
     Tree
     '''
-    board = cognitive_sequence.setup_board(vals=initial_vals,user_profile=user_profile,skip=skip)
+    board = cognitive_sequence.setup_board(vals=initial_vals,user_profile=user_profile,skip=skip,display=display)
     tree = cognitive_sequence.make_tree()
 
     '''
@@ -32,11 +32,12 @@ def cognitive_sequence_run(initial_vals:dict,user_profile:UserProfile,log_file:s
 '''
 RUNNING EXPERIMENT FOR DIFFERENT USER PROFILES
 '''
-def run_default(filename:str="cog_log_default",skip=False):
+def run_default(filename:str="cog_log_default",display=True,**kwargs):
     # Print
-    print("==========================")
-    print("Running default user profile experiment...")
-    print("==========================")
+    if display:
+        print("==========================")
+        print("Running default user profile experiment...")
+        print("==========================")
 
     # Set up default state values and user profile
     initial_vals = CognitiveSequenceState.default_values()
@@ -47,14 +48,16 @@ def run_default(filename:str="cog_log_default",skip=False):
         initial_vals=initial_vals,
         user_profile=user_profile,
         log_file=filename,
-        skip=skip,
+        display=display,
+        **kwargs,
     )
 
-def run_perfect(filename:str="cog_log_default",skip=False):
+def run_perfect(filename:str="cog_log_default",display=True,**kwargs):
     # Print
-    print("==========================")
-    print("Running perfect user profile experiment...")
-    print("==========================")
+    if display:
+        print("==========================")
+        print("Running perfect user profile experiment...")
+        print("==========================")
 
     # Set up default state values and user profile
     initial_vals = CognitiveSequenceState.default_values()
@@ -70,14 +73,16 @@ def run_perfect(filename:str="cog_log_default",skip=False):
         initial_vals=initial_vals,
         user_profile=user_profile,
         log_file=filename,
-        skip=skip,
+        display=display,
+        **kwargs,
     )
 
-def run_worst(filename:str="cog_log_default",skip=False):
+def run_worst(filename:str="cog_log_default",display=True,**kwargs):
     # Print
-    print("==========================")
-    print("Running worst user profile experiment...")
-    print("==========================")
+    if display:
+        print("==========================")
+        print("Running worst user profile experiment...")
+        print("==========================")
 
     # Set up default state values and user profile
     initial_vals = CognitiveSequenceState.default_values()
@@ -93,14 +98,16 @@ def run_worst(filename:str="cog_log_default",skip=False):
         initial_vals=initial_vals,
         user_profile=user_profile,
         log_file=filename,
-        skip=skip,
+        display=display,
+        **kwargs
     )
 
-def run_no_attention(filename:str="cog_log_default",skip=False):
+def run_no_attention(filename:str="cog_log_default",display=True,**kwargs):
     # Print
-    print("==========================")
-    print("Running no_attention user profile experiment...")
-    print("==========================")
+    if display:
+        print("==========================")
+        print("Running no_attention user profile experiment...")
+        print("==========================")
 
     # Set up default state values and user profile
     initial_vals = CognitiveSequenceState.default_values()
@@ -114,14 +121,16 @@ def run_no_attention(filename:str="cog_log_default",skip=False):
         initial_vals=initial_vals,
         user_profile=user_profile,
         log_file=filename,
-        skip=skip,
+        display=display,
+        **kwargs
     )
 
-def run_no_reactivity(filename:str="cog_log_default",skip=False):
+def run_no_reactivity(filename:str="cog_log_default",display=True,**kwargs):
     # Print
-    print("==========================")
-    print("Running no_reactivity user profile experiment...")
-    print("==========================")
+    if display:
+        print("==========================")
+        print("Running no_reactivity user profile experiment...")
+        print("==========================")
 
     # Set up default state values and user profile
     initial_vals = CognitiveSequenceState.default_values()
@@ -135,14 +144,16 @@ def run_no_reactivity(filename:str="cog_log_default",skip=False):
         initial_vals=initial_vals,
         user_profile=user_profile,
         log_file=filename,
-        skip=skip,
+        display=display,
+        **kwargs
     )
 
-def run_frustrated(filename:str="cog_log_default",skip=False):
+def run_frustrated(filename:str="cog_log_default",display=True,**kwargs):
     # Print
-    print("==========================")
-    print("Running frustrated user profile experiment...")
-    print("==========================")
+    if display:
+        print("==========================")
+        print("Running frustrated user profile experiment...")
+        print("==========================")
 
     # Set up default state values and user profile
     initial_vals = CognitiveSequenceState.default_values()
@@ -156,7 +167,8 @@ def run_frustrated(filename:str="cog_log_default",skip=False):
         initial_vals=initial_vals,
         user_profile=user_profile,
         log_file=filename,
-        skip=skip,
+        display=display,
+        **kwargs
     )
 
 

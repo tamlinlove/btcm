@@ -35,6 +35,8 @@ class SetSequenceParameters(ActionNode):
     def __init__(self, name:str = "SetSequenceParameters"):
         super(SetSequenceParameters, self).__init__(name)
 
+        self.board.register_key("display", access=py_trees.common.Access.READ)
+
     def decide(self, state:CognitiveSequenceState):
         # Initialise difficulty parameters
 
@@ -100,7 +102,8 @@ class SetSequenceParameters(ActionNode):
         # TODO: If we care about reproducibility here, add a seed variable
         sequence = [np.random.choice(allowed_characters) for _ in range(action.sequence_length)]
 
-        print(f"ROBOT SETS SEQUENCE TO LENGTH {action.sequence_length} AND COMPLEXITY {action.sequence_complexity}")
+        if self.board.display:
+            print(f"ROBOT SETS SEQUENCE TO LENGTH {action.sequence_length} AND COMPLEXITY {action.sequence_complexity}")
 
         return ''.join(sequence)
     

@@ -13,6 +13,7 @@ if __name__ == "__main__":
     parser.add_argument('-p', '--profile', type=str, required=True)
     parser.add_argument('-f', '--filename', type=str)
     parser.add_argument('--skip', action='store_true')
+    parser.add_argument('--display', action='store_true')
     args = parser.parse_args()
 
     '''
@@ -31,6 +32,6 @@ if __name__ == "__main__":
     '''
     Run Experiment
     '''
-    cognitive_sequence_experiment.profile_experiments[profile_name](filename=filename,skip=args.skip)
+    cognitive_sequence_experiment.profile_experiments[profile_name](filename=filename,skip=args.skip,display=args.display)
 
     

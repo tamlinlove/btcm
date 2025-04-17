@@ -251,7 +251,33 @@ class CognitiveSequenceState(State):
     CAUSAL MODEL
     '''
     def cm_edges(self) -> list[tuple[str,str]]:
-        return []
+        return [
+            # Confusion
+            ("UserMemory","UserConfusion"),
+            ("SequenceComplexity","UserConfusion"),
+            # Engagement
+            ("UserConfusion","UserEngagement"),
+            ("UserAttention","UserEngagement"),
+            # Base User Accuracy
+            ("UserConfusion","BaseUserAccuracy"),
+            ("SequenceComplexity","BaseUserAccuracy"),
+            # Number of Errors
+            ("AccuracySeed","UserNumErrors"),
+            ("SequenceLength","UserNumErrors"),
+            ("BaseUserAccuracy","UserNumErrors"),
+            # Base User Response Time
+            ("UserReactivity","BaseUserResponseTime"),
+            ("UserConfusion","BaseUserResponseTime"),
+            ("UserEngagement","BaseUserResponseTime"),
+            ("SequenceLength","BaseUserResponseTime"),
+            # Observed User Response Time
+            ("BaseUserResponseTime","ObservedUserResponseTime"),
+            ("ResponseTimeSeed","ObservedUserResponseTime"),
+            # Frustration
+            # TODO - missing self link, how to add?
+            ("UserNumErrors","UserFrustration"),
+
+        ]
     
     '''
     SEMANTIC DESCRIPTION

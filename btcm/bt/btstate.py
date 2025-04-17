@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 from typing import Dict,List,Self
 from collections.abc import Callable
 
-from btcm.dm.state import State
+from btcm.dm.state import State,VarRange
 from btcm.dm.action import NullAction
 from btcm.cm.causalmodel import CausalModel,CausalNode
 from btcm.bt.nodes import Leaf
@@ -139,27 +139,27 @@ class BTState(State):
     def get_return_range(self,node:str) -> list:
         if self.data["tree"][node]["category"] == "Condition":
             # No running
-            return [
+            return VarRange.categorical([
                 py_trees.common.Status.SUCCESS,
                 py_trees.common.Status.FAILURE,
                 py_trees.common.Status.INVALID,
-            ]
-        return [
+            ])
+        return VarRange.categorical([
             py_trees.common.Status.RUNNING,
             py_trees.common.Status.SUCCESS,
             py_trees.common.Status.FAILURE,
             py_trees.common.Status.INVALID,
-        ]
+        ])
     
     def get_executed_range(self) -> list[bool]:
-        return [False,True]
+        return VarRange.boolean()
     
     def get_decision_range(self,node:str) -> list:
         dec_range = copy.deepcopy(self.behaviour_dict[node].action_space())
         null = NullAction()
         if null not in dec_range:
             dec_range.append(null)
-        return dec_range
+        return VarRange.categorical(dec_range)
     
     '''
     VARIABLE FUNCTIONS

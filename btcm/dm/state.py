@@ -18,8 +18,8 @@ class VarRange:
         return VarRange(range_type="cont",var_type=float,min=0,max=1)
     
     @staticmethod
-    def categorical(values:list[str]):
-        return VarRange(range_type="cat",values=values,var_type=str)
+    def categorical(values:list):
+        return VarRange(range_type="cat",values=values)
     
     @staticmethod
     def boolean():
@@ -60,13 +60,13 @@ class VarRange:
     '''
     def get_max(self):
         if self.max is None:
-            raise TypeError(f"Cannot get max value for VarRange type {self.var_type}")
+            raise TypeError(f"Cannot get max value for VarRange type {self.range_type}")
         else:
             return self.max
         
     def get_middle_value(self):
         if self.values is None:
-            raise TypeError(f"Cannot get median value for VarRange type {self.var_type}")
+            raise TypeError(f"Cannot get median value for VarRange type {self.range_type}")
         else:
             middleIndex = (len(self.values) - 1)//2
             return self.values[middleIndex] 
@@ -76,15 +76,17 @@ class VarRange:
     '''
     def valid(self,value):
         # First, check typing
-        if self.var_type == float:
-            # Allow floats and ints
-            if not isinstance(value,(float,int)):
+        if self.var_type is not None:
+            # var_type = None allows any type
+            if self.var_type == float:
+                # Allow floats and ints
+                if not isinstance(value,(float,int)):
+                    print(f"Value {value} of type {type(value)} is not of type {self.var_type}")
+                    return False
+            elif not type(value) is self.var_type:
+                # For others, must match type exactly
                 print(f"Value {value} of type {type(value)} is not of type {self.var_type}")
                 return False
-        elif not type(value) is self.var_type:
-            # For others, must match type exactly
-            print(f"Value {value} of type {type(value)} is not of type {self.var_type}")
-            return False
             
 
         if self.range_type in ["cont","disc_cont"]:

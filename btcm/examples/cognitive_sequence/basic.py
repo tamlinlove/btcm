@@ -182,8 +182,8 @@ class CognitiveSequenceState(State):
             return CrashAction()
         elif action_name.startswith("SetSequenceParameters"):
             return SetSequenceParametersAction(
-                action_name.split("(")[1].split(",")[0],
-                action_name.split(",")[1].split(")")[0]
+                int(action_name.split("(")[1].split(",")[0]),
+                int(action_name.split(",")[1].split(")")[0])
             )
         elif action_name == "ResetTimer":
             return ResetTimerAction()

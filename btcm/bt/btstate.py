@@ -127,11 +127,29 @@ class BTState(State):
         state_vars = list(self.var_state.ranges().keys())
         self.vars_list += state_vars
         for var in state_vars:
-            self.range_dict[var] = self.var_state.ranges()[var]
+            self.range_dict[var] = self.discretise_range(self.var_state.ranges()[var])
             self.func_dict[var] = self.var_state.var_funcs()[var]
             self.categories[var] = "State"
             self.nodes[var] = var
             self.vals[var] = None
+
+    def discretise_range(self,var_range:VarRange,num_steps:int=10):
+        if var_range.values is not None:
+            # Already discrete
+            return var_range
+        else:
+            # Continuous, needs to be discretised
+            if var_range.range_type == "cont" and var_range.var_type == float:
+                # Can create a discretised float range
+                step_size = (var_range.max-var_range.min)/num_steps
+                discrete_range = VarRange.discretised_float_range(var_range.min,var_range.max,step_size)
+                return discrete_range
+            elif var_range.range_type == "any":
+                # Cannot be discretised, return as is and hope it is not intervened on
+                return var_range
+            else:
+                raise TypeError(f"Unrecognised var range type: {var_range.range_type}")
+
 
     '''
     NODE RANGES

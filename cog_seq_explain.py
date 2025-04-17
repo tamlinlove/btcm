@@ -36,22 +36,25 @@ if __name__ == "__main__":
 
     file = f"{filename}.json"
     tick = 0
-    time = "end" #97
-    foils = [None]
+    time = 4 #"end" #97
+    foils = None
 
     print("Reconstructing behaviour tree from logs...")
     manager = BTStateManager(file,dummy_env=DummyCognitiveSequenceEnvironment(),directory=cognitive_sequence_experiment.LOG_DIRECTORY)
+
     print("Loading state at specified time...")
-    manager.load_state(tick=tick,time="end")
+    manager.load_state(tick=tick,time=time)
     if args.visualise:
         print("Displaying visualisations")
         manager.visualise_tree()
         manager.visualise(show_values=True)
-    #py_trees.display.render_dot_tree(manager.tree.root)
+        #py_trees.display.render_dot_tree(manager.tree.root)
 
 
+    print("Loading explainer...")
     explainer = Explainer(manager.model,node_names=manager.node_names)
     
     # Query set parameter decision
+    print("Generating explanations...")
     node_id = manager.get_node_from_name("SetSequenceParameters","Decision")
     explainer.explain({node_id:foils},max_depth=1)

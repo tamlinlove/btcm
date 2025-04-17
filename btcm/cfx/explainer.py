@@ -3,7 +3,7 @@ import itertools
 import copy
 
 from btcm.cm.causalmodel import CausalModel
-from btcm.dm.state import State
+from btcm.dm.state import State,VarRange
 
 from typing import Dict,List
 
@@ -86,11 +86,19 @@ class Explainer:
             if var not in self.model.state.vars():
                 raise ValueError(f"Unrecognised variable {var} in query")
             else:
-                # Populate foils with var range if not specified
-                if foils[var] is None:
-                    proper_foil[var] = copy.deepcopy(self.model.state.ranges()[var])
+                # Obtain foils
+                var_range = self.model.state.ranges()[var]
+
+                if foils[var] is not None:
+                    # Can just use the provided foils, if they are valid
+                    for val in foils[var]:
+                        if not var_range.valid(val):
+                            raise ValueError(f"Invalid foil {val} for variable {var}")
+                        proper_foil[var] = foils[var]
                 else:
-                    proper_foil[var] = foils[var]
+                    if var_range.values is None:
+                        raise TypeError(f"Invalid var range of type {var_range.var_type} for variable {var}")
+                    proper_foil[var] = copy.deepcopy(var_range.values)
                 
                 # Remove real value from possible options
                 real_val = self.model.state.get_value(var)
@@ -109,7 +117,12 @@ class Explainer:
         ancestors = list(set(ancestors))
 
         # Next, get all possible values for each
-        search_space:Dict[str,list] = {node:copy.deepcopy(self.model.state.ranges()[node]) for node in ancestors}
+        search_space:Dict[str,list] = {}
+        for node in ancestors:
+            values = self.model.state.ranges()[node].values
+            if values is None:
+                raise TypeError(f"Invalid: var range of type {self.model.state.ranges()[node].range_type} has no values for variable {node}")
+            search_space[node] = copy.deepcopy(values)
 
         # Remove true values from search space
         for node in ancestors:

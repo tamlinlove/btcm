@@ -85,7 +85,7 @@ class SetSequenceParameters(ActionNode):
             state.set_value("SequenceComplexity",action.sequence_complexity)
             state.set_value("SequenceLength",action.sequence_length)
             state.set_value("SequenceSet",True)
-            state.set_value("NumSequences",state.get_value("NumSequences")+1)
+            state.increment("NumSequences")
 
             # Generate the sequence
             state.set_value("CurrentSequence",self.generate_sequence(action))
@@ -183,7 +183,7 @@ class ProvideSequence(ActionNode):
         self.board.environment.provide_sequence(state)
 
         # Update internal variables
-        state.set_value("NumRepetitions",state.get_value("NumRepetitions")+1)
+        state.increment("NumRepetitions")
 
         return py_trees.common.Status.SUCCESS
     

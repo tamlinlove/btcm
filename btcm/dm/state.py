@@ -183,6 +183,14 @@ class State:
         
     def get_value(self,node:str):
         return self.vals[node]
+    
+    def increment(self,node:str,increment_step:float=1):
+        new_value = self.get_value(node) + increment_step
+        if self.ranges()[node].valid(new_value):
+            self.vals[node] = new_value
+        else:
+            # Cannot increment, leave the variable as it is
+            pass
 
     '''
     CAUSAL MODEL

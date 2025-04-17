@@ -478,7 +478,7 @@ class BTStateManager:
 
         # State variables
         for state_var in state_vals:
-            self.state.vals[state_var] = state_vals[state_var]
+            self.state.set_value(state_var,state_vals[state_var])
 
         
             
@@ -487,14 +487,14 @@ class BTStateManager:
         data0 = self.data["0"]["0"]
         # Set State Variables
         for state_var in data0["state"]:
-            self.state.vals[state_var] = data0["state"][state_var]
+            self.state.set_value(state_var,data0["state"][state_var])
 
         # Set behaviour tree node values
         for node in self.state.sub_vars:
-            self.state.vals[self.state.sub_vars[node]["Return"]] = py_trees.common.Status.INVALID
-            self.state.vals[self.state.sub_vars[node]["Executed"]] = False
+            self.state.set_value(self.state.sub_vars[node]["Return"],py_trees.common.Status.INVALID)
+            self.state.set_value(self.state.sub_vars[node]["Executed"],False)
             if "Decision" in self.state.sub_vars[node]:
-                self.state.vals[self.state.sub_vars[node]["Decision"]] = NullAction()
+                self.state.set_value(self.state.sub_vars[node]["Decision"],NullAction())
 
     
     '''
@@ -610,7 +610,7 @@ class BTStateManager:
         for node in graph.nodes:
             val_statement = ""
             if show_values:
-                val_statement = f" = {state.vals[node]}"
+                val_statement = f" = {state.get_value(node)}"
 
             if state.categories[node] == "State":
                 # State

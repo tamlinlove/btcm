@@ -35,10 +35,10 @@ class UserProfile():
     UTILITY
     '''
     def update_state(self,state:CognitiveSequenceState):
-        state.vals["UserMemory"] = self.memory
-        state.vals["UserAttention"] = self.attention
-        state.vals["UserReactivity"] = self.reactivity
-        state.vals["UserFrustration"] = self.initial_frustration
+        state.set_value("UserMemory", self.memory)
+        state.set_value("UserAttention", self.attention)
+        state.set_value("UserReactivity", self.reactivity)
+        state.set_value("UserFrustration", self.initial_frustration)
 
     '''
     USER SIMULATION
@@ -46,12 +46,12 @@ class UserProfile():
     @staticmethod
     def generate_sequence(state:CognitiveSequenceState):
         # Start with the true sequence
-        user_sequence = state.vals["CurrentSequence"]
+        user_sequence = state.get_value("CurrentSequence")
 
-        if state.vals["UserNumErrors"] == 0:
+        if state.get_value("UserNumErrors") == 0:
             return user_sequence
 
-        random_indices = np.random.choice(len(user_sequence), state.vals["UserNumErrors"], replace=False)
+        random_indices = np.random.choice(len(user_sequence), state.get_value("UserNumErrors"), replace=False)
 
         sequence_list = list(user_sequence)
 
@@ -65,7 +65,7 @@ class UserProfile():
             else:
                 # Randomly replace a character with another symbol
                 character_set = ["A","B","C","D"]
-                allowed_characters = character_set[0:state.vals["SequenceComplexity"]]
+                allowed_characters = character_set[0:state.get_value("SequenceComplexity")]
                 allowed_characters.remove(sequence_list[index]) # Not the same symbol
 
                 sequence_list[index] = np.random.choice(allowed_characters)
@@ -74,8 +74,7 @@ class UserProfile():
         return ''.join(modified_list)
     
     def update_frustration(self,state:CognitiveSequenceState):
-        state.vals["UserFrustration"] = CognitiveSequenceState.get_frustration(state)
-        print(state.vals["UserFrustration"])
+        state.set_value("UserFrustration",CognitiveSequenceState.get_frustration(state))
 
 '''
 ENVIRONMENT
@@ -122,33 +121,33 @@ class CognitiveSequenceEnvironment(Environment):
     
     def provide_sequence(self,state:CognitiveSequenceState):
         # Provide the sequence to the user
-        if state.vals["NumRepetitions"] == 0:
+        if state.get_value("NumRepetitions") == 0:
             # First time for this unique sequence
-            if state.vals["NumSequences"] > 1:
+            if state.get_value("NumSequences") > 1:
                 # Second, third, etc. unique sequence
-                self.robot_speak(f"Here is the new sequence. Listen carefully. {state.vals["CurrentSequence"]}")
+                self.robot_speak(f"Here is the new sequence. Listen carefully. {state.get_value("CurrentSequence")}")
             else:
                 # First time for this unique sequence
-                self.robot_speak(f"Here is the sequence. Listen carefully. {state.vals["CurrentSequence"]}")
+                self.robot_speak(f"Here is the sequence. Listen carefully. {state.get_value("CurrentSequence")}")
         else:
             # Sequence has been repeated
-            self.robot_speak(f"Here is the sequence again. Listen carefully. {state.vals["CurrentSequence"]}")
+            self.robot_speak(f"Here is the sequence again. Listen carefully. {state.get_value("CurrentSequence")}")
 
         # Update user response now that new sequence is here
-        state.vals["UserResponded"] = False
+        state.set_value("UserResponded",False)
 
         # Update user variables based on the new sequence
-        state.vals["UserConfusion"] = CognitiveSequenceState.get_confusion(state)
-        state.vals["UserEngagement"] = CognitiveSequenceState.get_engagement(state)
-        state.vals["BaseUserAccuracy"] = CognitiveSequenceState.get_accuracy(state)
-        state.vals["UserNumErrors"] = CognitiveSequenceState.get_num_errors(state)
-        state.vals["BaseUserResponseTime"] = CognitiveSequenceState.get_time(state)
-        state.vals["ObservedUserResponseTime"] = CognitiveSequenceState.get_observed_time(state)
-        state.vals["UserSequence"] = UserProfile.generate_sequence(state)
+        state.set_value("UserConfusion",CognitiveSequenceState.get_confusion(state))
+        state.set_value("UserEngagement",CognitiveSequenceState.get_engagement(state))
+        state.set_value("BaseUserAccuracy",CognitiveSequenceState.get_accuracy(state))
+        state.set_value("UserNumErrors",CognitiveSequenceState.get_num_errors(state))
+        state.set_value("BaseUserResponseTime",CognitiveSequenceState.get_time(state))
+        state.set_value("ObservedUserResponseTime",CognitiveSequenceState.get_observed_time(state))
+        state.set_value("UserSequence",UserProfile.generate_sequence(state))
 
         # Update seeds
-        state.vals["AccuracySeed"] = np.random.randint(0,1000000000)
-        state.vals["ResponseTimeSeed"] = np.random.randint(0,1000000000)
+        state.set_value("AccuracySeed",np.random.randint(0,1000000000))
+        state.set_value("ResponseTimeSeed",np.random.randint(0,1000000000))
 
         return True
     
@@ -161,8 +160,8 @@ class CognitiveSequenceEnvironment(Environment):
         self.user_response_timer = time.time()
         self.first_check = False
 
-        state.vals["UserResponded"] = False
-        state.vals["UserTimeout"] = False
+        state.set_value("UserResponded",False)
+        state.set_value("UserTimeout",False)
 
         return True
     
@@ -175,19 +174,19 @@ class CognitiveSequenceEnvironment(Environment):
         elapsed_time = curr_time - self.user_response_timer
 
         # Check if the user has responded
-        if elapsed_time > state.vals["ObservedUserResponseTime"]:
-            if elapsed_time >= CognitiveSequenceState.MAX_TIMEOUT and state.vals["ObservedUserResponseTime"]>=CognitiveSequenceState.MAX_TIMEOUT:
+        if elapsed_time > state.get_value("ObservedUserResponseTime"):
+            if elapsed_time >= CognitiveSequenceState.MAX_TIMEOUT and state.get_value("ObservedUserResponseTime")>=CognitiveSequenceState.MAX_TIMEOUT:
                 # Timeout
-                state.vals["UserResponded"] = False
-                state.vals["UserTimeout"] = True
+                state.set_value("UserResponded",False)
+                state.set_value("UserTimeout",True)
             else:
                 # User has responded
-                state.vals["UserResponded"] = True
-                self.user_speak(state.vals["UserSequence"])
-                self.env_speak(f"User responded in {state.vals["ObservedUserResponseTime"]} seconds")
+                state.set_value("UserResponded",True)
+                self.user_speak(state.get_value("UserSequence"))
+                self.env_speak(f"User responded in {state.get_value("ObservedUserResponseTime")} seconds")
         else:
             # User has not responded yet
-            state.vals["UserResponded"] = False
+            state.set_value("UserResponded",False)
 
         self.first_check = True
 
@@ -195,12 +194,12 @@ class CognitiveSequenceEnvironment(Environment):
     SOCIAL ACTIONS
     '''
     def give_hint(self,state:CognitiveSequenceState):
-        if state.vals["UserNumErrors"] == 0:
+        if state.get_value("UserNumErrors") == 0:
             self.robot_speak("You don't need any help, you're doing great!")
-        elif state.vals["UserNumErrors"] == 1:
+        elif state.get_value("UserNumErrors") == 1:
             self.robot_speak("Almost right, you made only one mistake.")
         else:
-            self.robot_speak(f"Hmmm...that's not quite right. Here's a hint: you made {str(state.vals["UserNumErrors"])} mistakes.")
+            self.robot_speak(f"Hmmm...that's not quite right. Here's a hint: you made {str(state.get_value("UserNumErrors"))} mistakes.")
 
         # Update frustration
         self.user_profile.update_frustration(state)
@@ -208,7 +207,7 @@ class CognitiveSequenceEnvironment(Environment):
         return True
     
     def repeat_sequence_social_action(self,state:CognitiveSequenceState):
-        if not state.vals["UserResponded"]:
+        if not state.get_value("UserResponded"):
             # No response
             self.robot_speak("No response? That's okay, let's give it another shot!")
         else:
@@ -219,13 +218,13 @@ class CognitiveSequenceEnvironment(Environment):
                 "Hmmm... no, that's not it. Let's try again."
             ]
 
-            self.robot_speak(sentences[state.vals["UserNumErrors"]])
+            self.robot_speak(sentences[state.get_value("UserNumErrors")])
 
         # Update frustration
         self.user_profile.update_frustration(state)
     
     def end_sequence_social_action(self,state:CognitiveSequenceState):
-        if not state.vals["UserResponded"]:
+        if not state.get_value("UserResponded"):
             # No response
             self.robot_speak("No response? That's a pity...")
         else:
@@ -236,14 +235,14 @@ class CognitiveSequenceEnvironment(Environment):
                 "Don't worry, we all have off days."
             ]
 
-            self.robot_speak(sentences[state.vals["UserNumErrors"]])
+            self.robot_speak(sentences[state.get_value("UserNumErrors")])
 
         # Update frustration
         self.user_profile.update_frustration(state)
     
     def recapture_attention(self,state:CognitiveSequenceState):
         # Check if the user responded or not, and try to recapture their attention accordingly
-        if state.vals["UserResponded"]:
+        if state.get_value("UserResponded"):
             self.robot_speak("You seem distracted. Let's focus on the task at hand.")
         else:
             self.robot_speak("Hey there! I need your attention!")

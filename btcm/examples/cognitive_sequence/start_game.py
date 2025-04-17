@@ -14,8 +14,8 @@ class CheckInitialSequence(ConditionNode):
     def __init__(self, name:str = "CheckInitialSequence"):
         super(CheckInitialSequence, self).__init__(name)
 
-    def execute(self, state, _):
-        if state.vals["NumRepetitions"] == 0:
+    def execute(self, state:CognitiveSequenceState, _):
+        if state.get_value("NumRepetitions") == 0:
             return py_trees.common.Status.SUCCESS
         return py_trees.common.Status.FAILURE
     
@@ -35,7 +35,7 @@ class SetSequenceParameters(ActionNode):
     def decide(self, state:CognitiveSequenceState):
         # Initialise difficulty parameters
 
-        if state.vals["NumSequences"] == 0:
+        if state.get_value("NumSequences") == 0:
             # This is the very first parameter setting, always start with the same length and complexity
             length = round(0.3*(CognitiveSequenceState.MAX_LENGTH-CognitiveSequenceState.MIN_LENGTH)) + CognitiveSequenceState.MIN_LENGTH
             complexity = round(0.5*(CognitiveSequenceState.MAX_COMPLEXITY-CognitiveSequenceState.MIN_COMPLEXITY)) + CognitiveSequenceState.MIN_COMPLEXITY
@@ -43,16 +43,16 @@ class SetSequenceParameters(ActionNode):
             # Can use data from previous sequences to tune this one
            
             # First, decide on complexity using confusion and number of errors
-            complexity = state.vals["SequenceComplexity"]
-            length = state.vals["SequenceLength"]
+            complexity = state.get_value("SequenceComplexity")
+            length = state.get_value("SequenceLength")
 
             # Add/Subtract based on number of errors
-            complexity -= state.vals["UserNumErrors"]-1
+            complexity -= state.get_value("UserNumErrors")-1
 
             # Add/Subtract based on confusion
-            if state.vals["UserConfusion"] >= 0.7:
+            if state.get_value("UserConfusion") >= 0.7:
                 complexity -= 1
-            elif state.vals["UserConfusion"] < 0.3:
+            elif state.get_value("UserConfusion") < 0.3:
                 complexity += 1
 
             complexity = min(CognitiveSequenceState.MAX_COMPLEXITY,max(CognitiveSequenceState.MIN_COMPLEXITY,complexity))
@@ -60,17 +60,17 @@ class SetSequenceParameters(ActionNode):
             # Now do length, based on response time, accuracy and timeout
 
             
-            if state.vals["UserTimeout"]:
+            if state.get_value("UserTimeout"):
                 # Halve length if timeout
                 length = round(0.5*length)
             else:
                 # Otherwise, add/subtract based on response time
-                expected_time = 0.8*state.vals["SequenceLength"]
-                time_diff = expected_time - state.vals["ObservedUserResponseTime"]
+                expected_time = 0.8*state.get_value("SequenceLength")
+                time_diff = expected_time - state.get_value("ObservedUserResponseTime")
                 length += round(min(2,max(-2,time_diff)))
 
                 # Add/subtract based on number of errors
-                length -= state.vals["UserNumErrors"]-1
+                length -= state.get_value("UserNumErrors")-1
 
             length = min(CognitiveSequenceState.MAX_LENGTH,max(CognitiveSequenceState.MIN_LENGTH,length))
 
@@ -79,13 +79,13 @@ class SetSequenceParameters(ActionNode):
     def execute(self, state:CognitiveSequenceState, action:Action):
         if isinstance(action,SetSequenceParametersAction):
             # Update internal state
-            state.vals["SequenceComplexity"] = action.sequence_complexity
-            state.vals["SequenceLength"] = action.sequence_length
-            state.vals["SequenceSet"] = True
-            state.vals["NumSequences"] += 1
+            state.set_value("SequenceComplexity",action.sequence_complexity)
+            state.set_value("SequenceLength",action.sequence_length)
+            state.set_value("SequenceSet",True)
+            state.set_value("NumSequences",state.get_value("NumSequences")+1)
 
             # Generate the sequence
-            state.vals["CurrentSequence"] = self.generate_sequence(action)
+            state.set_value("CurrentSequence",self.generate_sequence(action))
 
             return py_trees.common.Status.SUCCESS
         return py_trees.common.Status.FAILURE
@@ -132,7 +132,7 @@ class HandleRepeatedSequence(ActionNode):
 
     def decide(self, state:CognitiveSequenceState):
         # TODO: Implement something proper
-        if state.vals["SequenceSet"]:
+        if state.get_value("SequenceSet"):
             return NullAction()
         return CrashAction()
     
@@ -166,7 +166,7 @@ class ProvideSequence(ActionNode):
         return ProvideSequenceAction()
     
     def execute(self, state:CognitiveSequenceState, action:Action):
-        if not state.vals["SequenceSet"]:
+        if not state.get_value("SequenceSet"):
             # Sequence not set!
             return py_trees.common.Status.FAILURE
 
@@ -174,12 +174,12 @@ class ProvideSequence(ActionNode):
         self.board.environment.provide_sequence(state)
 
         # Update internal variables
-        state.vals["NumRepetitions"] += 1
+        state.set_value("NumRepetitions",state.get_value("NumRepetitions")+1)
 
         return py_trees.common.Status.SUCCESS
     
     def input_variables(self):
-        return ["SequenceSet"]
+        return ["SequenceSet","NumRepetitions"]
     
     def action_space(self):
         return [ProvideSequenceAction(),NullAction()]

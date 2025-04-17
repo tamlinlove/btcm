@@ -19,7 +19,7 @@ def build_state_model(state:State, edges:list[tuple[str,str]]=None):
             name=var,
             vals=cm.state.ranges[var],
             func=cm.state.var_funcs[var],
-            value=cm.state.vals[var],
+            value=cm.state.get_value(var),
             category="State"
         )
         cm.add_node(node)
@@ -135,7 +135,7 @@ class CausalModel:
         if state is None:
             state = self.state
         
-        label_dict = {self.nodes[node].name: f"{self.nodes[node].name} = {state.vals[self.nodes[node].name]}" for node in self.nodes}
+        label_dict = {self.nodes[node].name: f"{self.nodes[node].name} = {state.get_value(self.nodes[node].name)}" for node in self.nodes} 
         pos = graphviz_layout(graph, prog="dot")
         nx.draw_networkx_nodes(graph, pos, node_size = 500)
         nx.draw_networkx_labels(graph, pos, labels=label_dict)

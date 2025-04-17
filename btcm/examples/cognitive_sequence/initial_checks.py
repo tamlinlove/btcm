@@ -15,7 +15,7 @@ class CheckOverride(ConditionNode):
 
     def execute(self, state, _):
         # Check if the override is active
-        if state.vals["EndGame"]:
+        if state.get_value("EndGame"):
             return py_trees.common.Status.SUCCESS
 
         return py_trees.common.Status.FAILURE

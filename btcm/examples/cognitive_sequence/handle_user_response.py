@@ -20,7 +20,7 @@ class StartResponseTimer(ActionNode):
 
     def decide(self, state:CognitiveSequenceState):
         # If the timer is not active, start it
-        if not state.vals["ResponseTimerActive"]:
+        if not state.get_value("ResponseTimerActive"):
             return ResetTimerAction()
         # Otherwise, do nothing
         return NullAction()
@@ -31,7 +31,7 @@ class StartResponseTimer(ActionNode):
             self.board.environment.reset_timer(state)
 
             # Update state
-            state.vals["ResponseTimerActive"] = True
+            state.set_value("ResponseTimerActive",True)
 
             return py_trees.common.Status.SUCCESS
         # If action is NullAction, do nothing
@@ -78,15 +78,15 @@ class HandleTimerResponse(ActionNode):
     
     def execute(self, state:CognitiveSequenceState, action:Action):
         # First, check if the user has responded
-        if state.vals["UserResponded"]:
+        if state.get_value("UserResponded"):
             # If so, return success
-            state.vals["ResponseTimerActive"] = False
+            state.set_value("ResponseTimerActive",False)
             return py_trees.common.Status.SUCCESS
 
         # Check if the timer has expired
-        if state.vals["UserTimeout"]:
+        if state.get_value("UserTimeout"):
             # If so, return failure
-            state.vals["ResponseTimerActive"] = False
+            state.set_value("ResponseTimerActive",False)
             return py_trees.common.Status.FAILURE
         # Otherwise, return running
         return py_trees.common.Status.RUNNING
@@ -131,7 +131,7 @@ class HandleUserResponse(ActionNode):
     
     def execute(self, state:CognitiveSequenceState, action:Action):
         # Double check that we actually received a response
-        if not state.vals["UserResponded"]:
+        if not state.get_value("UserResponded"):
             return py_trees.common.Status.FAILURE
         
         # TODO: Do something here?
@@ -152,21 +152,21 @@ class RepeatOrEnd(ActionNode):
 
     def decide(self, state:CognitiveSequenceState,engagement_threshold = 0.4,frustration_threshold=0.7):
         # First, check if we have exceeded the maximum number of repetitions
-        if state.vals["NumRepetitions"] >= CognitiveSequenceState.MAX_NUM_REPETITIONS:
+        if state.get_value("NumRepetitions") >= CognitiveSequenceState.MAX_NUM_REPETITIONS:
             return EndThisSequenceAction()
         
         # Check if user has responded
-        if state.vals["UserResponded"]:
-            if state.vals["UserNumErrors"] == 0 or state.vals["UserNumErrors"] == state.ranges()["UserNumErrors"].get_max():
+        if state.get_value("UserResponded"):
+            if state.get_value("UserNumErrors") == 0 or state.get_value("UserNumErrors") == state.ranges()["UserNumErrors"].get_max():
                 # Either perfect or really bad, so we need to move on
                 return EndThisSequenceAction()
         else:
             # Check if engagement is low
-            if state.vals["UserEngagement"] < engagement_threshold and state.vals["AttemptedReengageUser"]:
+            if state.get_value("UserEngagement") < engagement_threshold and state.get_value("AttemptedReengageUser"):
                 # We have already tried to reengage, move on
                 return EndThisSequenceAction()
             
-        if state.vals["UserFrustration"] > frustration_threshold:
+        if state.get_value("UserFrustration") > frustration_threshold:
             # User is too frustrated, move on
             return EndThisSequenceAction()
         
@@ -175,10 +175,10 @@ class RepeatOrEnd(ActionNode):
     
     def execute(self, state:CognitiveSequenceState, action:Action):
         if action == EndThisSequenceAction():
-            state.vals["RepeatSequence"] = False
+            state.set_value("RepeatSequence",False)
             return py_trees.common.Status.SUCCESS
         elif action == RepeatThisSequenceAction():
-            state.vals["RepeatSequence"] = True
+            state.set_value("RepeatSequence",True)
             return py_trees.common.Status.SUCCESS
         # Should never get here
         return py_trees.common.Status.FAILURE
@@ -198,12 +198,12 @@ class DecideSocialAction(ActionNode):
 
     def decide(self, state:CognitiveSequenceState, confusion_threshold=0.6, engagement_threshold = 0.4):
         # Check if repeat sequence is set
-        if state.vals["UserResponded"]:
-            if state.vals["RepeatSequence"]:
+        if state.get_value("UserResponded"):
+            if state.get_value("RepeatSequence"):
                 # Repeating - check if user is confused
-                if state.vals["UserConfusion"] >= confusion_threshold:
+                if state.get_value("UserConfusion") >= confusion_threshold:
                     return GiveSequenceHintAction()
-                if state.vals["UserEngagement"] < engagement_threshold and not state.vals["AttemptedReengageUser"]:
+                if state.get_value("UserEngagement") < engagement_threshold and not state.get_value("AttemptedReengageUser"):
                     # Check if user is not paying attention
                     return RecaptureAttentionAction()
                 # Otherwise, just repeat the sequence
@@ -212,8 +212,8 @@ class DecideSocialAction(ActionNode):
                 # End the sequence
                 return EndSequenceSocialAction()
         else:
-            if state.vals["RepeatSequence"]:
-                if state.vals["UserEngagement"] < engagement_threshold and not state.vals["AttemptedReengageUser"]:
+            if state.get_value("RepeatSequence"):
+                if state.get_value("UserEngagement") < engagement_threshold and not state.get_value("AttemptedReengageUser"):
                     # Repeating - check if user is not paying attention
                     return RecaptureAttentionAction()
                 # Otherwise, just repeat the sequence
@@ -236,7 +236,7 @@ class DecideSocialAction(ActionNode):
         elif action == RecaptureAttentionAction():
             # Recapture attention
             self.board.environment.recapture_attention(state)
-            state.vals["AttemptedReengageUser"] = True
+            state.set_value("AttemptedReengageUser",True)
 
         return py_trees.common.Status.SUCCESS
     

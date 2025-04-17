@@ -84,7 +84,7 @@ class CognitiveSequenceState(State):
     def var_funcs(self) -> dict:
         # Most variables don't have a special function...
         func_dict = {
-            key: (lambda key: lambda state: state.vals[key])(key)
+            key: (lambda key: lambda state: state.get_value(key))(key)
             for key in self.ranges().keys()
         }
 
@@ -100,27 +100,27 @@ class CognitiveSequenceState(State):
     
     @staticmethod
     def get_confusion(state:Self,memory_weight=0.7,complexity_weight=0.3) -> float:
-        normalised_complexity = (state.vals["SequenceComplexity"]-CognitiveSequenceState.MIN_COMPLEXITY)/(CognitiveSequenceState.MAX_COMPLEXITY-CognitiveSequenceState.MIN_COMPLEXITY)
-        confusion = memory_weight * (1 - state.vals["UserMemory"]) + complexity_weight * normalised_complexity
+        normalised_complexity = (state.get_value("SequenceComplexity")-CognitiveSequenceState.MIN_COMPLEXITY)/(CognitiveSequenceState.MAX_COMPLEXITY-CognitiveSequenceState.MIN_COMPLEXITY)
+        confusion = memory_weight * (1 - state.get_value("UserMemory")) + complexity_weight * normalised_complexity
         return max(0, min(1, confusion))
     
     @staticmethod
     def get_engagement(state:Self,confusion_weight=0.5,attention_weight=0.5) -> float:
-        engagement = confusion_weight * (1 - state.vals["UserConfusion"]) + attention_weight * state.vals["UserAttention"]
+        engagement = confusion_weight * (1 - state.get_value("UserConfusion")) + attention_weight * state.get_value("UserAttention")
         return max(0, min(1, engagement))
     
     @staticmethod
     def get_accuracy(state:Self,complexity_weight=0.2,confusion_weight=0.8) -> float:
-        normalised_complexity = (state.vals["SequenceComplexity"]-CognitiveSequenceState.MIN_COMPLEXITY)/(CognitiveSequenceState.MAX_COMPLEXITY-CognitiveSequenceState.MIN_COMPLEXITY)
-        accuracy = complexity_weight*(1-normalised_complexity) + confusion_weight*(1-state.vals["UserConfusion"])
+        normalised_complexity = (state.get_value("SequenceComplexity")-CognitiveSequenceState.MIN_COMPLEXITY)/(CognitiveSequenceState.MAX_COMPLEXITY-CognitiveSequenceState.MIN_COMPLEXITY)
+        accuracy = complexity_weight*(1-normalised_complexity) + confusion_weight*(1-state.get_value("UserConfusion"))
 
         return max(0, min(1, accuracy))
     
     @staticmethod
     def get_num_errors(state:Self) -> int:
         # Determine if the sequence will be incorrect
-        np.random.seed(state.vals["AccuracySeed"])
-        accuracy_score = min(1,max(0,np.random.normal(state.vals["BaseUserAccuracy"],0.1)))
+        np.random.seed(state.get_value("AccuracySeed"))
+        accuracy_score = min(1,max(0,np.random.normal(state.get_value("BaseUserAccuracy"),0.1)))
 
         if accuracy_score > 0.7:
             # Perfect sequence
@@ -135,30 +135,30 @@ class CognitiveSequenceState(State):
             # Three errors
             num_errors = 3
 
-        num_errors = min(num_errors,state.vals["SequenceLength"])
+        num_errors = min(num_errors,state.get_value("SequenceLength"))
 
         return num_errors
     
     @staticmethod
     def get_time(state:Self,reactivity_weight=0.4,confusion_weight=0.2,engagement_weight=0.4) -> float:
-        time_factor = reactivity_weight*state.vals["UserReactivity"] + confusion_weight*(1-state.vals["UserConfusion"]) + engagement_weight*state.vals["UserEngagement"]
+        time_factor = reactivity_weight*state.get_value("UserReactivity") + confusion_weight*(1-state.get_value("UserConfusion")) + engagement_weight*state.get_value("UserEngagement")
         time_factor = max(0, min(1, time_factor))
 
-        expected_time_taken = 0.8*state.vals["SequenceLength"]
+        expected_time_taken = 0.8*state.get_value("SequenceLength")
         base_time_taken = (2 - 1.5*time_factor)*expected_time_taken
 
         return base_time_taken
     
     @staticmethod
     def get_observed_time(state:Self):
-        np.random.seed(state.vals["ResponseTimeSeed"])
-        response_time = min(CognitiveSequenceState.MAX_TIMEOUT,max(0,np.random.normal(state.vals["BaseUserResponseTime"],1)))
+        np.random.seed(state.get_value("ResponseTimeSeed"))
+        response_time = min(CognitiveSequenceState.MAX_TIMEOUT,max(0,np.random.normal(state.get_value("BaseUserResponseTime"),1)))
 
         return response_time
     
     @staticmethod
     def get_frustration(state:Self):
-        return (0.2 * state.vals["UserNumErrors"] + 0.8)*state.vals["UserFrustration"] + 0.05*state.vals["UserNumErrors"]
+        return (0.2 * state.get_value("UserNumErrors") + 0.8)*state.get_value("UserFrustration") + 0.05*state.get_value("UserNumErrors")
     
     '''
     EXECUTION

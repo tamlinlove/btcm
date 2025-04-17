@@ -25,13 +25,13 @@ class CounterfactualQuery:
         Returns True if the state satisfies the conditions outlined by the foils provided to the query
         '''
         for var in self.foils:
-            if state.vals[var] not in self.foils[var]:
+            if state.get_value(var) not in self.foils[var]: 
                 return False
         return True
     
 class CounterfactualExplanation:
     def __init__(self,interventions:dict,counterfactual_foil:dict,state:State):
-        self.reason = {node:state.vals[node] for node in interventions}
+        self.reason = {node:state.get_value(node) for node in interventions}
         self.counterfactual_intervention = interventions
         self.counterfactual_foil = counterfactual_foil
         self.state_vals = copy.deepcopy(state.vals)
@@ -93,7 +93,7 @@ class Explainer:
                     proper_foil[var] = foils[var]
                 
                 # Remove real value from possible options
-                real_val = self.model.state.vals[var]
+                real_val = self.model.state.get_value(var)
                 if real_val in proper_foil[var]:
                     proper_foil[var].remove(real_val)
         return CounterfactualQuery(foils=proper_foil)
@@ -113,7 +113,7 @@ class Explainer:
 
         # Remove true values from search space
         for node in ancestors:
-            search_space[node].remove(self.model.state.vals[node])
+            search_space[node].remove(self.model.state.get_value(node)) 
         
         return search_space
         

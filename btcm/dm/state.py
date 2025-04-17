@@ -178,6 +178,9 @@ class State:
             return self.vals
         else:
             return {node:self.vals[node] for node in nodes}
+        
+    def get_value(self,node:str):
+        return self.vals[node]
 
     '''
     CAUSAL MODEL

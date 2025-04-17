@@ -279,6 +279,11 @@ class CognitiveSequenceState(State):
 
         ]
     
+    def can_intervene(self, node):
+        if node in ["CurrentSequence","UserSequence","AccuracySeed","ResponseTimeSeed"]:
+            return False
+        return True
+    
     '''
     SEMANTIC DESCRIPTION
     '''

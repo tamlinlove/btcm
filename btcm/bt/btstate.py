@@ -303,6 +303,17 @@ class BTState(State):
 
         behaviour:Leaf = self.behaviour_dict[self.nodes[node]]
         return behaviour.decide(self)
+    
+    '''
+    INTERVENTIONS
+    '''
+    def can_intervene(self, node):
+        if node in self.var_state.vars():
+            # Must be a variable from the state
+            return self.var_state.can_intervene(node)
+        else:
+            # Must be a BT node variable, can always be intervened on
+            return True
 
 class BTStateManager:
     status_map = {
@@ -526,7 +537,7 @@ class BTStateManager:
         for var in self.state.vars():
             node = CausalNode(
                 name=var,
-                vals=self.state.ranges()[var],
+                vals=self.state.ranges()[var].values,
                 func=self.state.var_funcs()[var],
                 category=self.state.categories[var],
                 value=None

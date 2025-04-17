@@ -199,6 +199,12 @@ class State:
         '''
         raise NotImplementedError
     
+    def can_intervene(self,node:str):
+        '''
+        Given the name of the node, return True if a causal model is allowed to intervene on its value
+        '''
+        raise NotImplementedError
+    
     '''
     HELPER FUNCTIONS
     '''

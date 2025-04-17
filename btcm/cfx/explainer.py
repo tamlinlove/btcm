@@ -116,16 +116,19 @@ class Explainer:
             ancestors += nx.ancestors(self.model.graph,node)
         ancestors = list(set(ancestors))
 
+        # Remove variables that shouldn't be intervened on
+        potential_variables = [node for node in ancestors if self.model.state.can_intervene(node)]
+
         # Next, get all possible values for each
         search_space:Dict[str,list] = {}
-        for node in ancestors:
+        for node in potential_variables:
             values = self.model.state.ranges()[node].values
             if values is None:
                 raise TypeError(f"Invalid: var range of type {self.model.state.ranges()[node].range_type} has no values for variable {node}")
             search_space[node] = copy.deepcopy(values)
 
         # Remove true values from search space
-        for node in ancestors:
+        for node in potential_variables:
             search_space[node].remove(self.model.state.get_value(node)) 
         
         return search_space

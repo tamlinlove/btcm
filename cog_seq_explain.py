@@ -47,7 +47,7 @@ if __name__ == "__main__":
     if args.visualise:
         print("Displaying visualisations")
         manager.visualise_tree()
-        manager.visualise(show_values=True)
+        manager.visualise(show_values=False)
         #py_trees.display.render_dot_tree(manager.tree.root)
 
 

@@ -339,7 +339,7 @@ class BTStateManager:
         self.board = self.register_blackboard(data=self.data,state=self.state,env=dummy_env)
 
         # Create causal model
-        self.model = self.create_causal_model(causal_edges)
+        self.model = self.create_causal_model(causal_edges,include_state=False)
 
         # Get node names
         self.node_names = self.get_node_name_dict()
@@ -533,52 +533,41 @@ class BTStateManager:
     CAUSAL MODEL
     '''
     
-    def create_causal_model(self,causal_edges:list[tuple[str,str]] = None) -> CausalModel:
+    def create_causal_model(self,causal_edges:list[tuple[str,str]] = None, include_state = True) -> CausalModel:
         cm = CausalModel(self.state)
 
         # Create nodes with dummy values
         for var in self.state.vars():
-            node = CausalNode(
-                name=var,
-                vals=self.state.ranges()[var].values,
-                func=self.state.var_funcs()[var],
-                category=self.state.categories[var],
-                value=None
-            )
-            cm.add_node(node)
+            if not include_state and self.state.categories[var] == "State":
+                continue
+            else:
+                node = CausalNode(
+                    name=var,
+                    vals=self.state.ranges()[var].values,
+                    func=self.state.var_funcs()[var],
+                    category=self.state.categories[var],
+                    value=None
+                )
+                cm.add_node(node)
 
         # Create edges
         for node in self.state.sub_vars:
             if self.data["tree"][node]["category"] in ["Action","Condition"]:
                 # Connect Execution and State to Return for leaf nodes
                 cm.add_edge((self.state.sub_vars[node]["Executed"],self.state.sub_vars[node]["Return"]))
-                # TODO: Handle state variation over time????
-                for ivar in self.behaviours[node].input_variables():
-                    cm.add_edge((ivar,self.state.sub_vars[node]["Return"]))
+                if include_state:
+                    # TODO: Handle state variation over time????
+                    for ivar in self.behaviours[node].input_variables():
+                        cm.add_edge((ivar,self.state.sub_vars[node]["Return"]))
                 if self.data["tree"][node]["category"] == "Action":
                     # Connect Execution and State to Decision for Action nodes
                     cm.add_edge((self.state.sub_vars[node]["Executed"],self.state.sub_vars[node]["Decision"]))
                     # Connect Decision to Return for Action nodes
                     cm.add_edge((self.state.sub_vars[node]["Decision"],self.state.sub_vars[node]["Return"]))
-                    # TODO: Handle state variation over time????
-                    for ivar in self.behaviours[node].input_variables():
-                        cm.add_edge((ivar,self.state.sub_vars[node]["Decision"]))
-
-                if self.behaviours[node].parent is not None:
-                    parent_node = self.behaviours_to_nodes[self.behaviours[node].parent]
-                    if self.data["tree"][parent_node]["category"] in ["Sequence","Fallback"]:
-                        # COMPOSITE
-                        siblings = self.behaviours[node].parent.children
-                        if self.behaviours[node] == siblings[0]:
-                            # Node is the left child of a composite, link execution to parent execution
-                            cm.add_edge((self.state.sub_vars[parent_node]["Executed"],self.state.sub_vars[node]["Executed"]))
-                        else:
-                            # Node is not a leftmost child, link to return of left child
-                            lsib = self.behaviours_to_nodes[siblings[siblings.index(self.behaviours[node])-1]]
-                            cm.add_edge((self.state.sub_vars[lsib]["Return"],self.state.sub_vars[node]["Executed"]))
-                    else:
-                        raise TypeError(f"Unknown node category: {self.data['tree'][parent_node]['category']}")
-                
+                    if include_state:
+                        # TODO: Handle state variation over time????
+                        for ivar in self.behaviours[node].input_variables():
+                            cm.add_edge((ivar,self.state.sub_vars[node]["Decision"]))
             else:
                 # Connect Execution and Return for composite nodes
                 cm.add_edge((self.state.sub_vars[node]["Executed"],self.state.sub_vars[node]["Return"]))
@@ -588,14 +577,31 @@ class BTStateManager:
                     for child_behaviour in self.behaviours[node].children:
                         child_node = self.behaviours_to_nodes[child_behaviour]
                         cm.add_edge((self.state.sub_vars[child_node]["Return"],self.state.sub_vars[node]["Return"]))
+            
+            # For all types of nodes, connect execution to parents
+            if self.behaviours[node].parent is not None:
+                parent_node = self.behaviours_to_nodes[self.behaviours[node].parent]
+                if self.data["tree"][parent_node]["category"] in ["Sequence","Fallback"]:
+                    # COMPOSITE
+                    siblings = self.behaviours[node].parent.children
+                    if self.behaviours[node] == siblings[0]:
+                        # Node is the left child of a composite, link execution to parent execution
+                        cm.add_edge((self.state.sub_vars[parent_node]["Executed"],self.state.sub_vars[node]["Executed"]))
+                    else:
+                        # Node is not a leftmost child, link to return of left child
+                        lsib = self.behaviours_to_nodes[siblings[siblings.index(self.behaviours[node])-1]]
+                        cm.add_edge((self.state.sub_vars[lsib]["Return"],self.state.sub_vars[node]["Executed"]))
+                else:
+                    raise TypeError(f"Unknown node category: {self.data['tree'][parent_node]['category']}")
 
-        # Create edges for state variables (intra-state)
-        if causal_edges is None:
-            # No edges provided, attempt to get from state
-            causal_edges = self.state.var_state.cm_edges()
+        if include_state:
+            # Create edges for state variables (intra-state)
+            if causal_edges is None:
+                # No edges provided, attempt to get from state
+                causal_edges = self.state.var_state.cm_edges()
 
-        for edge in causal_edges:
-            cm.add_edge(edge)
+            for edge in causal_edges:
+                cm.add_edge(edge)
 
         return cm
     

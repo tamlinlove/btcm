@@ -46,8 +46,8 @@ if __name__ == "__main__":
     manager.load_state(tick=tick,time=time)
     if args.visualise:
         print("Displaying visualisations")
-        manager.visualise_tree()
-        manager.visualise(show_values=False)
+        #manager.visualise_tree()
+        manager.visualise(show_values=True)
         #py_trees.display.render_dot_tree(manager.tree.root)
 
 
@@ -57,4 +57,4 @@ if __name__ == "__main__":
     # Query set parameter decision
     print("Generating explanations...")
     node_id = manager.get_node_from_name("SetSequenceParameters","Decision")
-    explainer.explain({node_id:foils},max_depth=1)
+    explainer.explain({node_id:foils},max_depth=1,visualise=args.visualise)

@@ -152,13 +152,21 @@ class Explainer:
     '''
     EXPLAIN
     '''
-    def explain(self,foils:dict[str,list],max_depth:int = None) -> List[CounterfactualExplanation]:
+    def explain(self,foils:dict[str,list],max_depth:int = None, visualise:bool = False) -> List[CounterfactualExplanation]:
         query:CounterfactualQuery = self.construct_query(foils)
 
         # TODO: Double check that foil isn't just the real value
 
         # Start by constructing a new graph only of ancestors to the node in question
         search_space = self.reduce_model(query)
+
+        if visualise:
+            # Display the reduced model
+            reduced_nodeset = {}
+            for node in self.model.nodes:
+                if node in search_space or node in foils:
+                    reduced_nodeset[node] = self.model.nodes[node]
+            self.model.visualise(nodes=reduced_nodeset)
 
         if max_depth is None:
             max_depth = len(search_space.keys())

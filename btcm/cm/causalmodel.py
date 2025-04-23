@@ -129,9 +129,7 @@ class CausalModel:
     '''
     VISUALISE
     '''
-    def visualise(self,graph:nx.DiGraph=None,state:State=None,nodes:dict=None):
-        # TODO: Based on nodes, reduce graph to only include allowed nodes
-
+    def visualise(self,graph:nx.DiGraph=None,state:State=None,nodes:dict=None,node_names:Dict[str,str]=None,label_dict:dict=None):
         if graph is None:
             graph = self.graph
         if state is None:
@@ -139,8 +137,17 @@ class CausalModel:
 
         if nodes is None:
             nodes = self.nodes
+        else:
+            # Replace graph with only nodes from nodes
+            graph = copy.deepcopy(graph)
+            graph.remove_nodes_from(graph.nodes()-list(nodes.keys()))
         
-        label_dict = {nodes[node].name: f"{nodes[node].name} = {state.get_value(nodes[node].name)}" for node in nodes} 
+        if label_dict is None:
+            if node_names is None:
+                label_dict = {nodes[node].name: f"{nodes[node].name} = {state.get_value(nodes[node].name)}" for node in nodes}
+            else:
+                label_dict = {nodes[node].name: f"{node_names[node]} = {state.get_value(nodes[node].name)}" for node in nodes} 
+
         pos = graphviz_layout(graph, prog="dot")
         nx.draw_networkx_nodes(graph, pos, node_size = 500)
         nx.draw_networkx_labels(graph, pos, labels=label_dict)

@@ -174,19 +174,49 @@ class Explainer:
             max_depth = min(max_depth,len(search_space.keys()))
 
         for i in range(max_depth):
-            self.explain_to_depth(query=query,search_space=search_space,depth=i+1)
+            self.explain_to_depth(query=query,search_space=search_space,depth=i+1,visualise=visualise)
 
-    def explain_to_depth(self,query:CounterfactualQuery,search_space:Dict[str,list],depth:int):
+    def explain_to_depth(self,query:CounterfactualQuery,search_space:Dict[str,list],depth:int,visualise:bool=False):
         search_combos = self.generate_combinations(search_space=search_space,N=depth)
 
         explanations = []
         for combo in search_combos:
+            
             new_graph,new_state = self.model.intervene(combo)
+            
             if query.satisfies_query(new_state):
                 explanations.append(CounterfactualExplanation(combo,new_state.get_values(query.foil_vars()),self.model.state))
 
+            if visualise:
+                self.visualise_intervention(combo,new_graph,new_state,query,search_space)
+
         for exp in explanations:
             print("---",exp.text(names=self.node_names))
+
+    '''
+    VISUALISATION
+    '''
+    def visualise_intervention(self,intervention,new_graph,new_state,query,search_space):
+        # Find reduced set of nodes for graph
+        reduced_nodes = {node:self.model.nodes[node] for node in self.model.nodes if (node in search_space or node in query.foils)}
+        print(intervention)
+        
+
+        # Create new label dict
+        label_dict = {}
+        for node in reduced_nodes:
+            node_id = reduced_nodes[node].name
+            original_value = self.model.state.get_value(node_id)
+            current_value = new_state.get_value(node_id)
+            if node in intervention:
+                label_dict[reduced_nodes[node].name] = f"DO: {self.node_names[node]} : {original_value} -> {current_value}"
+            elif original_value != current_value:
+                label_dict[reduced_nodes[node].name] = f"{self.node_names[node]} : {original_value} -> {current_value}"
+            else:
+                label_dict[reduced_nodes[node].name] = f"{self.node_names[node]} : {current_value}"
+
+        # Visualise
+        self.model.visualise(new_graph,new_state,nodes=reduced_nodes,label_dict=label_dict)
         
         
 

@@ -129,7 +129,10 @@ class Explainer:
 
         # Remove true values from search space
         for node in potential_variables:
-            search_space[node].remove(self.model.state.get_value(node)) 
+            real_val = self.model.state.get_value(node)
+            # Check if real val is in the space (it may not be due to discretisation)
+            if real_val in search_space[node]:
+                search_space[node].remove(self.model.state.get_value(node)) 
         
         return search_space
         
@@ -194,19 +197,27 @@ class Explainer:
 
         # Create new label dict
         label_dict = {}
+        colours = []
         for node in reduced_nodes:
             node_id = reduced_nodes[node].name
             original_value = self.model.state.get_value(node_id)
             current_value = new_state.get_value(node_id)
             if node in intervention:
                 label_dict[reduced_nodes[node].name] = f"DO: {self.node_names[node]} : {original_value} -> {current_value}"
-            elif original_value != current_value:
-                label_dict[reduced_nodes[node].name] = f"{self.node_names[node]} : {original_value} -> {current_value}"
+                colours.append("red")
             else:
-                label_dict[reduced_nodes[node].name] = f"{self.node_names[node]} : {current_value}"
+                if original_value != current_value:
+                    label_dict[reduced_nodes[node].name] = f"{self.node_names[node]} : {original_value} -> {current_value}"
+                else:
+                    label_dict[reduced_nodes[node].name] = f"{self.node_names[node]} : {current_value}"
+
+                if node in query.foils:
+                    colours.append("green")
+                else:
+                    colours.append("cyan")
 
         # Visualise
-        self.model.visualise(new_graph,new_state,nodes=reduced_nodes,label_dict=label_dict)
+        self.model.visualise(new_graph,new_state,nodes=reduced_nodes,label_dict=label_dict,colours=colours)
         
         
 

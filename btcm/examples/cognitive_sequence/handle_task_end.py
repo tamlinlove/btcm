@@ -82,7 +82,7 @@ class RepeatCurrentSequence(ActionNode):
         return []
     
     def action_space(self):
-        return [EndThisSequenceAction(),NullAction()]
+        return [RepeatThisSequenceAction(),NullAction()]
     
 '''
 COMPOSITE NODES

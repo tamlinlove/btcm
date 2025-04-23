@@ -215,12 +215,22 @@ class BTState(State):
         return py_trees.common.Status.FAILURE
     
     '''
+    VALUES
+    '''
+    def set_value(self,var:str,value):
+        # Set own value
+        super().set_value(var,value)
+        # Set var_state
+        if self.var_state.vals is not None and var in self.var_state.vars():
+            self.var_state.set_value(var,value)
+    
+    '''
     RUN FUNCTIONS FOR INTERVENTIONS
     '''
     def run(self,node:str):
         if self.categories[node] == "State":
             # State node, delegate to var_state
-            return self.var_state.run(node,self)
+            return self.var_state.run(node,self.var_state)
         if self.categories[node] == "Return":
             # Return node, decide which case
             return self.run_return(node)
@@ -243,10 +253,10 @@ class BTState(State):
         if node_cat == "Action":
             corresponding_decision = self.sub_vars[self.nodes[node]]["Decision"]
             action = self.vals[corresponding_decision]
-            return behaviour.execute(self,action)
+            return behaviour.execute(self.var_state,action)
         elif node_cat == "Condition":
             action = NullAction()
-            return behaviour.execute(self,action)
+            return behaviour.execute(self.var_state,action)
         elif node_cat == "Sequence":
             children  = behaviour.children
             child_nodes = [self.behaviours_to_node[child] for child in children]
@@ -302,7 +312,7 @@ class BTState(State):
             return NullAction()
 
         behaviour:Leaf = self.behaviour_dict[self.nodes[node]]
-        return behaviour.decide(self)
+        return behaviour.decide(self.var_state)
     
     '''
     INTERVENTIONS
@@ -339,7 +349,7 @@ class BTStateManager:
         self.board = self.register_blackboard(data=self.data,state=self.state,env=dummy_env)
 
         # Create causal model
-        self.model = self.create_causal_model(causal_edges,include_state=False)
+        self.model = self.create_causal_model(causal_edges,include_state=True)
 
         # Get node names
         self.node_names = self.get_node_name_dict()
@@ -459,6 +469,7 @@ class BTStateManager:
     '''
     VALUES
     '''
+
     def load_state(self,tick:int=0,time="end"):
         if str(tick) not in self.data:
             raise ValueError(f"Timestep {tick}-{time} not in data")
@@ -536,9 +547,13 @@ class BTStateManager:
     def set_initial_state(self):
         data0 = self.data["0"]["0"]
         # Set State Variables
+        state_vals = {}
         for state_var in data0["state"]:
+            state_vals[state_var] = data0["state"][state_var]
             self.state.set_value(state_var,data0["state"][state_var])
-
+            
+        self.state.var_state.set_values(state_vals)
+        
         # Set behaviour tree node values
         for node in self.state.sub_vars:
             self.state.set_value(self.state.sub_vars[node]["Return"],py_trees.common.Status.INVALID)

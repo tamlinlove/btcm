@@ -35,8 +35,18 @@ if __name__ == "__main__":
     '''
 
     file = f"{filename}.json"
+    '''
+    nodename = "SetSequenceParameters"
+    nodetype = "Decision"
     tick = 0
-    time = 4 #"end" #97
+    time = 4
+    foils = None
+    '''
+
+    nodename = "DecideSocialAction"
+    nodetype = "Decision"
+    tick = 1
+    time = 27
     foils = None
 
     print("Reconstructing behaviour tree from logs...")
@@ -56,5 +66,5 @@ if __name__ == "__main__":
     
     # Query set parameter decision
     print("Generating explanations...")
-    node_id = manager.get_node_from_name("SetSequenceParameters","Decision")
+    node_id = manager.get_node_from_name(nodename,nodetype)
     explainer.explain({node_id:foils},max_depth=1,visualise=args.visualise)

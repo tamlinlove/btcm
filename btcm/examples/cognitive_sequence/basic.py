@@ -147,7 +147,7 @@ class CognitiveSequenceState(State):
         expected_time_taken = 0.8*state.get_value("SequenceLength")
         base_time_taken = (2 - 1.5*time_factor)*expected_time_taken
 
-        return base_time_taken
+        return min(CognitiveSequenceState.MAX_TIMEOUT,max(0,base_time_taken))
     
     @staticmethod
     def get_observed_time(state:Self):

@@ -129,7 +129,7 @@ class CausalModel:
     '''
     VISUALISE
     '''
-    def visualise(self,graph:nx.DiGraph=None,state:State=None,nodes:dict=None,node_names:Dict[str,str]=None,label_dict:dict=None):
+    def visualise(self,graph:nx.DiGraph=None,state:State=None,nodes:dict=None,node_names:Dict[str,str]=None,label_dict:dict=None,colours=None):
         if graph is None:
             graph = self.graph
         if state is None:
@@ -149,7 +149,7 @@ class CausalModel:
                 label_dict = {nodes[node].name: f"{node_names[node]} = {state.get_value(nodes[node].name)}" for node in nodes} 
 
         pos = graphviz_layout(graph, prog="dot")
-        nx.draw_networkx_nodes(graph, pos, node_size = 500)
+        nx.draw_networkx_nodes(graph, pos, node_size = 500, node_color=colours)
         nx.draw_networkx_labels(graph, pos, labels=label_dict)
         nx.draw_networkx_edges(graph, pos, edgelist= graph.edges, arrows=True)
         plt.show()

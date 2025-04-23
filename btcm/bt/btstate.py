@@ -475,6 +475,7 @@ class BTStateManager:
         curr_time = 0
         found_time = False
         state_vals = None
+        old_state = None
 
 
         # TODO: Unclear on how to handle "resets"
@@ -500,9 +501,13 @@ class BTStateManager:
                     found_time = True
                 
                 # Update state - NB: for t, use state at t-1
+                old_state = copy.deepcopy(state_vals)
                 state_vals = data_tick[str(curr_time)]["state"]
                 curr_time += 1
             curr_tick += 1
+
+        if old_state is not None:
+            state_vals = old_state
 
         # Executed nodes
         for node in node_updates:

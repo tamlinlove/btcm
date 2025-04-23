@@ -142,9 +142,9 @@ class State:
         '''
         return list(self.ranges().keys())
     
-    def internal(self) -> dict[str,bool]:
+    def internal(self,var:str) -> bool:
         '''
-        Return a mapping of each variable to a boolean, where True indicates the variable is internal to the BT, and False external
+        Return a bool, where True indicates the variable is internal to the BT, and False external
         '''
         raise NotImplementedError
 

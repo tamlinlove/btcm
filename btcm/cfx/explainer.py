@@ -155,7 +155,7 @@ class Explainer:
     '''
     EXPLAIN
     '''
-    def explain(self,foils:dict[str,list],max_depth:int = None, visualise:bool = False) -> List[CounterfactualExplanation]:
+    def explain(self,foils:dict[str,list],max_depth:int = None, visualise:bool = False, visualised_interventions: list = None) -> List[CounterfactualExplanation]:
         query:CounterfactualQuery = self.construct_query(foils)
 
         # TODO: Double check that foil isn't just the real value
@@ -169,9 +169,9 @@ class Explainer:
             max_depth = min(max_depth,len(search_space.keys()))
 
         for i in range(max_depth):
-            self.explain_to_depth(query=query,search_space=search_space,depth=i+1,visualise=visualise)
+            self.explain_to_depth(query=query,search_space=search_space,depth=i+1,visualise=visualise,visualised_interventions=visualised_interventions)
 
-    def explain_to_depth(self,query:CounterfactualQuery,search_space:Dict[str,list],depth:int,visualise:bool=False):
+    def explain_to_depth(self,query:CounterfactualQuery,search_space:Dict[str,list],depth:int,visualise:bool=False,visualised_interventions:list=None):
         search_combos = self.generate_combinations(search_space=search_space,N=depth)
 
         explanations = []
@@ -183,7 +183,17 @@ class Explainer:
                 explanations.append(CounterfactualExplanation(combo,new_state.get_values(query.foil_vars()),self.model.state))
 
             if visualise:
-                self.visualise_intervention(combo,new_graph,new_state,query,search_space)
+                display_this = False
+                if visualised_interventions is None:
+                    display_this = True
+                else:
+                    for var in combo:
+                        if var in visualised_interventions:
+                            display_this = True
+                            break
+                
+                if display_this:
+                    self.visualise_intervention(combo,new_graph,new_state,query,search_space)
 
         for exp in explanations:
             print("---",exp.text(names=self.node_names))

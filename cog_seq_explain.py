@@ -14,6 +14,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('-p', '--profile', type=str, required=True)
     parser.add_argument('-f', '--filename', type=str)
+    parser.add_argument('-v', '--vis_option', type=str, default="no")
     parser.add_argument('--visualise',  action='store_true')
     args = parser.parse_args()
 
@@ -56,8 +57,8 @@ if __name__ == "__main__":
     manager.load_state(tick=tick,time=time)
     if args.visualise:
         print("Displaying visualisations")
-        #manager.visualise_tree()
-        #manager.visualise(show_values=True)
+        manager.visualise_tree()
+        manager.visualise(show_values=True)
         #py_trees.display.render_dot_tree(manager.tree.root)
 
 
@@ -67,4 +68,5 @@ if __name__ == "__main__":
     # Query set parameter decision
     print("Generating explanations...")
     node_id = manager.get_node_from_name(nodename,nodetype)
-    explainer.explain({node_id:foils},max_depth=1,visualise=args.visualise)
+    visualised_interventions = [var for var in manager.state.vars() if manager.state.internal(var)]
+    explainer.explain({node_id:foils},max_depth=1,visualise=args.visualise,visualised_interventions=visualised_interventions)

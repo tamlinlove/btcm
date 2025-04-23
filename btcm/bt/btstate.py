@@ -72,6 +72,11 @@ class BTState(State):
 
     def var_funcs(self) -> dict:
         return self.func_dict
+    
+    def internal(self, var):
+        if var in self.var_state.vars():
+            return self.var_state.internal(var)
+        return False
 
     '''
     RECONSTRUCT STATE

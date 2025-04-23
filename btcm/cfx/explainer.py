@@ -160,14 +160,6 @@ class Explainer:
         # Start by constructing a new graph only of ancestors to the node in question
         search_space = self.reduce_model(query)
 
-        if visualise:
-            # Display the reduced model
-            reduced_nodeset = {}
-            for node in self.model.nodes:
-                if node in search_space or node in foils:
-                    reduced_nodeset[node] = self.model.nodes[node]
-            self.model.visualise(nodes=reduced_nodeset)
-
         if max_depth is None:
             max_depth = len(search_space.keys())
         else:
@@ -198,9 +190,7 @@ class Explainer:
     '''
     def visualise_intervention(self,intervention,new_graph,new_state,query,search_space):
         # Find reduced set of nodes for graph
-        reduced_nodes = {node:self.model.nodes[node] for node in self.model.nodes if (node in search_space or node in query.foils)}
-        print(intervention)
-        
+        reduced_nodes = {node:self.model.nodes[node] for node in self.model.nodes if (node in search_space or node in query.foils)}       
 
         # Create new label dict
         label_dict = {}

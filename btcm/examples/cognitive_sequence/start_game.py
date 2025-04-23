@@ -39,7 +39,6 @@ class SetSequenceParameters(ActionNode):
 
     def decide(self, state:CognitiveSequenceState):
         # Initialise difficulty parameters
-
         if state.get_value("NumSequences") == 0:
             # This is the very first parameter setting, always start with the same length and complexity
             length = round(0.3*(CognitiveSequenceState.MAX_LENGTH-CognitiveSequenceState.MIN_LENGTH)) + CognitiveSequenceState.MIN_LENGTH

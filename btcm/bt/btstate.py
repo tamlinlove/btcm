@@ -494,6 +494,7 @@ class BTStateManager:
                         if "action" in update[node] and self.data["tree"][node]["category"] == "Action":
                             action = self.state.var_state.retrieve_action(update[node]["action"])
                             self.state.set_value(self.state.sub_vars[node]["Decision"],action)
+
                         node_updates[node] = update[node]["status"]!="Status.INVALID"
 
                 #Check if time has been found
@@ -512,13 +513,25 @@ class BTStateManager:
         # Executed nodes
         for node in node_updates:
             self.state.set_value(self.state.sub_vars[node]["Executed"],node_updates[node])
+        
+        # Correct node executions
+        executed_leaves = [node for node in node_updates if node_updates[node]]
+        for node in executed_leaves:
+            self.update_parent_executions(node)
 
         # State variables
         for state_var in state_vals:
             self.state.set_value(state_var,state_vals[state_var])
 
         
-            
+    def update_parent_executions(self,node):
+        # Update node
+        self.state.set_value(self.state.sub_vars[node]["Executed"],True)
+        # Update parent
+        parent = self.behaviours[node].parent
+        if parent is not None:
+            self.update_parent_executions(self.behaviours_to_nodes[parent])
+
 
     def set_initial_state(self):
         data0 = self.data["0"]["0"]

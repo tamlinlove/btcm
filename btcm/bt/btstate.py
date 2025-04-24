@@ -354,7 +354,7 @@ class BTStateManager:
         self.state = BTState.from_data(self.data,self.behaviours,self.behaviours_to_nodes,self.tree.root)
 
         # Create causal model
-        self.model = self.create_causal_model(causal_edges)
+        self.model,self.state_batches = self.create_causal_model(causal_edges)
 
         # Get node names
         self.node_names = self.get_node_name_dict()
@@ -507,17 +507,14 @@ class BTStateManager:
             raise ValueError(f"Timestep {tick}-{time} not in data")
 
         self.set_initial_state()
-        self.visualise(show_values=True)
 
         # Iterate through timesteps until current time
         curr_tick = 0
         curr_time = 0
         found_time = False
-        state_vals = None
-        old_state = None
+        last_state_time = (0,0)
 
-
-        # TODO: Unclear on how to handle "resets"
+        dummy_state = self.state.state_class()
 
         node_updates = {}
         while str(curr_tick) in self.data and not found_time:
@@ -528,26 +525,44 @@ class BTStateManager:
                 if "update" in data_tick[str(curr_time)]:
                     update = data_tick[str(curr_time)]["update"]
                     for node in update:
+                        # Update the values of the BT node variables
                         if "status" in update[node]:
                             self.state.set_value(self.state.sub_vars[node]["Return"],self.status_map[update[node]["status"]])
                         if "action" in update[node] and self.data["tree"][node]["category"] == "Action":
-                            action = self.state.var_state.retrieve_action(update[node]["action"])
+                            action = dummy_state.retrieve_action(update[node]["action"])
                             self.state.set_value(self.state.sub_vars[node]["Decision"],action)
 
                         node_updates[node] = update[node]["status"]!="Status.INVALID"
+
+                        # TODO: Somehow link each var_i to a tick/time for explanation
+                        if self.data["tree"][node]["category"] in ["Action","Condition"]:
+                            # Update the states of input variables and their ancestors
+                            parents = self.model.parents(self.state.sub_vars[node]["Return"])
+                            parent_state_vars = [parent for parent in parents if self.state.categories[parent] == "State"]
+                            for parent in parent_state_vars:
+                                ancestors = list(nx.ancestors(self.model.graph, parent))
+                                state_ancestors = [anc for anc in ancestors if self.state.categories[anc] == "State"]
+                                same_batch_ancestors = [anc for anc in state_ancestors if self.state_batches[anc] == self.state_batches[parent]]
+                                vars_to_update = [parent] + same_batch_ancestors
+                                for var in vars_to_update:
+                                    data_tick_time = self.data[str(last_state_time[0])][str(last_state_time[1])] # Use t-1
+                                    self.state.set_value(var,data_tick_time["state"][self.state.node_names[var]])
+
+                            # Update the states of output variables
+                            children = [var for var in self.model.nodes if self.state.sub_vars[node]["Executed"] in self.model.parents(var)]
+                            children_state_vars = [child for child in children if self.state.categories[child] == "State"]
+                            for child in children_state_vars:
+                                data_tick_time = self.data[str(curr_tick)][str(curr_time)] # Use t
+                                self.state.set_value(child,data_tick_time["state"][self.state.node_names[child]])
 
                 #Check if time has been found
                 if curr_tick == tick and curr_time == time:
                     found_time = True
                 
-                # Update state - NB: for t, use state at t-1
-                old_state = copy.deepcopy(state_vals)
-                state_vals = data_tick[str(curr_time)]["state"]
+                last_state_time = (curr_tick,curr_time)
+                
                 curr_time += 1
             curr_tick += 1
-
-        if old_state is not None:
-            state_vals = old_state
 
         # Executed nodes
         for node in node_updates:
@@ -557,11 +572,6 @@ class BTStateManager:
         executed_leaves = [node for node in node_updates if node_updates[node]]
         for node in executed_leaves:
             self.update_parent_executions(node)
-
-        # State variables
-        for state_var in state_vals:
-            self.state.set_value(state_var,state_vals[state_var])
-
         
     def update_parent_executions(self,node):
         # Update node
@@ -576,7 +586,6 @@ class BTStateManager:
         data0 = self.data["0"]["0"]
 
         # Set State Variables
-        state_vals = {}
         for state_var in data0["state"]:
             self.state.set_value(f"{state_var}_0",data0["state"][state_var])
         
@@ -668,6 +677,8 @@ class BTStateManager:
         dummy_state = self.state.state_class()
         state_vars = list(dummy_state.ranges().keys())
         var_counts = {var:0 for var in state_vars}
+        state_batches = {}
+        batch_num = 0
 
         # Start by creating an initial node for every state variable
         for var in state_vars:
@@ -685,15 +696,20 @@ class BTStateManager:
                 )
                 cm.add_node(var_node)
 
+            state_batches[vname] = batch_num
+
         # Go through every leaf node and link with state vars
         leaves = self.get_leaf_behaviours(self.tree.root)
         for leaf in leaves:
             # Add input variables everywhere they appear
             node_input = leaf.input_variables()
             node = self.behaviours_to_nodes[leaf]
+            
+            batch_num += 1
             for input_var in node_input:
                 # Create var
                 vname = f"{input_var}_{var_counts[input_var]}"
+
                 if vname not in self.state.vars():
                     self.create_state_variable(input_var,var_counts,dummy_state)
 
@@ -707,11 +723,13 @@ class BTStateManager:
                         value=None
                     )
                     cm.add_node(var_node)
+                    state_batches[vname] = batch_num
 
                 # Add ancestors based on causal edges
                 ancestors = list(nx.ancestors(state_graph, input_var)) if input_var in state_graph.nodes else []
                 for anc in ancestors:
                     anc_name = f"{anc}_{var_counts[anc]}"
+
                     if anc_name not in self.state.vars():
                         self.create_state_variable(anc,var_counts,dummy_state)
                     
@@ -724,6 +742,7 @@ class BTStateManager:
                             value=None
                         )
                         cm.add_node(var_node)
+                        state_batches[anc_name] = batch_num
 
                 # Link ancestors
                 allowed_nodes = ancestors + [input_var]
@@ -763,14 +782,29 @@ class BTStateManager:
                     )
                     cm.add_node(var_node)
 
-                if var_counts[output_var] != 0:
-                    old_vname = f"{output_var}_{var_counts[output_var]-1}"
-                    cm.add_edge((old_vname,vname)) # Edge between states
+                    state_batches[vname] = batch_num + 1
+
                 cm.add_edge((self.state.sub_vars[node]["Executed"],vname))
                 if self.data["tree"][node]["category"] == "Action":
                     cm.add_edge((self.state.sub_vars[node]["Decision"],vname))
 
-        return cm
+        # Link all top-level state variables to themselves temporally
+        for var in state_vars:
+            top_level = False
+            if var in state_graph.nodes:
+                parents = list(state_graph.predecessors(var))
+                if len(parents) == 0:
+                    top_level = True
+            else:
+                top_level = True
+
+            if top_level:
+                for i in range(var_counts[var]-1):
+                    e0 = f"{var}_{i}"
+                    e1 = f"{var}_{i+1}"
+                    cm.add_edge((e0,e1))
+
+        return cm,state_batches
     
     '''
     VISUALISATION
@@ -802,15 +836,23 @@ class BTStateManager:
         nx.draw_networkx_edges(self.graph, pos, edgelist=self.graph.edges, arrows=True)
         plt.show()
 
-    def visualise(self,show_values:bool=False,graph:nx.DiGraph=None,state:State=None):
+    def visualise(self,show_values:bool=False,graph:nx.DiGraph=None,state:State=None,only_state_vars:bool=False):
         # Labels
         label_dict = {}
         colour_map = []
 
         if graph is None:
             graph = self.model.graph
+
         if state is None:
             state = self.state
+
+        if only_state_vars:
+            new_graph = copy.deepcopy(graph)
+            for node in graph.nodes:
+                if state.categories[node] != "State":
+                    new_graph.remove_node(node)
+            graph = new_graph
 
         for node in graph.nodes:
             val_statement = ""

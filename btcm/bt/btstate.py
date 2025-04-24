@@ -29,20 +29,23 @@ class BTState(State):
             self,
             data: dict,
             behaviour_dict: Dict[str,py_trees.behaviour.Behaviour],
-            behaviours_to_node: Dict[py_trees.behaviour.Behaviour,str]
+            behaviours_to_node: Dict[py_trees.behaviour.Behaviour,str],
+            root:py_trees.behaviour.Behaviour,
     ):  
         self.data = data
         self.behaviour_dict = behaviour_dict
         self.behaviours_to_node = behaviours_to_node
+        self.root_node = root
 
     @classmethod
     def from_data(
             cls,
             data: dict, 
             behaviour_dict: Dict[str,py_trees.behaviour.Behaviour],
-            behaviours_to_node: Dict[py_trees.behaviour.Behaviour,str]
+            behaviours_to_node: Dict[py_trees.behaviour.Behaviour,str],
+            root:py_trees.behaviour.Behaviour,
     ) -> Self:
-        obj = cls(data,behaviour_dict,behaviours_to_node)
+        obj = cls(data,behaviour_dict,behaviours_to_node,root)
         obj.calculate_state_attributes()
         return obj
 
@@ -56,7 +59,6 @@ class BTState(State):
         obj.nodes = state.nodes
         obj.vals = copy.deepcopy(state.vals)
         obj.sub_vars = state.sub_vars
-        obj.var_state = state.var_state
 
         return obj
 
@@ -74,6 +76,7 @@ class BTState(State):
         return self.func_dict
     
     def internal(self, var):
+        # TODO: Handle multiple names for state variables based on time
         if var in self.var_state.vars():
             return self.var_state.internal(var)
         return False
@@ -89,6 +92,7 @@ class BTState(State):
         self.categories = {}
         self.nodes = {}
         self.vals = {}
+        self.node_names = {}
         self.sub_vars = {node:{} for node in self.behaviour_dict}
 
         for node in self.behaviour_dict:
@@ -101,7 +105,7 @@ class BTState(State):
             self.sub_vars[node]["Return"] = vname
             self.nodes[vname] = node
             self.vals[vname] = None
-            self.var_state: State = None
+            self.node_names[vname] = vname
 
             # Add executed variable
             vname = f"executed_{node}"
@@ -112,7 +116,7 @@ class BTState(State):
             self.sub_vars[node]["Executed"] = vname
             self.nodes[vname] = node
             self.vals[vname] = None
-
+            self.node_names[vname] = vname
 
             if self.data["tree"][node]["category"] == "Action":
                 # Add decision variable
@@ -124,19 +128,11 @@ class BTState(State):
                 self.sub_vars[node]["Decision"] = vname
                 self.nodes[vname] = node
                 self.vals[vname] = None
+                self.node_names[vname] = vname
 
         # State variables
         module = importlib.import_module(self.data["state"]["module"])
-        cls = getattr(module, self.data["state"]["class"])
-        self.var_state = cls()
-        state_vars = list(self.var_state.ranges().keys())
-        self.vars_list += state_vars
-        for var in state_vars:
-            self.range_dict[var] = self.discretise_range(self.var_state.ranges()[var])
-            self.func_dict[var] = self.var_state.var_funcs()[var]
-            self.categories[var] = "State"
-            self.nodes[var] = var
-            self.vals[var] = None
+        self.state_class = getattr(module, self.data["state"]["class"])
 
     def discretise_range(self,var_range:VarRange,num_steps:int=10):
         if var_range.values is not None:
@@ -223,11 +219,14 @@ class BTState(State):
     VALUES
     '''
     def set_value(self,var:str,value):
+        # TODO: Redo for state variables based on tick/time
         # Set own value
         super().set_value(var,value)
+        '''
         # Set var_state
         if self.var_state.vals is not None and var in self.var_state.vars():
             self.var_state.set_value(var,value)
+        '''
     
     '''
     RUN FUNCTIONS FOR INTERVENTIONS
@@ -235,6 +234,7 @@ class BTState(State):
     def run(self,node:str):
         if self.categories[node] == "State":
             # State node, delegate to var_state
+            # TODO: Ensure the right time
             return self.var_state.run(node,self.var_state)
         if self.categories[node] == "Return":
             # Return node, decide which case
@@ -248,6 +248,7 @@ class BTState(State):
         raise ValueError(f"Unrecognised category {self.categories[node]}")
         
     def run_return(self,node:str):
+        # TODO: Make sure correct var state is used
         executed_node = self.sub_vars[self.nodes[node]]["Executed"]
         if not self.vals[executed_node]:
             # Node was not executed, always return invalid
@@ -311,6 +312,7 @@ class BTState(State):
         raise TypeError(f"Unknown parent type: {self.data["tree"][self.behaviours_to_node[behaviour.parent]]["category"]}")
         
     def run_decision(self,node:str):
+        # TODO: Make sure correct var state is used
         executed_node = self.sub_vars[self.nodes[node]]["Executed"]
         if not self.vals[executed_node]:
             # Node was not executed, always return null action
@@ -323,6 +325,7 @@ class BTState(State):
     INTERVENTIONS
     '''
     def can_intervene(self, node):
+        # TODO: Handle different variable names based on tick/time
         if node in self.var_state.vars():
             # Must be a variable from the state
             return self.var_state.can_intervene(node)
@@ -348,16 +351,16 @@ class BTStateManager:
         self.graph,self.tree = self.reconstruct_bt()
 
         # Create a BT State
-        self.state = BTState.from_data(self.data,self.behaviours,self.behaviours_to_nodes)
-
-        # Register blackboard
-        self.board = self.register_blackboard(data=self.data,state=self.state,env=dummy_env)
+        self.state = BTState.from_data(self.data,self.behaviours,self.behaviours_to_nodes,self.tree.root)
 
         # Create causal model
-        self.model = self.create_causal_model(causal_edges,include_state=True)
+        self.model = self.create_causal_model(causal_edges)
 
         # Get node names
         self.node_names = self.get_node_name_dict()
+
+        # Register blackboard
+        self.board = self.register_blackboard(data=self.data,state=self.state,env=dummy_env)
 
 
     def read_from_file(self,filename:str,directory:str):
@@ -467,9 +470,27 @@ class BTStateManager:
             if self.data["tree"][node]["category"] == "Action":
                 node_names["decision_"+node] = "decision_"+self.data["tree"][node]["name"]
         # Add names of state variables
-        for var in self.state.var_state.ranges():
-            node_names[var] = var
+        for var in self.state.vars():
+            if self.state.categories[var] == "State":
+                node_names[var] = var
         return node_names
+    
+    def get_leaf_behaviours(self,root):
+            leaf_behaviours = []
+
+            def traverse(node):
+                if not node.children:
+                    # If the node has no children, it is a leaf behaviour
+                    leaf_behaviours.append(node)
+                else:
+                    # Recursively traverse each child
+                    for child in node.children:
+                        traverse(child)
+
+            # Start traversal from the root node
+            traverse(root)
+
+            return leaf_behaviours
     
     '''
     VALUES
@@ -486,6 +507,8 @@ class BTStateManager:
             raise ValueError(f"Timestep {tick}-{time} not in data")
 
         self.set_initial_state()
+        self.visualise(show_values=True)
+
         # Iterate through timesteps until current time
         curr_tick = 0
         curr_time = 0
@@ -551,13 +574,11 @@ class BTStateManager:
 
     def set_initial_state(self):
         data0 = self.data["0"]["0"]
+
         # Set State Variables
         state_vals = {}
         for state_var in data0["state"]:
-            state_vals[state_var] = data0["state"][state_var]
-            self.state.set_value(state_var,data0["state"][state_var])
-            
-        self.state.var_state.set_values(state_vals)
+            self.state.set_value(f"{state_var}_0",data0["state"][state_var])
         
         # Set behaviour tree node values
         for node in self.state.sub_vars:
@@ -570,42 +591,53 @@ class BTStateManager:
     '''
     CAUSAL MODEL
     '''
-    
-    def create_causal_model(self,causal_edges:list[tuple[str,str]] = None, include_state = True) -> CausalModel:
-        cm = CausalModel(self.state)
+    def create_state_graph(self,causal_edges:list[tuple[str,str]] = None):
+        dummy_state = self.state.state_class()
+        if causal_edges is None:
+            causal_edges = dummy_state.cm_edges()
 
-        # Create nodes with dummy values
+        state_graph = nx.DiGraph()
+        state_graph.add_edges_from(causal_edges)
+
+        return state_graph
+    
+    def create_state_variable(self,variable_name:str,variable_counts:dict[str,int],dummy_state:State):
+            vname = f"{variable_name}_{variable_counts[variable_name]}"
+            self.state.vars_list.append(vname)
+            self.state.range_dict[vname] = self.state.discretise_range(dummy_state.ranges()[variable_name])
+            self.state.func_dict[vname] = dummy_state.var_funcs()[variable_name]
+            self.state.categories[vname] = "State"
+            self.state.nodes[vname] = vname
+            self.state.vals[vname] = None
+            self.state.node_names[vname] = variable_name
+
+    def create_causal_model(self,causal_edges:list[tuple[str,str]] = None) -> CausalModel:
+        # Create a graph just for the state, to be used in reconstructing the state later on
+        state_graph = self.create_state_graph(causal_edges)
+
+        # First, create a causal model using only the BT node variables
+        cm = CausalModel(self.state)
         for var in self.state.vars():
-            if not include_state and self.state.categories[var] == "State":
-                continue
-            else:
-                node = CausalNode(
+            node = CausalNode(
                     name=var,
                     vals=self.state.ranges()[var].values,
                     func=self.state.var_funcs()[var],
                     category=self.state.categories[var],
                     value=None
                 )
-                cm.add_node(node)
+            cm.add_node(node)
 
-        # Create edges
+        # Now, create edges in the graph based on relationships in the BT structure
         for node in self.state.sub_vars:
             if self.data["tree"][node]["category"] in ["Action","Condition"]:
                 # Connect Execution and State to Return for leaf nodes
                 cm.add_edge((self.state.sub_vars[node]["Executed"],self.state.sub_vars[node]["Return"]))
-                if include_state:
-                    # TODO: Handle state variation over time????
-                    for ivar in self.behaviours[node].input_variables():
-                        cm.add_edge((ivar,self.state.sub_vars[node]["Return"]))
+
                 if self.data["tree"][node]["category"] == "Action":
                     # Connect Execution and State to Decision for Action nodes
                     cm.add_edge((self.state.sub_vars[node]["Executed"],self.state.sub_vars[node]["Decision"]))
                     # Connect Decision to Return for Action nodes
                     cm.add_edge((self.state.sub_vars[node]["Decision"],self.state.sub_vars[node]["Return"]))
-                    if include_state:
-                        # TODO: Handle state variation over time????
-                        for ivar in self.behaviours[node].input_variables():
-                            cm.add_edge((ivar,self.state.sub_vars[node]["Decision"]))
             else:
                 # Connect Execution and Return for composite nodes
                 cm.add_edge((self.state.sub_vars[node]["Executed"],self.state.sub_vars[node]["Return"]))
@@ -631,15 +663,112 @@ class BTStateManager:
                         cm.add_edge((self.state.sub_vars[lsib]["Return"],self.state.sub_vars[node]["Executed"]))
                 else:
                     raise TypeError(f"Unknown node category: {self.data['tree'][parent_node]['category']}")
+                
+        # Now, create state variables representing every time the variable is potentially modified
+        dummy_state = self.state.state_class()
+        state_vars = list(dummy_state.ranges().keys())
+        var_counts = {var:0 for var in state_vars}
 
-        if include_state:
-            # Create edges for state variables (intra-state)
-            if causal_edges is None:
-                # No edges provided, attempt to get from state
-                causal_edges = self.state.var_state.cm_edges()
+        # Start by creating an initial node for every state variable
+        for var in state_vars:
+            self.create_state_variable(var,var_counts,dummy_state)
 
-            for edge in causal_edges:
-                cm.add_edge(edge)
+            # Add to cm
+            vname = f"{var}_{var_counts[var]}"
+            if vname not in cm.nodes:
+                var_node = CausalNode(
+                    name=vname,
+                    vals=dummy_state.ranges()[var].values,
+                    func=dummy_state.var_funcs()[var],
+                    category="State",
+                    value=None
+                )
+                cm.add_node(var_node)
+
+        # Go through every leaf node and link with state vars
+        leaves = self.get_leaf_behaviours(self.tree.root)
+        for leaf in leaves:
+            # Add input variables everywhere they appear
+            node_input = leaf.input_variables()
+            node = self.behaviours_to_nodes[leaf]
+            for input_var in node_input:
+                # Create var
+                vname = f"{input_var}_{var_counts[input_var]}"
+                if vname not in self.state.vars():
+                    self.create_state_variable(input_var,var_counts,dummy_state)
+
+                # Add to cm
+                if vname not in cm.nodes:
+                    var_node = CausalNode(
+                        name=vname,
+                        vals=dummy_state.ranges()[input_var].values,
+                        func=dummy_state.var_funcs()[input_var],
+                        category="State",
+                        value=None
+                    )
+                    cm.add_node(var_node)
+
+                # Add ancestors based on causal edges
+                ancestors = list(nx.ancestors(state_graph, input_var)) if input_var in state_graph.nodes else []
+                for anc in ancestors:
+                    anc_name = f"{anc}_{var_counts[anc]}"
+                    if anc_name not in self.state.vars():
+                        self.create_state_variable(anc,var_counts,dummy_state)
+                    
+                    if anc_name not in cm.nodes:
+                        var_node = CausalNode(
+                            name=anc_name,
+                            vals=dummy_state.ranges()[anc].values,
+                            func=dummy_state.var_funcs()[anc],
+                            category="State",
+                            value=None
+                        )
+                        cm.add_node(var_node)
+
+                # Link ancestors
+                allowed_nodes = ancestors + [input_var]
+                for edge in state_graph.edges:
+                    if edge[0] in allowed_nodes and edge[1] in allowed_nodes:
+                        e0_name = f"{edge[0]}_{var_counts[edge[0]]}"
+                        e1_name = f"{edge[1]}_{var_counts[edge[1]]}"
+                        cm.add_edge((e0_name,e1_name))
+
+                # Add input edges
+                cm.add_edge((vname,self.state.sub_vars[node]["Return"]))
+                if self.data["tree"][node]["category"] == "Action":
+                    cm.add_edge((vname,self.state.sub_vars[node]["Decision"]))
+
+                # Increment
+                var_counts[input_var] += 1
+                for anc in ancestors:
+                    var_counts[anc] += 1
+
+            # Add output links
+            node_output = leaf.output_variables()
+
+            for output_var in node_output:
+                # Create var
+                vname = f"{output_var}_{var_counts[output_var]}"
+                if vname not in self.state.vars():
+                    self.create_state_variable(output_var,var_counts,dummy_state)
+
+                # Add to cm
+                if vname not in cm.nodes:
+                    var_node = CausalNode(
+                        name=vname,
+                        vals=dummy_state.ranges()[output_var].values,
+                        func=dummy_state.var_funcs()[output_var],
+                        category="State",
+                        value=None
+                    )
+                    cm.add_node(var_node)
+
+                if var_counts[output_var] != 0:
+                    old_vname = f"{output_var}_{var_counts[output_var]-1}"
+                    cm.add_edge((old_vname,vname)) # Edge between states
+                cm.add_edge((self.state.sub_vars[node]["Executed"],vname))
+                if self.data["tree"][node]["category"] == "Action":
+                    cm.add_edge((self.state.sub_vars[node]["Decision"],vname))
 
         return cm
     

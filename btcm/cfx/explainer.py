@@ -168,6 +168,7 @@ class Explainer:
         else:
             max_depth = min(max_depth,len(search_space.keys()))
 
+
         for i in range(max_depth):
             self.explain_to_depth(query=query,search_space=search_space,depth=i+1,visualise=visualise,visualised_interventions=visualised_interventions)
 
@@ -176,7 +177,6 @@ class Explainer:
 
         explanations = []
         for combo in search_combos:
-            
             new_graph,new_state = self.model.intervene(combo)
             
             if query.satisfies_query(new_state):

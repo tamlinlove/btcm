@@ -51,7 +51,7 @@ class BTState(State):
 
     @classmethod
     def copy_state(cls,state:Self) -> Self:
-        obj = cls(state.data,state.behaviour_dict,state.behaviours_to_node)
+        obj = cls(state.data,state.behaviour_dict,state.behaviours_to_node,state.root_node)
         obj.vars_list = state.vars_list
         obj.range_dict = state.range_dict
         obj.func_dict = state.func_dict
@@ -59,6 +59,9 @@ class BTState(State):
         obj.nodes = state.nodes
         obj.vals = copy.deepcopy(state.vals)
         obj.sub_vars = state.sub_vars
+        obj.node_names = state.node_names
+        obj.state_class = state.state_class
+        obj.dummy_state = state.state_class()
 
         return obj
 
@@ -76,9 +79,9 @@ class BTState(State):
         return self.func_dict
     
     def internal(self, var):
-        # TODO: Handle multiple names for state variables based on time
-        if var in self.var_state.vars():
-            return self.var_state.internal(var)
+        if self.categories[var] == "State":
+            # Can delegate to the state class
+            return self.dummy_state.internal(self.node_names[var])
         return False
 
     '''
@@ -133,6 +136,7 @@ class BTState(State):
         # State variables
         module = importlib.import_module(self.data["state"]["module"])
         self.state_class = getattr(module, self.data["state"]["class"])
+        self.dummy_state = self.state_class()
 
     def discretise_range(self,var_range:VarRange,num_steps:int=10):
         if var_range.values is not None:
@@ -325,13 +329,9 @@ class BTState(State):
     INTERVENTIONS
     '''
     def can_intervene(self, node):
-        # TODO: Handle different variable names based on tick/time
-        if node in self.var_state.vars():
-            # Must be a variable from the state
-            return self.var_state.can_intervene(node)
-        else:
-            # Must be a BT node variable, can always be intervened on
-            return True
+        if self.categories[node] == "State":
+            return self.dummy_state.can_intervene(self.node_names[node])
+        return True
 
 class BTStateManager:
     status_map = {
@@ -680,6 +680,8 @@ class BTStateManager:
         state_batches = {}
         batch_num = 0
 
+        print(dummy_state.ranges())
+
         # Start by creating an initial node for every state variable
         for var in state_vars:
             self.create_state_variable(var,var_counts,dummy_state)
@@ -689,7 +691,7 @@ class BTStateManager:
             if vname not in cm.nodes:
                 var_node = CausalNode(
                     name=vname,
-                    vals=dummy_state.ranges()[var].values,
+                    vals=self.state.discretise_range(dummy_state.ranges()[var]).values,
                     func=dummy_state.var_funcs()[var],
                     category="State",
                     value=None
@@ -717,7 +719,7 @@ class BTStateManager:
                 if vname not in cm.nodes:
                     var_node = CausalNode(
                         name=vname,
-                        vals=dummy_state.ranges()[input_var].values,
+                        vals=self.state.discretise_range(dummy_state.ranges()[input_var]).values,
                         func=dummy_state.var_funcs()[input_var],
                         category="State",
                         value=None
@@ -736,7 +738,7 @@ class BTStateManager:
                     if anc_name not in cm.nodes:
                         var_node = CausalNode(
                             name=anc_name,
-                            vals=dummy_state.ranges()[anc].values,
+                            vals=self.state.discretise_range(dummy_state.ranges()[anc]).values,
                             func=dummy_state.var_funcs()[anc],
                             category="State",
                             value=None
@@ -775,7 +777,7 @@ class BTStateManager:
                 if vname not in cm.nodes:
                     var_node = CausalNode(
                         name=vname,
-                        vals=dummy_state.ranges()[output_var].values,
+                        vals=self.state.discretise_range(dummy_state.ranges()[output_var]).values,
                         func=dummy_state.var_funcs()[output_var],
                         category="State",
                         value=None

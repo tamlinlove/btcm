@@ -99,7 +99,15 @@ class CausalModel:
 
     def intervene(self,interventions:dict) -> tuple[nx.DiGraph,State]:
         # Validate
+        print(interventions)
+        print("Nodes: ",self.nodes)
+        
+
         for node in interventions:
+            print("Node: ",node)
+            print(node in self.nodes)
+            print("self.nodes[node]: ",self.nodes[node])
+            print("self.nodes[node].vals: ",self.nodes[node].vals)
             if node not in self.nodes:
                 raise ValueError(f"Unrecognised node {node}")
             

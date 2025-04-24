@@ -60,7 +60,8 @@ class CausalModel:
 
     def add_edge(self,edge:tuple[str,str]):
         if edge[0] in self.nodes and edge[1] in self.nodes:
-            self.graph.add_edge(edge[0],edge[1])
+            if not (edge in self.graph.edges):
+                self.graph.add_edge(edge[0],edge[1])
         else:
             raise ValueError("Nodes described by edge must be added to causal model before edge")
         
@@ -95,19 +96,12 @@ class CausalModel:
     def propagate_interventions(self,order:list[str],state:State) -> None:
         for node in order:
             new_val = state.run(node)
+            print(f"Var {node} has new value: {new_val}")
             state.set_value(node,new_val)
 
     def intervene(self,interventions:dict) -> tuple[nx.DiGraph,State]:
         # Validate
-        print(interventions)
-        print("Nodes: ",self.nodes)
-        
-
         for node in interventions:
-            print("Node: ",node)
-            print(node in self.nodes)
-            print("self.nodes[node]: ",self.nodes[node])
-            print("self.nodes[node].vals: ",self.nodes[node].vals)
             if node not in self.nodes:
                 raise ValueError(f"Unrecognised node {node}")
             

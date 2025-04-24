@@ -36,19 +36,21 @@ if __name__ == "__main__":
     '''
 
     file = f"{filename}.json"
-    '''
+    #'''
     nodename = "SetSequenceParameters"
     nodetype = "Decision"
     tick = 0
     time = 4
     foils = None
-    '''
+    #'''
 
+    '''
     nodename = "DecideSocialAction"
     nodetype = "Decision"
     tick = 1
     time = 27
     foils = None
+    '''
 
     print("Reconstructing behaviour tree from logs...")
     manager = BTStateManager(file,dummy_env=DummyCognitiveSequenceEnvironment(),directory=cognitive_sequence_experiment.LOG_DIRECTORY)

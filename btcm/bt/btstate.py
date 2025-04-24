@@ -62,6 +62,7 @@ class BTState(State):
         obj.node_names = state.node_names
         obj.state_class = state.state_class
         obj.dummy_state = state.state_class()
+        obj.node_to_inputs = state.node_to_inputs
 
         return obj
 
@@ -97,6 +98,7 @@ class BTState(State):
         self.vals = {}
         self.node_names = {}
         self.sub_vars = {node:{} for node in self.behaviour_dict}
+        self.node_to_inputs = None
 
         for node in self.behaviour_dict:
             # Return Status
@@ -231,27 +233,40 @@ class BTState(State):
         if self.var_state.vals is not None and var in self.var_state.vars():
             self.var_state.set_value(var,value)
         '''
-    
+   
     '''
     RUN FUNCTIONS FOR INTERVENTIONS
     '''
     def run(self,node:str):
+        # TODO: Redo, considering the fact that sometimes the BTstate must compute the state value, and sometimes the var_state must, based on parents
+
+        var_state = self.state_class()
+        var_state.vals = {}
+        node_name = self.nodes[node]
+        if node_name in self.node_to_inputs:
+            # Modify var_state to set node inputs to appropriate values
+            node_input = self.node_to_inputs[node_name]
+            print(node,node_input)
+            for var in node_input:
+                print(f"Setting node {node}, we have input {var} getting value {self.get_value(var)}")
+            for var in node_input:
+                var_state.set_value(self.node_names[var],self.get_value(var))
+
         if self.categories[node] == "State":
-            # State node, delegate to var_state
-            # TODO: Ensure the right time
-            return self.var_state.run(node,self.var_state)
+            # TODO: Decide whether to delegate to the var_state or to compute here, based on ancestors I guess?
+            return var_state.run(self.node_names[node],var_state)
         if self.categories[node] == "Return":
             # Return node, decide which case
-            return self.run_return(node)
+            return self.run_return(node,var_state)
         if self.categories[node] == "Executed":
             # Executed node, decide which case
             return self.run_executed(node)
         if self.categories[node] == "Decision":
-            return self.run_decision(node)
+            return self.run_decision(node,var_state)
     
         raise ValueError(f"Unrecognised category {self.categories[node]}")
         
-    def run_return(self,node:str):
+    def run_return(self,node:str,var_state:State):
         # TODO: Make sure correct var state is used
         executed_node = self.sub_vars[self.nodes[node]]["Executed"]
         if not self.vals[executed_node]:
@@ -263,10 +278,10 @@ class BTState(State):
         if node_cat == "Action":
             corresponding_decision = self.sub_vars[self.nodes[node]]["Decision"]
             action = self.vals[corresponding_decision]
-            return behaviour.execute(self.var_state,action)
+            return behaviour.execute(var_state,action)
         elif node_cat == "Condition":
             action = NullAction()
-            return behaviour.execute(self.var_state,action)
+            return behaviour.execute(var_state,action)
         elif node_cat == "Sequence":
             children  = behaviour.children
             child_nodes = [self.behaviours_to_node[child] for child in children]
@@ -315,7 +330,7 @@ class BTState(State):
         # Shouldn't be here
         raise TypeError(f"Unknown parent type: {self.data["tree"][self.behaviours_to_node[behaviour.parent]]["category"]}")
         
-    def run_decision(self,node:str):
+    def run_decision(self,node:str,var_state:State):
         # TODO: Make sure correct var state is used
         executed_node = self.sub_vars[self.nodes[node]]["Executed"]
         if not self.vals[executed_node]:
@@ -323,7 +338,7 @@ class BTState(State):
             return NullAction()
 
         behaviour:Leaf = self.behaviour_dict[self.nodes[node]]
-        return behaviour.decide(self.var_state)
+        return behaviour.decide(var_state)
     
     '''
     INTERVENTIONS
@@ -513,6 +528,7 @@ class BTStateManager:
         curr_time = 0
         found_time = False
         last_state_time = (0,0)
+        self.node_to_inputs = {}
 
         dummy_state = self.state.state_class()
 
@@ -534,6 +550,7 @@ class BTStateManager:
 
                         node_updates[node] = update[node]["status"]!="Status.INVALID"
 
+                        self.node_to_inputs[node] = []
                         # TODO: Somehow link each var_i to a tick/time for explanation
                         if self.data["tree"][node]["category"] in ["Action","Condition"]:
                             # Update the states of input variables and their ancestors
@@ -544,9 +561,12 @@ class BTStateManager:
                                 state_ancestors = [anc for anc in ancestors if self.state.categories[anc] == "State"]
                                 same_batch_ancestors = [anc for anc in state_ancestors if self.state_batches[anc] == self.state_batches[parent]]
                                 vars_to_update = [parent] + same_batch_ancestors
+                                self.node_to_inputs[node] += vars_to_update
                                 for var in vars_to_update:
                                     data_tick_time = self.data[str(last_state_time[0])][str(last_state_time[1])] # Use t-1
                                     self.state.set_value(var,data_tick_time["state"][self.state.node_names[var]])
+
+                            self.node_to_inputs[node] = list(set(self.node_to_inputs[node]))
 
                             # Update the states of output variables
                             children = [var for var in self.model.nodes if self.state.sub_vars[node]["Executed"] in self.model.parents(var)]
@@ -572,6 +592,14 @@ class BTStateManager:
         executed_leaves = [node for node in node_updates if node_updates[node]]
         for node in executed_leaves:
             self.update_parent_executions(node)
+
+        # Add parents to state vars in the node to inputs dict
+        for var in self.state.vars():
+            if self.state.categories[var] == "State":
+                self.node_to_inputs[var] = self.model.parents(var) + [var]
+
+        # Inject node to inputs dict to the BTstate
+        self.state.node_to_inputs = self.node_to_inputs
         
     def update_parent_executions(self,node):
         # Update node
@@ -680,8 +708,6 @@ class BTStateManager:
         state_batches = {}
         batch_num = 0
 
-        print(dummy_state.ranges())
-
         # Start by creating an initial node for every state variable
         for var in state_vars:
             self.create_state_variable(var,var_counts,dummy_state)
@@ -708,6 +734,7 @@ class BTStateManager:
             node = self.behaviours_to_nodes[leaf]
             
             batch_num += 1
+            to_increment = {var:False for var in var_counts}
             for input_var in node_input:
                 # Create var
                 vname = f"{input_var}_{var_counts[input_var]}"
@@ -759,10 +786,19 @@ class BTStateManager:
                 if self.data["tree"][node]["category"] == "Action":
                     cm.add_edge((vname,self.state.sub_vars[node]["Decision"]))
 
-                # Increment
-                var_counts[input_var] += 1
-                for anc in ancestors:
-                    var_counts[anc] += 1
+                # Mark for incrementing
+                to_increment[input_var] = True
+            
+            # Increment
+            input_vars = [var for var in to_increment if to_increment[var]]
+            vars_to_increment = []
+            for ivar in input_vars:
+                vars_to_increment.append(ivar)
+                ancestors = list(nx.ancestors(state_graph, ivar)) if ivar in state_graph.nodes else []
+                vars_to_increment += ancestors
+            vars_to_increment = list(set(vars_to_increment))
+            for var in vars_to_increment:
+                var_counts[var] += 1
 
             # Add output links
             node_output = leaf.output_variables()

@@ -238,33 +238,36 @@ class BTState(State):
     RUN FUNCTIONS FOR INTERVENTIONS
     '''
     def run(self,node:str):
-        # TODO: Redo, considering the fact that sometimes the BTstate must compute the state value, and sometimes the var_state must, based on parents
-
+        if self.categories[node] == "Executed":
+            return self.run_executed(node)
+        
+        # If here, then we need to create a var_state
         var_state = self.state_class()
         var_state.vals = {}
         node_name = self.nodes[node]
         if node_name in self.node_to_inputs:
-            # Modify var_state to set node inputs to appropriate values
             node_input = self.node_to_inputs[node_name]
-            print(node,node_input)
+            
             for var in node_input:
-                print(f"Setting node {node}, we have input {var} getting value {self.get_value(var)}")
-            for var in node_input:
-                var_state.set_value(self.node_names[var],self.get_value(var))
+                if self.categories[var] == "State":
+                    var_state.set_value(self.node_names[var],self.get_value(var))
 
-        if self.categories[node] == "State":
-            # TODO: Decide whether to delegate to the var_state or to compute here, based on ancestors I guess?
-            return var_state.run(self.node_names[node],var_state)
-        if self.categories[node] == "Return":
-            # Return node, decide which case
-            return self.run_return(node,var_state)
-        if self.categories[node] == "Executed":
-            # Executed node, decide which case
-            return self.run_executed(node)
-        if self.categories[node] == "Decision":
-            return self.run_decision(node,var_state)
-    
-        raise ValueError(f"Unrecognised category {self.categories[node]}")
+            if self.categories[node] == "Return":
+                return self.run_return(node,var_state)
+            if self.categories[node] == "Decision":
+                return self.run_decision(node,var_state)
+            
+            if self.categories[node] == "State":
+                all_state = all([self.categories[var] == "State" for var in node_input])
+                if all_state:
+                    # Can delegate to var_state
+                    return var_state.run(self.node_names[node],var_state)
+                else:
+                    print(node, node_input)
+                    raise NotImplementedError
+            
+            # If here, woops
+            raise TypeError(f"Unrecognised category {self.categories[node]} for node {node}")
         
     def run_return(self,node:str,var_state:State):
         # TODO: Make sure correct var state is used

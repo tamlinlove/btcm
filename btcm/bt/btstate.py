@@ -245,11 +245,13 @@ class BTState(State):
         var_state = self.state_class()
         var_state.vals = {}
         node_name = self.nodes[node]
+
         if node_name in self.node_to_inputs:
             node_input = self.node_to_inputs[node_name]
             
             for var in node_input:
                 if self.categories[var] == "State":
+                    print(var,self.get_value(var))
                     var_state.set_value(self.node_names[var],self.get_value(var))
 
             if self.categories[node] == "Return":
@@ -263,11 +265,52 @@ class BTState(State):
                     # Can delegate to var_state
                     return var_state.run(self.node_names[node],var_state)
                 else:
-                    print(node, node_input)
-                    raise NotImplementedError
+                    return self.run_internal_state(node,var_state)
             
             # If here, woops
             raise TypeError(f"Unrecognised category {self.categories[node]} for node {node}")
+        
+    def run_internal_state(self,node:str,var_state:State):
+        node_input = self.node_to_inputs[node]
+        # Remove node from it's input list
+        node_input.remove(node)
+        
+        # Should be left with a single execution node, a decision node, and optionally a bunch of state vars
+        executed = None
+        executed_var = None
+        decision = None
+        self_val = None
+        for var in node_input:
+            if self.categories[var] == "Executed":
+                executed = self.get_value(var)
+                executed_var = var
+            elif self.categories[var] == "Decision":
+                decision = self.get_value(var)
+            elif self.categories[var] == "State":
+                if self.node_names[var] == self.node_names[node]:
+                    self_val = self.get_value(var)
+
+        if executed is None or decision is None:
+            raise ValueError(f"Node {node} needs both an executed and decision variable!")
+
+        if executed:
+            # Run the node's execute function to determine the new value
+            behaviour_node = self.nodes[executed_var]
+            behaviour = self.behaviour_dict[behaviour_node]
+            # TODO: Get the input variables for the behaviour and add them to the var_state
+            for var in self.node_to_inputs[behaviour_node]:
+                if self.categories[var] == "State":
+                    if not self.node_names[var] in var_state.vals:
+                        var_state.set_value(self.node_names[var],self.get_value(var))
+
+            # Execute the behaviour
+            behaviour.execute(var_state,decision)
+
+            # Extract the new value
+            return var_state.get_value(self.node_names[node])
+        else:
+            # The node never executed, the value should remain identical
+            return self_val
         
     def run_return(self,node:str,var_state:State):
         # TODO: Make sure correct var state is used

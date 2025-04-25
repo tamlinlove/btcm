@@ -246,15 +246,19 @@ class BTState(State):
         var_state.vals = {}
         node_name = self.nodes[node]
 
+        for node in self.node_to_inputs:
+            if node in self.behaviour_dict:
+                print(node)
+
         if node_name in self.node_to_inputs:
             node_input = self.node_to_inputs[node_name]
             
             for var in node_input:
                 if self.categories[var] == "State":
-                    print(var,self.get_value(var))
                     var_state.set_value(self.node_names[var],self.get_value(var))
 
             if self.categories[node] == "Return":
+                print("RUNNING RETURN")
                 return self.run_return(node,var_state)
             if self.categories[node] == "Decision":
                 return self.run_decision(node,var_state)
@@ -269,6 +273,9 @@ class BTState(State):
             
             # If here, woops
             raise TypeError(f"Unrecognised category {self.categories[node]} for node {node}")
+        else:
+            # If here, woops
+            raise TypeError(f"Something went wrong with var {node}")
         
     def run_internal_state(self,node:str,var_state:State):
         node_input = self.node_to_inputs[node]
@@ -307,13 +314,19 @@ class BTState(State):
             behaviour.execute(var_state,decision)
 
             # Extract the new value
-            return var_state.get_value(self.node_names[node])
+            new_val = var_state.get_value(self.node_names[node])
+            return new_val
         else:
             # The node never executed, the value should remain identical
-            return self_val
+            if self_val is not None:
+                return self_val
+            else:
+                # Variable never set, can use the default value provided by the state
+                return self.state_class.default_values()[self.node_names[node]]
         
     def run_return(self,node:str,var_state:State):
-        # TODO: Make sure correct var state is used
+        print("RETURN")
+
         executed_node = self.sub_vars[self.nodes[node]]["Executed"]
         if not self.vals[executed_node]:
             # Node was not executed, always return invalid
@@ -324,25 +337,32 @@ class BTState(State):
         if node_cat == "Action":
             corresponding_decision = self.sub_vars[self.nodes[node]]["Decision"]
             action = self.vals[corresponding_decision]
-            return behaviour.execute(var_state,action)
+            status = behaviour.execute(var_state,action)
         elif node_cat == "Condition":
             action = NullAction()
-            return behaviour.execute(var_state,action)
+            status = behaviour.execute(var_state,action)
         elif node_cat == "Sequence":
             children  = behaviour.children
             child_nodes = [self.behaviours_to_node[child] for child in children]
             child_return_nodes = [self.sub_vars[child]["Return"] for child in child_nodes]
             child_return_vals = [self.vals[child] for child in child_return_nodes]
-            return self.sequence_return(child_return_vals,True)
+            status = self.sequence_return(child_return_vals,True)
         elif node_cat == "Fallback":
             children  = behaviour.children
             child_nodes = [self.behaviours_to_node[child] for child in children]
             child_return_nodes = [self.sub_vars[child]["Return"] for child in child_nodes]
             child_return_vals = [self.vals[child] for child in child_return_nodes]
-            return self.fallback_return(child_return_vals,True)
+            status = self.fallback_return(child_return_vals,True)
         
-        # Sholdn't be here
-        raise TypeError(f"Unknown node category: {node_cat}")
+        print(f"RETURN {node} is {status}")
+        if status is None:
+            print("RETURN NONE ALERT!!!")
+            print(node,behaviour.node)
+            print(var_state.vals)
+            raise TypeError(f"Unknown node category: {node_cat}")
+
+        return status
+        
         
     def run_executed(self,node:str):
         behaviour = self.behaviour_dict[self.nodes[node]]
@@ -377,14 +397,20 @@ class BTState(State):
         raise TypeError(f"Unknown parent type: {self.data["tree"][self.behaviours_to_node[behaviour.parent]]["category"]}")
         
     def run_decision(self,node:str,var_state:State):
-        # TODO: Make sure correct var state is used
         executed_node = self.sub_vars[self.nodes[node]]["Executed"]
         if not self.vals[executed_node]:
             # Node was not executed, always return null action
             return NullAction()
 
         behaviour:Leaf = self.behaviour_dict[self.nodes[node]]
-        return behaviour.decide(var_state)
+        decision = behaviour.decide(var_state)
+        print("DEC: ",node,decision)
+        if decision is None:
+            print("DECISION NONE ALERT!!!")
+            print(node,behaviour.node)
+            print(var_state.vals)
+
+        return decision
     
     '''
     INTERVENTIONS
@@ -422,6 +448,12 @@ class BTStateManager:
 
         # Register blackboard
         self.board = self.register_blackboard(data=self.data,state=self.state,env=dummy_env)
+
+        # Create node inputs
+        self.node_to_inputs = self.create_node_inputs()
+
+        # Inject node to inputs dict to the BTstate
+        self.state.node_to_inputs = self.node_to_inputs
 
 
     def read_from_file(self,filename:str,directory:str):
@@ -574,7 +606,6 @@ class BTStateManager:
         curr_time = 0
         found_time = False
         last_state_time = (0,0)
-        self.node_to_inputs = {}
 
         dummy_state = self.state.state_class()
 
@@ -596,7 +627,6 @@ class BTStateManager:
 
                         node_updates[node] = update[node]["status"]!="Status.INVALID"
 
-                        self.node_to_inputs[node] = []
                         # TODO: Somehow link each var_i to a tick/time for explanation
                         if self.data["tree"][node]["category"] in ["Action","Condition"]:
                             # Update the states of input variables and their ancestors
@@ -607,12 +637,9 @@ class BTStateManager:
                                 state_ancestors = [anc for anc in ancestors if self.state.categories[anc] == "State"]
                                 same_batch_ancestors = [anc for anc in state_ancestors if self.state_batches[anc] == self.state_batches[parent]]
                                 vars_to_update = [parent] + same_batch_ancestors
-                                self.node_to_inputs[node] += vars_to_update
                                 for var in vars_to_update:
                                     data_tick_time = self.data[str(last_state_time[0])][str(last_state_time[1])] # Use t-1
                                     self.state.set_value(var,data_tick_time["state"][self.state.node_names[var]])
-
-                            self.node_to_inputs[node] = list(set(self.node_to_inputs[node]))
 
                             # Update the states of output variables
                             children = [var for var in self.model.nodes if self.state.sub_vars[node]["Executed"] in self.model.parents(var)]
@@ -638,14 +665,6 @@ class BTStateManager:
         executed_leaves = [node for node in node_updates if node_updates[node]]
         for node in executed_leaves:
             self.update_parent_executions(node)
-
-        # Add parents to state vars in the node to inputs dict
-        for var in self.state.vars():
-            if self.state.categories[var] == "State":
-                self.node_to_inputs[var] = self.model.parents(var) + [var]
-
-        # Inject node to inputs dict to the BTstate
-        self.state.node_to_inputs = self.node_to_inputs
         
     def update_parent_executions(self,node):
         # Update node
@@ -674,6 +693,32 @@ class BTStateManager:
     '''
     CAUSAL MODEL
     '''
+    def create_node_inputs(self):
+        node_to_inputs = {}
+        # Start with BT Nodes
+        leaves = self.get_leaf_behaviours(self.tree.root)
+        for leaf in leaves:
+            node = self.behaviours_to_nodes[leaf]
+            node_to_inputs[node] = []
+
+            parents = self.model.parents(self.state.sub_vars[node]["Return"])
+            parent_state_vars = [parent for parent in parents if self.state.categories[parent] == "State"]
+            for parent in parent_state_vars:
+                ancestors = list(nx.ancestors(self.model.graph, parent))
+                state_ancestors = [anc for anc in ancestors if self.state.categories[anc] == "State"]
+                same_batch_ancestors = [anc for anc in state_ancestors if self.state_batches[anc] == self.state_batches[parent]]
+                vars_to_update = [parent] + same_batch_ancestors
+                node_to_inputs[node] += vars_to_update
+
+            node_to_inputs[node] = list(set(node_to_inputs[node]))
+
+        # State vars
+        for var in self.state.vars():
+            if self.state.categories[var] == "State":
+                node_to_inputs[var] = self.model.parents(var) + [var]
+
+        return node_to_inputs
+
     def create_state_graph(self,causal_edges:list[tuple[str,str]] = None):
         dummy_state = self.state.state_class()
         if causal_edges is None:

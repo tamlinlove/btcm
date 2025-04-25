@@ -95,8 +95,10 @@ class CausalModel:
     
     def propagate_interventions(self,order:list[str],state:State) -> None:
         for node in order:
+            print(f"Running node {node}")
             new_val = state.run(node)
             print(f"Var {node} has new value: {new_val}")
+            print(type(state))
             state.set_value(node,new_val)
 
     def intervene(self,interventions:dict) -> tuple[nx.DiGraph,State]:

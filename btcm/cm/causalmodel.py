@@ -95,13 +95,10 @@ class CausalModel:
     
     def propagate_interventions(self,order:list[str],state:State) -> None:
         for node in order:
-            print(f"Running node {node}")
             new_val = state.run(node)
-            print(f"Var {node} has new value: {new_val}")
-            print(type(state))
             state.set_value(node,new_val)
 
-    def intervene(self,interventions:dict) -> tuple[nx.DiGraph,State]:
+    def intervene(self,interventions:dict,search_graph:nx.DiGraph) -> tuple[nx.DiGraph,State]:
         # Validate
         for node in interventions:
             if node not in self.nodes:
@@ -111,14 +108,15 @@ class CausalModel:
                 raise ValueError(f"Invalid value {interventions[node]} for node {node}")
         
         # Copy
-
-        new_graph = copy.deepcopy(self.graph)
+        new_graph = nx.DiGraph(search_graph)
         new_state = self.state.copy_state(self.state)
         
         for node in interventions:
             # Remove parents
             for parent in self.parents(node):
-                new_graph.remove_edge(parent,node)
+                # Check if parent has already been removed e.g. for variables that are not allowed to be intervened on
+                if parent in new_graph.nodes:
+                    new_graph.remove_edge(parent,node)
 
             # Set new values
             new_state.set_value(node,interventions[node])

@@ -135,6 +135,11 @@ class Explainer:
                 search_space[node].remove(self.model.state.get_value(node)) 
         
         return search_space
+    
+    def search_graph(self,query:CounterfactualQuery,search_space:Dict[str,list]):
+        allowed_nodes = list(search_space.keys()) + list(query.foils.keys())
+
+        return self.model.graph.subgraph(allowed_nodes)
         
     def generate_combinations(self,search_space, N):
         variable_names = list(search_space.keys())
@@ -162,6 +167,7 @@ class Explainer:
 
         # Start by constructing a new graph only of ancestors to the node in question
         search_space = self.reduce_model(query)
+        search_graph = self.search_graph(query, search_space)
 
         if max_depth is None:
             max_depth = len(search_space.keys())
@@ -170,14 +176,14 @@ class Explainer:
 
 
         for i in range(max_depth):
-            self.explain_to_depth(query=query,search_space=search_space,depth=i+1,visualise=visualise,visualised_interventions=visualised_interventions)
+            self.explain_to_depth(query=query,search_space=search_space,depth=i+1,search_graph=search_graph,visualise=visualise,visualised_interventions=visualised_interventions)
 
-    def explain_to_depth(self,query:CounterfactualQuery,search_space:Dict[str,list],depth:int,visualise:bool=False,visualised_interventions:list=None):
+    def explain_to_depth(self,query:CounterfactualQuery,search_space:Dict[str,list],depth:int,search_graph:nx.DiGraph,visualise:bool=False,visualised_interventions:list=None):
         search_combos = self.generate_combinations(search_space=search_space,N=depth)
 
         explanations = []
         for combo in search_combos:
-            new_graph,new_state = self.model.intervene(combo)
+            new_graph,new_state = self.model.intervene(combo,search_graph)
             
             if query.satisfies_query(new_state):
                 explanations.append(CounterfactualExplanation(combo,new_state.get_values(query.foil_vars()),self.model.state))

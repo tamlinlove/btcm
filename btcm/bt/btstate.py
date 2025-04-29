@@ -246,10 +246,6 @@ class BTState(State):
         var_state.vals = {}
         node_name = self.nodes[node]
 
-        for node in self.node_to_inputs:
-            if node in self.behaviour_dict:
-                print(node)
-
         if node_name in self.node_to_inputs:
             node_input = self.node_to_inputs[node_name]
             
@@ -258,7 +254,6 @@ class BTState(State):
                     var_state.set_value(self.node_names[var],self.get_value(var))
 
             if self.categories[node] == "Return":
-                print("RUNNING RETURN")
                 return self.run_return(node,var_state)
             if self.categories[node] == "Decision":
                 return self.run_decision(node,var_state)
@@ -274,6 +269,10 @@ class BTState(State):
             # If here, woops
             raise TypeError(f"Unrecognised category {self.categories[node]} for node {node}")
         else:
+            if self.categories[node] == "Return":
+                # This would be the return for composite nodes
+                return self.run_return(node,var_state)
+            
             # If here, woops
             raise TypeError(f"Something went wrong with var {node}")
         
@@ -325,8 +324,6 @@ class BTState(State):
                 return self.state_class.default_values()[self.node_names[node]]
         
     def run_return(self,node:str,var_state:State):
-        print("RETURN")
-
         executed_node = self.sub_vars[self.nodes[node]]["Executed"]
         if not self.vals[executed_node]:
             # Node was not executed, always return invalid
@@ -354,11 +351,7 @@ class BTState(State):
             child_return_vals = [self.vals[child] for child in child_return_nodes]
             status = self.fallback_return(child_return_vals,True)
         
-        print(f"RETURN {node} is {status}")
         if status is None:
-            print("RETURN NONE ALERT!!!")
-            print(node,behaviour.node)
-            print(var_state.vals)
             raise TypeError(f"Unknown node category: {node_cat}")
 
         return status
@@ -404,12 +397,6 @@ class BTState(State):
 
         behaviour:Leaf = self.behaviour_dict[self.nodes[node]]
         decision = behaviour.decide(var_state)
-        print("DEC: ",node,decision)
-        if decision is None:
-            print("DECISION NONE ALERT!!!")
-            print(node,behaviour.node)
-            print(var_state.vals)
-
         return decision
     
     '''

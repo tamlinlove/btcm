@@ -131,7 +131,7 @@ class CausalModel:
     '''
     VISUALISE
     '''
-    def visualise(self,graph:nx.DiGraph=None,state:State=None,nodes:dict=None,node_names:Dict[str,str]=None,label_dict:dict=None,colours=None):
+    def visualise(self,graph:nx.DiGraph=None,state:State=None,nodes:dict=None,node_names:Dict[str,str]=None,label_dict:dict=None,colours:dict=None):
         if graph is None:
             graph = self.graph
         if state is None:
@@ -148,10 +148,20 @@ class CausalModel:
             if node_names is None:
                 label_dict = {nodes[node].name: f"{nodes[node].name} = {state.get_value(nodes[node].name)}" for node in nodes}
             else:
-                label_dict = {nodes[node].name: f"{node_names[node]} = {state.get_value(nodes[node].name)}" for node in nodes} 
+                label_dict = {nodes[node].name: f"{node_names[node]} = {state.get_value(nodes[node].name)}" for node in nodes}
+
+        if colours is None:
+            colour_list = ["cyan" for node in nodes]
+        else:
+            colour_list = []
+            for node in graph.nodes:
+                if node in colours:
+                    colour_list.append(colours[node])
+                else:
+                    colour_list.append("cyan")        
 
         pos = graphviz_layout(graph, prog="dot")
-        nx.draw_networkx_nodes(graph, pos, node_size = 500, node_color=colours)
+        nx.draw_networkx_nodes(graph, pos, node_size = 500, node_color=colour_list)
         nx.draw_networkx_labels(graph, pos, labels=label_dict)
         nx.draw_networkx_edges(graph, pos, edgelist= graph.edges, arrows=True)
         plt.show()

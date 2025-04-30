@@ -209,18 +209,18 @@ class Explainer:
     '''
     def visualise_intervention(self,intervention,new_graph,new_state,query,search_space):
         # Find reduced set of nodes for graph
-        reduced_nodes = {node:self.model.nodes[node] for node in self.model.nodes if (node in search_space or node in query.foils)}       
+        reduced_nodes = {node:self.model.nodes[node] for node in self.model.nodes if (node in search_space or node in query.foils)}   
 
         # Create new label dict
         label_dict = {}
-        colours = []
+        colours = {}
         for node in reduced_nodes:
             node_id = reduced_nodes[node].name
             original_value = self.model.state.get_value(node_id)
             current_value = new_state.get_value(node_id)
             if node in intervention:
                 label_dict[reduced_nodes[node].name] = f"DO: {self.node_names[node]} : {original_value} -> {current_value}"
-                colours.append("red")
+                colours[reduced_nodes[node].name] = "red"
             else:
                 if original_value != current_value:
                     label_dict[reduced_nodes[node].name] = f"{self.node_names[node]} : {original_value} -> {current_value}"
@@ -228,9 +228,9 @@ class Explainer:
                     label_dict[reduced_nodes[node].name] = f"{self.node_names[node]} : {current_value}"
 
                 if node in query.foils:
-                    colours.append("green")
+                    colours[reduced_nodes[node].name] = "green"
                 else:
-                    colours.append("cyan")
+                    colours[reduced_nodes[node].name] = "cyan"
 
         # Visualise
         self.model.visualise(new_graph,new_state,nodes=reduced_nodes,label_dict=label_dict,colours=colours)

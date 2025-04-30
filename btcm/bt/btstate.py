@@ -277,7 +277,7 @@ class BTState(State):
             raise TypeError(f"Something went wrong with var {node}")
         
     def run_internal_state(self,node:str,var_state:State):
-        node_input = self.node_to_inputs[node]
+        node_input = copy.deepcopy(self.node_to_inputs[node])
         # Remove node from it's input list
         node_input.remove(node)
         
@@ -520,6 +520,13 @@ class BTStateManager:
     UTILITY
     '''
     def get_node_from_name(self,node_name:str,node_type:str):
+        # Check if node is a state node
+        if node_type == "State":
+            if node_name not in self.state.vars():
+                raise ValueError(f"Node {node_name} is not a state variable")
+            return node_name
+
+        # Must be a BT node
         # Find the identifier for the node
         matching_nodes = [
             node_id for node_id, node_data in self.data["tree"].items()

@@ -36,13 +36,20 @@ if __name__ == "__main__":
     '''
 
     file = f"{filename}.json"
-    #'''
+
+    nodename = "SequenceLength_1"
+    nodetype = "State"
+    tick = 0
+    time = 4
+    foils = [6]
+
+    '''
     nodename = "SetSequenceParameters"
     nodetype = "Decision"
     tick = 0
     time = 4
     foils = None
-    #'''
+    '''
 
     '''
     nodename = "DecideSocialAction"
@@ -59,8 +66,8 @@ if __name__ == "__main__":
     manager.load_state(tick=tick,time=time)
     if args.visualise:
         print("Displaying visualisations")
-        manager.visualise_tree()
-        manager.visualise(show_values=True)
+        #manager.visualise_tree()
+        #manager.visualise(show_values=True)
         #py_trees.display.render_dot_tree(manager.tree.root)
 
 

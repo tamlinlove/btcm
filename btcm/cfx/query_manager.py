@@ -1,6 +1,8 @@
 from btcm.cfx.explainer import Explainer,CounterfactualQuery
 from btcm.bt.btstate import BTStateManager,BTState
 
+# TODO: Add different query makers (e.g. all except null for actions, etc.)
+
 class QueryManager:
     def __init__(self,explainer:Explainer,state_manager:BTStateManager,visualise:bool=False):
         self.explainer = explainer
@@ -16,6 +18,7 @@ class QueryManager:
         Note: Manager should already be loaded with the state at the time of the query
         '''
         if nodetype == "State":
+            # TODO: Handle loading the correct state variable based on tick and time
             q_foil = {name:foils}
         else:
             # BT Node

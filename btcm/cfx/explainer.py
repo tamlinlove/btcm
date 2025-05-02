@@ -3,7 +3,7 @@ import itertools
 import copy
 
 from btcm.cm.causalmodel import CausalModel
-from btcm.dm.state import State,VarRange
+from btcm.dm.state import State
 
 from typing import Dict,List
 
@@ -160,9 +160,7 @@ class Explainer:
     '''
     EXPLAIN
     '''
-    def explain(self,foils:dict[str,list],max_depth:int = None, visualise:bool = False, visualised_interventions: list = None) -> List[CounterfactualExplanation]:
-        query:CounterfactualQuery = self.construct_query(foils)
-
+    def explain(self,query:CounterfactualQuery,max_depth:int = None, visualise:bool = False, visualised_interventions: list = None) -> List[CounterfactualExplanation]:
         # TODO: Double check that foil isn't just the real value
 
         # Start by constructing a new graph only of ancestors to the node in question

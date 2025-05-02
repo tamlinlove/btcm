@@ -2,6 +2,7 @@ import argparse
 
 from btcm.bt.btstate import BTStateManager
 from btcm.cfx.explainer import Explainer
+from btcm.cfx.query_manager import QueryManager
 
 from btcm.examples.cognitive_sequence.dummy_env import DummyCognitiveSequenceEnvironment
 from btcm.examples.cognitive_sequence.basic import SetSequenceParametersAction
@@ -41,7 +42,7 @@ if __name__ == "__main__":
     nodetype = "State"
     tick = 0
     time = 4
-    foils = [6]
+    foils = None #[6]
 
     '''
     nodename = "SetSequenceParameters"
@@ -73,9 +74,11 @@ if __name__ == "__main__":
 
     print("Loading explainer...")
     explainer = Explainer(manager.model,node_names=manager.node_names)
+
+    # Set up the query
+    query_manager = QueryManager(explainer,manager,visualise=args.visualise)
+    query = query_manager.make_query(nodename,nodetype,foils=foils)
     
     # Query set parameter decision
     print("Generating explanations...")
-    node_id = manager.get_node_from_name(nodename,nodetype)
-    visualised_interventions = [var for var in manager.state.vars() if manager.state.internal(var)]
-    explainer.explain({node_id:foils},max_depth=1,visualise=args.visualise,visualised_interventions=visualised_interventions)
+    explainer.explain(query,max_depth=1,visualise=args.visualise)

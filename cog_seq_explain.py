@@ -8,14 +8,24 @@ if __name__ == "__main__":
     Parse Arguments
     '''
     parser = argparse.ArgumentParser()
-    parser.add_argument('-p', '--profile', type=str, required=True)
+    parser.add_argument('-p', '--profile', type=str)
     parser.add_argument('-f', '--filename', type=str)
+    parser.add_argument('-n', '--nodename', type=str, default="SequenceLength")
+    parser.add_argument('-t', '--nodetype', type=str, default="State")
+    parser.add_argument('-i', '--tick', type=int, default=0)
+    parser.add_argument('-j', '--time', default="end")
+    parser.add_argument('-v', '--foils', type=int, nargs='*', default=None)
+    parser.add_argument('--hide_display', action='store_true')
     parser.add_argument('--visualise',  action='store_true')
+    parser.add_argument('--max_depth',  type=int, default=1)
     args = parser.parse_args()
 
     '''
     Validation and Defaults
     '''
+    if args.profile is None and args.filename is None:
+        raise ValueError("Please provide a profile or filename")
+
     # Profile
     profile_name = args.profile.lower()
     if profile_name not in cognitive_sequence_experiment.profile_experiments:
@@ -25,42 +35,16 @@ if __name__ == "__main__":
     filename = args.filename
     if args.filename is None:
         filename = f"cog_log_{profile_name}"
-    
-    '''
-    Load file and BT
-    '''
-
     file = f"{filename}.json"
 
-    nodename = "SequenceLength"
-    nodetype = "State"
-    tick = 0
-    time = 4
-    foils = None #[6]
-
-    '''
-    nodename = "SetSequenceParameters"
-    nodetype = "Decision"
-    tick = 0
-    time = 4
-    foils = None
-    '''
-
-    '''
-    nodename = "DecideSocialAction"
-    nodetype = "Decision"
-    tick = 1
-    time = 27
-    foils = None
-    '''
-
     explain_single(
-        profile_name=profile_name,
         file=file,
-        nodename=nodename,
-        nodetype=nodetype,
-        tick=tick,
-        time=time,
-        max_depth=1,
-        visualise=args.visualise
+        nodename=args.nodename,
+        nodetype=args.nodetype,
+        tick=args.tick,
+        time=args.time,
+        foils=args.foils,
+        max_depth=args.max_depth,
+        visualise=args.visualise,
+        hide_display=args.hide_display,
     )

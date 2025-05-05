@@ -8,11 +8,13 @@ from btcm.dm.state import State
 from typing import Dict,List
 
 class CounterfactualQuery:
-    def __init__(self,foils:Dict[str,list]):
+    def __init__(self,foils:Dict[str,list],tick:int = 0, time:int = "end"):
         '''
         foils is a dict mapping the names of variables in the causal model to lists of acceptable values
         '''
         self.foils = foils
+        self.tick = tick
+        self.time = time
 
     def __str__(self):
         return str(self.foils)
@@ -79,11 +81,11 @@ class Explainer:
     '''
     QUERY
     '''
-    def construct_query(self,foils:dict[str,list]) -> CounterfactualQuery:
+    def construct_query(self,foils:dict[str,list],tick:int = 0, time:int = "end") -> CounterfactualQuery:
         proper_foil:Dict[str,list] = {}
         for var in foils:
             # First, validate var
-            if var not in self.model.state.vars():
+            if not var in self.model.state.vars():
                 raise ValueError(f"Unrecognised variable {var} in query")
             else:
                 # Obtain foils
@@ -104,7 +106,7 @@ class Explainer:
                 real_val = self.model.state.get_value(var)
                 if real_val in proper_foil[var]:
                     proper_foil[var].remove(real_val)
-        return CounterfactualQuery(foils=proper_foil)
+        return CounterfactualQuery(foils=proper_foil,tick=tick,time=time)
     
     '''
     SEARCH SPACE

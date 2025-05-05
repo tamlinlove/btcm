@@ -579,9 +579,60 @@ class BTStateManager:
 
             return leaf_behaviours
     
+    def get_var_name_for_time(self,var:str,tick:int,time:int):
+        '''
+        Get the name of the variable at a specific time
+        '''
+        # Validation
+        if var not in self.value_history:
+            raise ValueError(f"Variable {var} not in value history")
+        if str(tick) not in self.value_history[var]:
+            raise ValueError(f"Timestep {tick} not in value history for variable {var}")
+
+        if time == "end":
+            time = sorted(int(key) for key in self.data[str(tick)].keys())[-1]
+
+        # Get nearest recorded time
+        available_times = sorted(int(key) for key in self.value_history[var][str(tick)].keys())
+        recover_time_index = self.find_closest_index(available_times,time)
+        
+        # Get the variable name
+        var_name = f"{var}_{recover_time_index}"
+        return var_name
+
+    def find_closest_index(self,numbers, target):
+        if not numbers:
+            raise ValueError("The list is empty")
+
+        # If the target is less than the minimum value, return 0
+        if target < numbers[0]:
+            return 0
+
+        # Initialize the binary search bounds
+        left, right = 0, len(numbers) - 1
+
+        # Perform binary search
+        while left < right:
+            mid = (left + right + 1) // 2
+            if numbers[mid] <= target:
+                left = mid
+            else:
+                right = mid - 1
+
+        return left
+
     '''
     VALUES
     '''
+
+    def add_to_val_history(self,var:str,tick:int,time:int,value):
+        var_name = self.state.node_names[var]
+        if var_name not in self.value_history:
+            self.value_history[var_name] = {str(tick):{str(time):value}}
+        elif str(tick) not in self.value_history[var_name]:
+            self.value_history[var_name][str(tick)] = {str(time):value}
+        else:
+            self.value_history[var_name][str(tick)][str(time)] = value
 
     def load_state(self,tick:int=0,time="end"):
         if str(tick) not in self.data:
@@ -602,6 +653,8 @@ class BTStateManager:
         last_state_time = (0,0)
 
         dummy_state = self.state.state_class()
+
+        self.value_history = {}
 
         node_updates = {}
         while str(curr_tick) in self.data and not found_time:
@@ -634,6 +687,7 @@ class BTStateManager:
                                 for var in vars_to_update:
                                     data_tick_time = self.data[str(last_state_time[0])][str(last_state_time[1])] # Use t-1
                                     self.state.set_value(var,data_tick_time["state"][self.state.node_names[var]])
+                                    self.add_to_val_history(var,last_state_time[0],last_state_time[1],data_tick_time["state"][self.state.node_names[var]])
 
                             # Update the states of output variables
                             children = [var for var in self.model.nodes if self.state.sub_vars[node]["Executed"] in self.model.parents(var)]
@@ -641,6 +695,7 @@ class BTStateManager:
                             for child in children_state_vars:
                                 data_tick_time = self.data[str(curr_tick)][str(curr_time)] # Use t
                                 self.state.set_value(child,data_tick_time["state"][self.state.node_names[child]])
+                                self.add_to_val_history(child,curr_tick,curr_time,data_tick_time["state"][self.state.node_names[child]])
 
                 #Check if time has been found
                 if curr_tick == tick and curr_time == time:

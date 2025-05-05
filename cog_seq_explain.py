@@ -38,10 +38,10 @@ if __name__ == "__main__":
 
     file = f"{filename}.json"
 
-    nodename = "SequenceLength_1"
+    nodename = "SequenceLength"
     nodetype = "State"
     tick = 0
-    time = 4
+    time = "end" #4
     foils = None #[6]
 
     '''

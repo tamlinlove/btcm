@@ -11,15 +11,15 @@ class QueryManager:
     '''
     QUERIES
     '''
-    def make_query(self,name:str,nodetype:str,foils:list=None) -> CounterfactualQuery:
+    def make_query(self,name:str,nodetype:str,tick=0,time="end",foils:list=None) -> CounterfactualQuery:
         '''
         Given a node's name and type, as well as the tick and time to refernce, and a list of foils, create a query object to pass to the explainer
 
         Note: Manager should already be loaded with the state at the time of the query
         '''
         if nodetype == "State":
-            # TODO: Handle loading the correct state variable based on tick and time
-            q_foil = {name:foils}
+            var_name = self.manager.get_var_name_for_time(name,tick,time)
+            q_foil = {var_name:foils}
         else:
             # BT Node
             node_id = self.manager.get_node_from_name(name,nodetype)

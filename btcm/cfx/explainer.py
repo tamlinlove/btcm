@@ -162,7 +162,7 @@ class Explainer:
     '''
     EXPLAIN
     '''
-    def explain(self,query:CounterfactualQuery,max_depth:int = None, visualise:bool = False, visualised_interventions: list = None) -> List[CounterfactualExplanation]:
+    def explain(self,query:CounterfactualQuery,max_depth:int = None, visualise:bool = False, visualise_only_valid:bool =False, visualised_interventions: list = None) -> List[CounterfactualExplanation]:
         # TODO: Double check that foil isn't just the real value
 
         # Start by constructing a new graph only of ancestors to the node in question
@@ -176,27 +176,43 @@ class Explainer:
 
 
         for i in range(max_depth):
-            self.explain_to_depth(query=query,search_space=search_space,depth=i+1,search_graph=search_graph,visualise=visualise,visualised_interventions=visualised_interventions)
+            self.explain_to_depth(query=query,search_space=search_space,depth=i+1,search_graph=search_graph,visualise=visualise,visualise_only_valid=visualise_only_valid,visualised_interventions=visualised_interventions)
 
-    def explain_to_depth(self,query:CounterfactualQuery,search_space:Dict[str,list],depth:int,search_graph:nx.DiGraph,visualise:bool=False,visualised_interventions:list=None):
+    def explain_to_depth(
+            self,
+            query:CounterfactualQuery,
+            search_space:Dict[str,list],
+            depth:int,
+            search_graph:nx.DiGraph,
+            visualise:bool=False,
+            visualise_only_valid:bool=False,
+            visualised_interventions:list=None
+    ):
         search_combos = self.generate_combinations(search_space=search_space,N=depth)
 
         explanations = []
         for combo in search_combos:
             new_graph,new_state = self.model.intervene(combo,search_graph)
-            
+           
+            satisfied = False
             if query.satisfies_query(new_state):
+                satisfied = True
                 explanations.append(CounterfactualExplanation(combo,new_state.get_values(query.foil_vars()),self.model.state))
 
             if visualise:
-                display_this = False
-                if visualised_interventions is None:
-                    display_this = True
-                else:
+                display_this = True
+
+                if visualise_only_valid and not satisfied:
+                    display_this = False
+                elif visualised_interventions is not None:
+                    # Set display_this to false if all variables in combo are not in the visualised interventions
+                    one_var_in_intervention_list = False
                     for var in combo:
                         if var in visualised_interventions:
-                            display_this = True
+                            one_var_in_intervention_list = True
                             break
+                    if not one_var_in_intervention_list:
+                        display_this = False
                 
                 if display_this:
                     self.visualise_intervention(combo,new_graph,new_state,query,search_space)

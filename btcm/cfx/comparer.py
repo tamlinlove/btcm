@@ -27,7 +27,7 @@ class Comparer:
     '''
     QUERY
     '''
-    def explain_first_difference(self,max_depth:int=1,visualise:bool=False,hide_display:bool=False):
+    def explain_first_difference(self,max_depth:int=1,visualise:bool=False,visualise_only_valid:bool=False,hide_display:bool=False):
         # Get the first difference between the two queries
         same, difference, update1, update2 = self.find_first_difference()
 
@@ -42,7 +42,7 @@ class Comparer:
         explainer = Explainer(self.manager2.model, node_names=self.manager2.node_names)
 
         # Query manager
-        query_manager = QueryManager(explainer, self.manager2, visualise=visualise)
+        query_manager = QueryManager(explainer, self.manager2, visualise=visualise, visualise_only_valid=visualise_only_valid)
 
         # Get the query for the first difference
         if difference == "name":
@@ -58,14 +58,14 @@ class Comparer:
             query = query_manager.make_query(update2.name, "Return", tick=update2.tick, time=update2.time, foils=[statuses[update1.status]])
             display(f"\n=====QUERY=====\n{query_manager.query_text(query)}", hide_display=hide_display)
             display("\n=====EXPLANATION=====",hide_display=hide_display)
-            explainer.explain(query, max_depth=max_depth, visualise=visualise)
+            explainer.explain(query, max_depth=max_depth, visualise=visualise, visualise_only_valid=visualise_only_valid)
 
         elif difference == "action":
             foils = [self.manager1.state.retrieve_action(update1.action)]
             query = query_manager.make_query(update2.name, "Decision", tick=update2.tick, time=update2.time, foils=foils)
             display(f"\n=====QUERY=====\n{query_manager.query_text(query)}", hide_display=hide_display)
             display("\n=====EXPLANATION=====",hide_display=hide_display)
-            explainer.explain(query, max_depth=max_depth, visualise=visualise)
+            explainer.explain(query, max_depth=max_depth, visualise=visualise, visualise_only_valid=visualise_only_valid)
         else:
             raise ValueError(f"Unknown difference {difference}")
 

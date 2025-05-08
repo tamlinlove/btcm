@@ -7,10 +7,11 @@ from btcm.bt.nodes import ActionNode
 # TODO: Add different query makers (e.g. all except null for actions, etc.)
 
 class QueryManager:
-    def __init__(self,explainer:Explainer,state_manager:BTStateManager,visualise:bool=False):
+    def __init__(self,explainer:Explainer,state_manager:BTStateManager,visualise:bool=False, visualise_only_valid:bool=False):
         self.explainer = explainer
         self.manager = state_manager
         self.visualise = visualise
+        self.visualise_only_valid = visualise_only_valid
 
     '''
     QUERIES

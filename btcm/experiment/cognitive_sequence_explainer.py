@@ -22,6 +22,7 @@ def explain_single(
         foils: list = None,
         max_depth: int = 1,
         visualise: bool = False,
+        visualise_only_valid: bool = False,
         hide_display: bool = False,
 ):
     # Reconstruct BT
@@ -40,19 +41,20 @@ def explain_single(
 
     # Set up the query and foils
 
-    query_manager = QueryManager(explainer,manager,visualise=visualise)
+    query_manager = QueryManager(explainer,manager,visualise=visualise,visualise_only_valid=visualise_only_valid)
     query = query_manager.make_query(nodename,nodetype,foils=foils)
     display(f"\n=====QUERY=====\n{query_manager.query_text(query)}",hide_display=hide_display)
 
     # Explain
     display("\n=====EXPLANATION=====",hide_display=hide_display)
-    explainer.explain(query,max_depth=max_depth,visualise=visualise)
+    explainer.explain(query,max_depth=max_depth,visualise=visualise,visualise_only_valid=visualise_only_valid)
 
 def compare_runs(
         file1: str,
         file2: str,
         max_depth: int = 1,
         visualise: bool = False,
+        visualise_only_valid: bool = False,
         hide_display: bool = False,
 ):
     # Reconstruct BT
@@ -61,4 +63,4 @@ def compare_runs(
 
     # Compare
     comparer = Comparer(manager1,manager2)
-    comparer.explain_first_difference(max_depth=max_depth,visualise=visualise,hide_display=hide_display)
+    comparer.explain_first_difference(max_depth=max_depth,visualise=visualise,visualise_only_valid=visualise_only_valid,hide_display=hide_display)

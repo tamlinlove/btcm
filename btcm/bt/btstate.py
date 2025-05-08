@@ -248,10 +248,19 @@ class BTState(State):
 
         if node_name in self.node_to_inputs:
             node_input = self.node_to_inputs[node_name]
-            
+
+            # First, get counts of the node's inputs to choose the latest variable for each setting
+            node_counts = {}
             for var in node_input:
                 if self.categories[var] == "State":
-                    var_state.set_value(self.node_names[var],self.get_value(var))
+                    if self.node_names[var] not in node_counts:
+                        node_counts[self.node_names[var]] = 0
+                    else:
+                        node_counts[self.node_names[var]] += 1
+            
+            for var in node_counts:
+                latest_var = f"{var}_{node_counts[var]}"
+                var_state.set_value(var,self.get_value(latest_var))
 
             if self.categories[node] == "Return":
                 return self.run_return(node,var_state)
@@ -303,7 +312,7 @@ class BTState(State):
             # Run the node's execute function to determine the new value
             behaviour_node = self.nodes[executed_var]
             behaviour = self.behaviour_dict[behaviour_node]
-            # TODO: Get the input variables for the behaviour and add them to the var_state
+
             for var in self.node_to_inputs[behaviour_node]:
                 if self.categories[var] == "State":
                     if not self.node_names[var] in var_state.vals:

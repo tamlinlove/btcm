@@ -17,6 +17,7 @@ if __name__ == "__main__":
     parser.add_argument('-v', '--foils', type=int, nargs='*', default=None)
     parser.add_argument('--hide_display', action='store_true')
     parser.add_argument('--visualise',  action='store_true')
+    parser.add_argument('--visualise_only_valid',  action='store_true')
     parser.add_argument('--max_depth',  type=int, default=1)
     args = parser.parse_args()
 
@@ -46,5 +47,6 @@ if __name__ == "__main__":
         foils=args.foils,
         max_depth=args.max_depth,
         visualise=args.visualise,
+        visualise_only_valid=args.visualise_only_valid,
         hide_display=args.hide_display,
     )

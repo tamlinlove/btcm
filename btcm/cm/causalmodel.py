@@ -106,6 +106,7 @@ class CausalModel:
             
             if interventions[node] not in self.nodes[node].vals:
                 raise ValueError(f"Invalid value {interventions[node]} for node {node}")
+            
         
         # Copy
         new_graph = nx.DiGraph(search_graph)

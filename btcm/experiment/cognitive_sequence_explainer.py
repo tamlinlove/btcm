@@ -3,6 +3,7 @@ import py_trees
 from btcm.bt.btstate import BTStateManager
 from btcm.cfx.explainer import Explainer
 from btcm.cfx.query_manager import QueryManager
+from btcm.cfx.comparer import Comparer
 from btcm.examples.cognitive_sequence.dummy_env import DummyCognitiveSequenceEnvironment
 from btcm.experiment import cognitive_sequence_experiment
 
@@ -46,3 +47,18 @@ def explain_single(
     # Explain
     display("\n=====EXPLANATION=====",hide_display=hide_display)
     explainer.explain(query,max_depth=max_depth,visualise=visualise)
+
+def compare_runs(
+        file1: str,
+        file2: str,
+        max_depth: int = 1,
+        visualise: bool = False,
+        hide_display: bool = False,
+):
+    # Reconstruct BT
+    manager1 = BTStateManager(file1,dummy_env=DummyCognitiveSequenceEnvironment(),directory=cognitive_sequence_experiment.LOG_DIRECTORY)
+    manager2 = BTStateManager(file2,dummy_env=DummyCognitiveSequenceEnvironment(),directory=cognitive_sequence_experiment.LOG_DIRECTORY)
+
+    # Compare
+    comparer = Comparer(manager1,manager2)
+    comparer.explain_first_difference(max_depth=max_depth,visualise=visualise,hide_display=hide_display)

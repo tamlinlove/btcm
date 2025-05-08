@@ -52,7 +52,7 @@ def run_default(filename:str="cog_log_default",display=True,**kwargs):
         **kwargs,
     )
 
-def run_perfect(filename:str="cog_log_default",display=True,**kwargs):
+def run_perfect(filename:str="cog_log_perfect",display=True,**kwargs):
     # Print
     if display:
         print("==========================")
@@ -77,7 +77,7 @@ def run_perfect(filename:str="cog_log_default",display=True,**kwargs):
         **kwargs,
     )
 
-def run_worst(filename:str="cog_log_default",display=True,**kwargs):
+def run_worst(filename:str="cog_log_worst",display=True,**kwargs):
     # Print
     if display:
         print("==========================")
@@ -102,7 +102,7 @@ def run_worst(filename:str="cog_log_default",display=True,**kwargs):
         **kwargs
     )
 
-def run_no_attention(filename:str="cog_log_default",display=True,**kwargs):
+def run_no_attention(filename:str="cog_log_no_attention",display=True,**kwargs):
     # Print
     if display:
         print("==========================")
@@ -125,7 +125,30 @@ def run_no_attention(filename:str="cog_log_default",display=True,**kwargs):
         **kwargs
     )
 
-def run_no_reactivity(filename:str="cog_log_default",display=True,**kwargs):
+def run_no_memory(filename:str="cog_log_no_memory",display=True,**kwargs):
+    # Print
+    if display:
+        print("==========================")
+        print("Running no_memory user profile experiment...")
+        print("==========================")
+
+    # Set up default state values and user profile
+    initial_vals = CognitiveSequenceState.default_values()
+    user_profile = UserProfile.default_user()
+
+    # Tweak to match a user with no attention span
+    user_profile.memory = 0
+
+    # Run the experiment
+    cognitive_sequence_run(
+        initial_vals=initial_vals,
+        user_profile=user_profile,
+        log_file=filename,
+        display=display,
+        **kwargs
+    )
+
+def run_no_reactivity(filename:str="cog_log_no_reactivity",display=True,**kwargs):
     # Print
     if display:
         print("==========================")
@@ -148,7 +171,7 @@ def run_no_reactivity(filename:str="cog_log_default",display=True,**kwargs):
         **kwargs
     )
 
-def run_frustrated(filename:str="cog_log_default",display=True,**kwargs):
+def run_frustrated(filename:str="cog_log_frustrated",display=True,**kwargs):
     # Print
     if display:
         print("==========================")
@@ -181,5 +204,6 @@ profile_experiments = {
     "worst":run_worst,
     "no_attention":run_no_attention,
     "no_reactivity":run_no_reactivity,
+    "no_memory":run_no_memory,
     "frustrated":run_frustrated,
 }

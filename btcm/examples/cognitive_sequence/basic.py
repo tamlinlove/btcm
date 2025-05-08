@@ -92,6 +92,7 @@ class CognitiveSequenceState(State):
         func_dict["UserConfusion"] = self.get_confusion
         func_dict["UserEngagement"] = self.get_engagement
         func_dict["BaseUserAccuracy"] = self.get_accuracy
+        func_dict["UserFrustration"] = self.get_frustration
         func_dict["UserNumErrors"] = self.get_num_errors
         func_dict["BaseUserResponseTime"] = self.get_time
         func_dict["ObservedUserResponseTime"] = self.get_observed_time
@@ -158,8 +159,9 @@ class CognitiveSequenceState(State):
     
     @staticmethod
     def get_frustration(state:Self):
-        return min(1,(0.2 * state.get_value("UserNumErrors") + 0.8)*state.get_value("UserFrustration") + 0.05*state.get_value("UserNumErrors"))
-    
+        new_frustration = min(1,(0.2 * state.get_value("UserNumErrors") + 0.8)*state.get_value("UserFrustration") + 0.05*state.get_value("UserNumErrors"))
+        return new_frustration
+
     '''
     EXECUTION
     '''

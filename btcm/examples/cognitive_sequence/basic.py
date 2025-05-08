@@ -37,6 +37,7 @@ class CognitiveSequenceState(State):
             "SequenceSet": VarRange.boolean(), # boolean, if True a sequence has been set
             "ResponseTimerActive": VarRange.boolean(), # boolean, if True the response timer is active
             "AttemptedReengageUser":VarRange.boolean(), # Whether the robot attempted to reengage the user after a timeout
+            "FeedbackGiven":VarRange.boolean(), # Whether feedback has been given to the user or not
 
             # External Game Variables
             "UserResponded": VarRange.boolean(), # boolean, if True the user has responded with a sequence
@@ -72,6 +73,7 @@ class CognitiveSequenceState(State):
             "SequenceSet",
             "ResponseTimerActive",
             "AttemptedReengageUser",
+            "FeedbackGiven",
             # Non-intervenable
             "CurrentSequence",
         ]
@@ -120,8 +122,8 @@ class CognitiveSequenceState(State):
     @staticmethod
     def get_num_errors(state:Self) -> int:
         # Determine if the sequence will be incorrect
-        rng = np.random.RandomState(state.get_value("AccuracySeed"))
-        accuracy_score = min(1,max(0,rng.normal(state.get_value("BaseUserAccuracy"),0.1)))
+        np.random.seed(state.get_value("AccuracySeed"))
+        accuracy_score = min(1,max(0,np.random.normal(state.get_value("BaseUserAccuracy"),0.1)))
 
         if accuracy_score > 0.7:
             # Perfect sequence
@@ -152,14 +154,16 @@ class CognitiveSequenceState(State):
     
     @staticmethod
     def get_observed_time(state:Self):
-        rng = np.random.RandomState(state.get_value("ResponseTimeSeed"))
-        response_time = min(CognitiveSequenceState.MAX_TIMEOUT,max(0,rng.normal(state.get_value("BaseUserResponseTime"),1)))
+        np.random.seed(state.get_value("ResponseTimeSeed"))
+        response_time = min(CognitiveSequenceState.MAX_TIMEOUT,max(0,np.random.normal(state.get_value("BaseUserResponseTime"),1)))
         return response_time
     
     @staticmethod
     def get_frustration(state:Self):
-        new_frustration = min(1,(0.2 * state.get_value("UserNumErrors") + 0.8)*state.get_value("UserFrustration") + 0.05*state.get_value("UserNumErrors"))
-        return new_frustration
+        if state.get_value("FeedbackGiven"):
+            return min(1,(0.2 * state.get_value("UserNumErrors") + 0.8)*state.get_value("UserFrustration") + 0.05*state.get_value("UserNumErrors"))
+        else:
+            return state.get_value("UserFrustration")
 
     '''
     EXECUTION
@@ -224,6 +228,7 @@ class CognitiveSequenceState(State):
             "SequenceSet": False,
             "ResponseTimerActive": False,
             "AttemptedReengageUser":False,
+            "FeedbackGiven":False,
 
             # External Game Variables
             "UserResponded": False,
@@ -277,6 +282,7 @@ class CognitiveSequenceState(State):
             # Frustration
             # TODO - missing self link, how to add?
             ("UserNumErrors","UserFrustration"),
+            ("FeedbackGiven","UserFrustration"),
 
         ]
     
@@ -300,6 +306,7 @@ class CognitiveSequenceState(State):
             "SequenceSet": "If true, the sequence has been decided upon this round. False otherwise.",
             "ResponseTimerActive": "If true, the robot has activated a timer and is waiting for the user to repeat a sequence.",
             "AttemptedReengageUser":"If true, the robot has attempted to reengage the user in the task.",
+            "FeedbackGiven":"If true, the robot has provided feedback to the user about their performance.",
 
             # External Game Variables
             "UserResponded": "If true, the user has repeated (successfully or not) the sequence back to the robot.",

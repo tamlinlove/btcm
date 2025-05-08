@@ -242,6 +242,7 @@ class DecideSocialAction(ActionNode):
         
     
     def execute(self, state:CognitiveSequenceState, action:Action):
+        state.set_value("FeedbackGiven",True)
         if action == GiveSequenceHintAction():
             # Give a hint to the user
             self.board.environment.give_hint(state)
@@ -262,7 +263,7 @@ class DecideSocialAction(ActionNode):
         return ["UserResponded","RepeatSequence","UserConfusion","UserEngagement","AttemptedReengageUser"]
     
     def output_variables(self):
-        return ["AttemptedReengageUser"]
+        return ["AttemptedReengageUser","FeedbackGiven"]
     
     def action_space(self):
         return [GiveSequenceHintAction(),RepeatSequenceSocialAction(),EndSequenceSocialAction(),RecaptureAttentionAction(),NullAction()]

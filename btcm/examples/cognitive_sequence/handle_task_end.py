@@ -41,6 +41,7 @@ class EndCurrentSequence(ActionNode):
         state.set_value("SequenceSet",False)
         state.set_value("ResponseTimerActive",False)
         state.set_value("AttemptedReengageUser",False)
+        state.set_value("FeedbackGiven",False)
         state.set_value("RepeatSequence",False)
 
         # Check if we have reached the maximum number of sequences
@@ -57,7 +58,7 @@ class EndCurrentSequence(ActionNode):
         return ["NumSequences"]
     
     def output_variables(self):
-        return ["NumRepetitions","SequenceSet","ResponseTimerActive","AttemptedReengageUser","RepeatSequence","EndGame",]
+        return ["NumRepetitions","SequenceSet","ResponseTimerActive","AttemptedReengageUser","RepeatSequence","EndGame","FeedbackGiven"]
     
     def action_space(self):
         return [EndThisSequenceAction(),NullAction()]

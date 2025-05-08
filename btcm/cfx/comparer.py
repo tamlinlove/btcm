@@ -61,7 +61,11 @@ class Comparer:
             explainer.explain(query, max_depth=max_depth, visualise=visualise)
 
         elif difference == "action":
-            raise NotImplementedError("Action comparison not implemented")
+            foils = [self.manager1.state.retrieve_action(update1.action)]
+            query = query_manager.make_query(update2.name, "Decision", tick=update2.tick, time=update2.time, foils=foils)
+            display(f"\n=====QUERY=====\n{query_manager.query_text(query)}", hide_display=hide_display)
+            display("\n=====EXPLANATION=====",hide_display=hide_display)
+            explainer.explain(query, max_depth=max_depth, visualise=visualise)
         else:
             raise ValueError(f"Unknown difference {difference}")
 
@@ -87,6 +91,10 @@ class Comparer:
 
             while True:
                 if str(time) not in data1[str(tick)].keys() or str(time) not in data2[str(tick)].keys():
+                    if str(time) in data1[str(tick)].keys():
+                        print(f"Tick {tick} time {time} not in data2")
+                    elif str(time) in data2[str(tick)].keys():
+                        print(f"Tick {tick} time {time} not in data1")
                     break
 
                 update1 = data1[str(tick)][str(time)]["update"]

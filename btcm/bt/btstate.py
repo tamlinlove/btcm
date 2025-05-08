@@ -400,6 +400,12 @@ class BTState(State):
         return decision
     
     '''
+    ACTIONS
+    '''
+    def retrieve_action(self, action_name):
+        return self.dummy_state.retrieve_action(action_name)
+    
+    '''
     INTERVENTIONS
     '''
     def can_intervene(self, node):

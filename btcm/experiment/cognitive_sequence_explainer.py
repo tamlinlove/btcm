@@ -31,6 +31,7 @@ def explain_single(
     # Load State
     manager.load_state(tick=tick,time=time)
 
+    manager.save_graph_to_file("bt_graph.txt")
     if visualise:
         manager.visualise_tree()
         manager.visualise(show_values=True)

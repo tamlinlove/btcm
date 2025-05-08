@@ -1000,7 +1000,7 @@ class BTStateManager:
         return cm,state_batches
     
     '''
-    VISUALISATION
+    VISUALISATION AND LOGGING
     '''
     def visualise_tree(self):
         # Labels
@@ -1077,6 +1077,37 @@ class BTStateManager:
         nx.draw_networkx_labels(graph, pos, labels=label_dict)
         nx.draw_networkx_edges(graph, pos, edgelist= graph.edges, arrows=True)
         plt.show()
+
+    def save_graph_to_file(self,filename:str,directory:str=""):
+        if directory == "":
+            filepath = filename
+        else:
+            filepath = f"{directory}/{filename}"
+
+        node_names = {}
+        for node in self.model.graph.nodes:
+            if self.state.categories[node] == "State":
+                node_names[node] = node
+            else:
+                nodename = self.behaviours[self.state.nodes[node]].name
+                if self.state.categories[node] == "Return":
+                    node_names[node] = f"{nodename}_Return"
+                elif self.state.categories[node] == "Executed":
+                    node_names[node] = f"{nodename}_Executed"
+                elif self.state.categories[node] == "Decision":
+                    node_names[node] = f"{nodename}_Decision"
+                else:
+                    raise ValueError(f"Invalid node category: {self.state.categories[node]}")
+
+
+        with open(filepath, 'w') as file:
+            file.write("Graph {\n")
+            for node in self.model.graph.nodes:
+                file.write(f'    {node_names[node]};\n')
+            for edge in self.model.graph.edges:
+                file.write(f'    {node_names[edge[0]]} -> {node_names[edge[1]]};\n')
+            file.write("}\n")
+            
 
 
         

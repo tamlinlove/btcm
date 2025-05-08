@@ -158,7 +158,7 @@ class CognitiveSequenceState(State):
     
     @staticmethod
     def get_frustration(state:Self):
-        return (0.2 * state.get_value("UserNumErrors") + 0.8)*state.get_value("UserFrustration") + 0.05*state.get_value("UserNumErrors")
+        return min(1,(0.2 * state.get_value("UserNumErrors") + 0.8)*state.get_value("UserFrustration") + 0.05*state.get_value("UserNumErrors"))
     
     '''
     EXECUTION

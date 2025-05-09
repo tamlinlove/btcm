@@ -163,7 +163,13 @@ class Explainer:
     EXPLAIN
     '''
     def explain(self,query:CounterfactualQuery,max_depth:int = None, visualise:bool = False, visualise_only_valid:bool =False, visualised_interventions: list = None) -> List[CounterfactualExplanation]:
-        # TODO: Double check that foil isn't just the real value
+        # Validate
+        for var in query.foils:
+            if query.foils[var] is None:
+                continue
+            for var_val in query.foils[var]:
+                if var_val == self.model.state.get_value(var):
+                    raise ValueError(f"Cannot construct query with {var} = {var_val} as it is the current value of the variable")
 
         # Start by constructing a new graph only of ancestors to the node in question
         search_space = self.reduce_model(query)

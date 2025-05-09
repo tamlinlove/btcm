@@ -37,6 +37,7 @@ class CounterfactualExplanation:
         self.counterfactual_intervention = interventions
         self.counterfactual_foil = counterfactual_foil
         self.state_vals = copy.deepcopy(state.vals)
+        self.state = state
 
     def assignment_string(self,names:dict,values:dict=None,node_names:dict[str,str]=None):
         if values is None:
@@ -70,13 +71,44 @@ class CounterfactualExplanation:
         return f"The reason that {fact_text} is because {reason_text}. If instead {intervention_text}, then what would have happened is that {foil_text}."
 
 
+class AggregatedCounterfactualExplanation(CounterfactualExplanation):
+    def __init__(self,interventions:Dict[str,list],counterfactual_foil:dict,state:State):
+        super().__init__(interventions,counterfactual_foil,state)
+
+    def text(self,names:dict[str,str]=None):
+        if len(self.reason.keys()) == 1:
+            fact_text = self.assignment_string(self.counterfactual_foil,self.state_vals,node_names=names)
+            reason_text = self.assignment_string(self.reason,node_names=names)
+            intervention_text = self.intervention_text(names=names)
+            
+            print("Fact text",fact_text)
+            print("Reason text",reason_text)
+            print("Intervention text",intervention_text)
+
+        else:
+            raise NotImplementedError("Can't handle more than one reason yet")
+        
+    def intervention_text(self,names:dict[str,str]=None):
+        text = ""
+        
+        for var in self.counterfactual_intervention:
+            vals = self.counterfactual_intervention[var]
+            real_val = self.reason[var]
+
+            print(names[var])
+        
+        return text
+        
+
         
 
 
 class Explainer:
-    def __init__(self,model:CausalModel,node_names:dict[str,str]=None):
+    def __init__(self,model:CausalModel,node_names:dict[str,str]=None,history:dict=None):
         self.model = model
         self.node_names = node_names
+        self.history = history
+        print(history)
 
     '''
     QUERY
@@ -180,9 +212,20 @@ class Explainer:
         else:
             max_depth = min(max_depth,len(search_space.keys()))
 
-
+        explanations = []
         for i in range(max_depth):
-            self.explain_to_depth(query=query,search_space=search_space,depth=i+1,search_graph=search_graph,visualise=visualise,visualise_only_valid=visualise_only_valid,visualised_interventions=visualised_interventions)
+            new_exps = self.explain_to_depth(query=query,search_space=search_space,depth=i+1,search_graph=search_graph,visualise=visualise,visualise_only_valid=visualise_only_valid,visualised_interventions=visualised_interventions)
+
+            # Aggregate
+            new_exps = self.aggregate_explanations(new_exps)
+
+            explanations += new_exps
+
+        
+        for exp in explanations:
+            print("---",exp.text(names=self.node_names))
+
+        return explanations
 
     def explain_to_depth(
             self,
@@ -222,9 +265,43 @@ class Explainer:
                 
                 if display_this:
                     self.visualise_intervention(combo,new_graph,new_state,query,search_space)
+        
+        return explanations
+    
+    def aggregate_explanations(self,explanations:List[CounterfactualExplanation]):
 
+        # First, group all explanations that share the same variables and foil values
+        grouped_explanations = {}
         for exp in explanations:
-            print("---",exp.text(names=self.node_names))
+            var_key = tuple(sorted(exp.reason.keys()))
+            foil_key = tuple([str(exp.counterfactual_foil[var]) for var in sorted(exp.counterfactual_foil)])
+            if var_key not in grouped_explanations:
+                grouped_explanations[var_key] = {foil_key: [exp]}
+            else:
+                if foil_key not in grouped_explanations[var_key]:
+                    grouped_explanations[var_key][foil_key] = [exp]
+                else:
+                    grouped_explanations[var_key][foil_key].append(exp)
+
+        # Create a new aggregated explanation for each group
+        new_explanations = []
+        for intervention in grouped_explanations:
+            for foil_value in grouped_explanations[intervention]:
+                intervention_dict = {}
+                for exp in grouped_explanations[intervention][foil_value]:
+                    for var in exp.counterfactual_intervention:
+                        if var not in intervention_dict:
+                            intervention_dict[var] = [exp.counterfactual_intervention[var]]
+                        else:
+                            intervention_dict[var].append(exp.counterfactual_intervention[var])
+                
+                foil = grouped_explanations[intervention][foil_value][0].counterfactual_foil
+                state = grouped_explanations[intervention][foil_value][0].state
+
+                aggregated_exp = AggregatedCounterfactualExplanation(intervention_dict,foil,state)
+                new_explanations.append(aggregated_exp)
+
+        return new_explanations
 
     '''
     VISUALISATION

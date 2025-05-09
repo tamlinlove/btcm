@@ -577,6 +577,16 @@ class BTStateManager:
                 node_names[var] = var
         return node_names
     
+    def pretty_node_names(self):
+        names = {}
+        for node in self.state.nodes:
+            if self.state.categories[node] == "State":
+                names[node] = self.state.node_names[node]
+            else:
+                names[node] = self.node_names[node]
+
+        return names
+    
     def get_leaf_behaviours(self,root):
             leaf_behaviours = []
 

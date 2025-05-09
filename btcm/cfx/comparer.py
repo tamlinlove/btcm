@@ -37,9 +37,10 @@ class Comparer:
         
         # Load the state
         self.manager2.load_state(tick=update2.tick, time=update2.time)
+        node_names = self.manager2.pretty_node_names()
 
         # Load the explainer
-        explainer = Explainer(self.manager2.model, node_names=self.manager2.node_names)
+        explainer = Explainer(self.manager2.model, node_names=node_names, history=self.manager2.value_history)
 
         # Query manager
         query_manager = QueryManager(explainer, self.manager2, visualise=visualise, visualise_only_valid=visualise_only_valid)

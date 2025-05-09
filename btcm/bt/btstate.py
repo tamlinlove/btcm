@@ -666,6 +666,7 @@ class BTStateManager:
         curr_time = 0
         found_time = False
         last_state_time = (0,0)
+        reset_tree = False
 
         dummy_state = self.state.state_class()
 
@@ -676,6 +677,10 @@ class BTStateManager:
             data_tick = self.data[str(curr_tick)]
             #curr_time = 0
             while str(curr_time) in data_tick and not found_time:
+                if reset_tree:
+                    self.set_initial_state(only_tree=True)
+                    reset_tree = False
+
                 # Make Update
                 if "update" in data_tick[str(curr_time)]:
                     update = data_tick[str(curr_time)]["update"]
@@ -689,7 +694,6 @@ class BTStateManager:
 
                         node_updates[node] = update[node]["status"]!="Status.INVALID"
 
-                        # TODO: Somehow link each var_i to a tick/time for explanation
                         if self.data["tree"][node]["category"] in ["Action","Condition"]:
                             # Update the states of input variables and their ancestors
                             parents = self.model.parents(self.state.sub_vars[node]["Return"])
@@ -711,6 +715,12 @@ class BTStateManager:
                                 data_tick_time = self.data[str(curr_tick)][str(curr_time)] # Use t
                                 self.state.set_value(child,data_tick_time["state"][self.state.node_names[child]])
                                 self.add_to_val_history(child,curr_tick,curr_time,data_tick_time["state"][self.state.node_names[child]])
+
+                        # Check if we need to reset the tree
+                        root_node_status = self.state.get_value(self.state.sub_vars[self.behaviours_to_nodes[self.tree.root]]['Return'])
+                        if root_node_status in [py_trees.common.Status.SUCCESS,py_trees.common.Status.FAILURE]:
+                            # Reset the tree
+                            reset_tree = True
 
                 #Check if time has been found
                 if curr_tick == tick and curr_time == time:
@@ -739,12 +749,13 @@ class BTStateManager:
             self.update_parent_executions(self.behaviours_to_nodes[parent])
 
 
-    def set_initial_state(self):
-        data0 = self.data["0"]["0"]
+    def set_initial_state(self,only_tree=False):
+        if not only_tree:
+            data0 = self.data["0"]["0"]
 
-        # Set State Variables
-        for state_var in data0["state"]:
-            self.state.set_value(f"{state_var}_0",data0["state"][state_var])
+            # Set State Variables
+            for state_var in data0["state"]:
+                self.state.set_value(f"{state_var}_0",data0["state"][state_var])
         
         # Set behaviour tree node values
         for node in self.state.sub_vars:

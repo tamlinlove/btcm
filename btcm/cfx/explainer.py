@@ -80,10 +80,9 @@ class AggregatedCounterfactualExplanation(CounterfactualExplanation):
             fact_text = self.assignment_string(self.counterfactual_foil,self.state_vals,node_names=names)
             reason_text = self.assignment_string(self.reason,node_names=names)
             intervention_text = self.intervention_text(names=names)
+            foil_text = self.assignment_string(self.counterfactual_foil,node_names=names)
             
-            print("Fact text",fact_text)
-            print("Reason text",reason_text)
-            print("Intervention text",intervention_text)
+            return f"The reason that {fact_text} is because {reason_text}. If instead {intervention_text}, then what would have happened is that {foil_text}."
 
         else:
             raise NotImplementedError("Can't handle more than one reason yet")
@@ -95,9 +94,55 @@ class AggregatedCounterfactualExplanation(CounterfactualExplanation):
             vals = self.counterfactual_intervention[var]
             real_val = self.reason[var]
 
-            print(names[var])
+            var_range = self.state.ranges()[var]
+            if var_range.range_type == "disc_cont":
+                if len(vals) == 1:
+                    text += f"{names[var]} = {vals[0]}"
+                elif self.is_continuous_subset(vals,var_range.values):
+                    if vals[0] == var_range.values[0]:
+                        text += f"{names[var]} <= {vals[-1]}"
+                    elif vals[-1] == var_range.values[-1]:
+                        text += f"{names[var]} >= {vals[0]}"
+                    elif real_val > vals[0] and real_val < vals[-1]:
+                        text += f"{names[var]} is in the set {vals}"
+                    else:
+                        text += f"{names[var]} is in the interval [{vals[0]},{vals[-1]}]"
+                else:
+                    text += f"{names[var]} is in the set {vals}"
+            elif var_range.range_type == "bool":
+                text += f"{names[var]} = {vals[0]}"
+            elif var_range.range_type == "cat":
+                if len(vals) == 1:
+                    text += f"{names[var]} = {vals[0]}"
+                elif len(vals) == 2:
+                    text += f"{names[var]} is either {vals[0]} or {vals[1]}"
+                else:
+                    text += f"{names[var]} is in the set {vals}"
+            else:
+                raise NotImplementedError(f"Can't handle {var_range.range_type} yet")
+            
+            if var != list(self.counterfactual_intervention.keys())[-1]:
+                text += ", "
         
         return text
+    
+    '''
+    UTILITY
+    '''
+    def is_continuous_subset(self,sub_list, main_list):
+        # Check if all elements of sub_list are in main_list
+        if not all(elem in main_list for elem in sub_list):
+            return False
+
+        # Find the indices of the first and last elements of sub_list in main_list
+        first_index = main_list.index(sub_list[0])
+        last_index = main_list.index(sub_list[-1])
+
+        # Extract the corresponding segment from main_list
+        main_segment = main_list[first_index:last_index + 1]
+
+        # Check if the segment matches the sub_list
+        return main_segment == sub_list
         
 
         

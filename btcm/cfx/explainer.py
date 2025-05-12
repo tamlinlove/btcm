@@ -153,7 +153,6 @@ class Explainer:
         self.model = model
         self.node_names = node_names
         self.history = history
-        print(history)
 
     '''
     QUERY

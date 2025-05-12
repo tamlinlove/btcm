@@ -30,6 +30,7 @@ class Comparer:
     def explain_first_difference(self,max_depth:int=1,visualise:bool=False,visualise_only_valid:bool=False,hide_display:bool=False):
         # Get the first difference between the two queries
         same, difference, update1, update2 = self.find_first_difference()
+        explanations = []
 
         if same:
             print("No differences found")
@@ -59,21 +60,23 @@ class Comparer:
             query = query_manager.make_query(update2.name, "Return", tick=update2.tick, time=update2.time, foils=[statuses[update1.status]])
             display(f"\n=====QUERY=====\n{query_manager.query_text(query)}", hide_display=hide_display)
             display("\n=====EXPLANATION=====",hide_display=hide_display)
-            explainer.explain(query, max_depth=max_depth, visualise=visualise, visualise_only_valid=visualise_only_valid)
+            explanations = explainer.explain(query, max_depth=max_depth, visualise=visualise, visualise_only_valid=visualise_only_valid)
 
         elif difference == "action":
             foils = [self.manager1.state.retrieve_action(update1.action)]
             query = query_manager.make_query(update2.name, "Decision", tick=update2.tick, time=update2.time, foils=foils)
             display(f"\n=====QUERY=====\n{query_manager.query_text(query)}", hide_display=hide_display)
             display("\n=====EXPLANATION=====",hide_display=hide_display)
-            explainer.explain(query, max_depth=max_depth, visualise=visualise, visualise_only_valid=visualise_only_valid)
+            explanations = explainer.explain(query, max_depth=max_depth, visualise=visualise, visualise_only_valid=visualise_only_valid)
         else:
             raise ValueError(f"Unknown difference {difference}")
+        
+        return explanations
 
     '''
     COMPARISON
     '''
-    def find_first_difference(self):
+    def find_first_difference(self,difference_type=None):
         data1 = self.manager1.data
         data2 = self.manager2.data
 
@@ -102,8 +105,16 @@ class Comparer:
                 update2 = data2[str(tick)][str(time)]["update"]
 
                 same,difference,contents1,contents2 = self.compare_updates(update1,update2)
-                if not same:
-                    stop = True
+
+                stop = False
+                if difference_type is not None:
+                    if difference == difference_type:
+                        stop = True
+                else:
+                    if not same:
+                        stop = True
+
+                if stop:
                     u1 = Update(contents1["name"],contents1["status"],contents1["action"],tick,time)
                     u2 = Update(contents2["name"],contents2["status"],contents2["action"],tick,time)
                     break

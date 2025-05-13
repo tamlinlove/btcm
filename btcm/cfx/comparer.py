@@ -47,7 +47,7 @@ class Comparer:
         # Check if target found
         if target_var is None:
             print("\nNo need for follow-ups\n")
-        if self.target_found(explanations,target_var):
+        elif self.target_found(explanations,target_var):
             print("\nTarget found in 1 step\n")
         else:
             # Need to do follow up queries
@@ -124,8 +124,8 @@ class Comparer:
         display(f"\n=====QUERY=====\n{query_manager.query_text(query)}", hide_display=hide_display)
         display("\n=====EXPLANATION=====",hide_display=hide_display)
         for explanation in explanations:
-            #print(f"-----{explanation.text(names=self.node_names)}")
-            print(f"-----{explanation.text(names=None)}")
+            print(f"-----{explanation.text(names=self.node_names)}")
+            #print(f"-----{explanation.text(names=None)}")
         
         
         return explanations

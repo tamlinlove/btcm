@@ -1,3 +1,5 @@
+import numpy as np
+
 from btcm.dm.action import NullAction
 
 from btcm.examples.cognitive_sequence.cognitive_sequence_environment import CognitiveSequenceEnvironment, UserProfile
@@ -18,14 +20,15 @@ class DummyCognitiveSequenceEnvironment(CognitiveSequenceEnvironment):
         return True
     
     def provide_sequence(self, state:CognitiveSequenceState):
-        # TODO: State changes
+        # TODO: State Changes
+
         return True
     
     def reset_timer(self, state:CognitiveSequenceState):
         # TODO: State changes
         return True
 
-    def check_timer(self,_):
+    def check_timer(self, state:CognitiveSequenceState):
         # TODO: State changes
         pass
     

@@ -37,7 +37,7 @@ class Comparer:
             hide_display:bool=False,
     ):
         # First round of explanations
-        explanations = self.explain_first_difference(
+        explanations,tick,time = self.explain_first_difference(
             max_depth=max_depth,
             visualise=visualise,
             visualise_only_valid=visualise_only_valid,
@@ -61,12 +61,23 @@ class Comparer:
                 display(f"\n==========\n==========\nROUND {step+1}\n==========\n==========")
 
                 for explanation in explanations:
+                    # Reinitialise
+                    self.manager2.load_state(tick=tick,time=time)
+                    explainer = Explainer(self.manager2.model, node_names=self.node_names, history=self.manager2.value_history)
+                    query_manager = QueryManager(explainer, self.manager2, visualise=visualise, visualise_only_valid=visualise_only_valid)
+
+
                     # Create query
                     foil = self.foil_from_explanation(explanation)
+
+                    # TODO: check if foil variable has any parents, if not, then need to initialise an older tick
+                    # TODO: how would reinitialising affect the other queries, maybe need separate managers, explainers and query_managers?
+
                     query = query_manager.make_follow_up_query(foil)
                     new_explanations = explainer.explain(query, max_depth=max_depth, visualise=visualise, visualise_only_valid=visualise_only_valid)
                     
                     display(f"\n=====QUERY=====\n{query_manager.query_text(query)}", hide_display=hide_display)
+                    print(query.foil_vars()[0])
                     display("\n=====EXPLANATION=====",hide_display=hide_display)
                     for exp in new_explanations:
                         print(f"-----{exp.text()}")
@@ -128,7 +139,7 @@ class Comparer:
             #print(f"-----{explanation.text(names=None)}")
         
         
-        return explanations
+        return explanations,update2.tick,update2.time
     
     '''
     QUERY

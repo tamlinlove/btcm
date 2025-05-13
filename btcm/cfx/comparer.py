@@ -62,25 +62,59 @@ class Comparer:
 
                 for explanation in explanations:
                     # Reinitialise
-                    self.manager2.load_state(tick=tick,time=time)
+                    self.manager2.load_state(tick=explanation.tick,time=explanation.time)
                     explainer = Explainer(self.manager2.model, node_names=self.node_names, history=self.manager2.value_history)
                     query_manager = QueryManager(explainer, self.manager2, visualise=visualise, visualise_only_valid=visualise_only_valid)
 
 
                     # Create query
                     foil = self.foil_from_explanation(explanation)
-
-                    # TODO: check if foil variable has any parents, if not, then need to initialise an older tick
-                    # TODO: how would reinitialising affect the other queries, maybe need separate managers, explainers and query_managers?
-
-                    query = query_manager.make_follow_up_query(foil)
-                    new_explanations = explainer.explain(query, max_depth=max_depth, visualise=visualise, visualise_only_valid=visualise_only_valid)
+                    if len(list(foil.keys())) == 1:
+                        var = list(foil.keys())[0]
+                        update_history = self.manager2.update_history[var]
+                        curr_tick = explanation.tick
+                        curr_time = list(update_history[str(curr_tick)].keys())[-1]
+                    else:
+                        raise NotImplementedError("Can't handle multiple foils yet!")
                     
-                    display(f"\n=====QUERY=====\n{query_manager.query_text(query)}", hide_display=hide_display)
-                    print(query.foil_vars()[0])
-                    display("\n=====EXPLANATION=====",hide_display=hide_display)
-                    for exp in new_explanations:
-                        print(f"-----{exp.text()}")
+                    # Check if the variable has any parents
+                    num_parents = sum(1 for _ in self.manager2.model.graph.predecessors(var))
+                    attempt_explanation = True
+                    if num_parents == 0:
+                        if curr_tick == 0:
+                            #Impossible to go back further
+                            attempt_explanation = False
+                        else:
+                            # TODO: keep going back until a the chosen variable has parents
+                            # Reinitialise to a new tick
+                            curr_tick = curr_tick - 1
+                            same_nodes = sorted([node for node in self.manager2.update_history if str(curr_tick) in self.manager2.update_history[node] and self.node_names[node] == self.node_names[var]])
+                            last_node = same_nodes[-1]
+                            
+                            curr_time = int(list(self.manager2.update_history[last_node][str(curr_tick)].keys())[-1])
+                            self.manager2.load_state(tick=curr_tick,time="end")
+                            explainer = Explainer(self.manager2.model, node_names=self.node_names, history=self.manager2.value_history)
+                            query_manager = QueryManager(explainer, self.manager2, visualise=visualise, visualise_only_valid=visualise_only_valid)
+
+                            # Update foil value
+                            foil = {last_node:foil[var]}
+
+                        
+                    if attempt_explanation:
+                        query = query_manager.make_follow_up_query(foil,curr_tick,curr_time)
+                        new_explanations = explainer.explain(query, max_depth=max_depth, visualise=visualise, visualise_only_valid=visualise_only_valid)
+                        
+                        display(f"\n=====QUERY=====\n{query_manager.query_text(query)}", hide_display=hide_display)
+                        display("\n=====EXPLANATION=====",hide_display=hide_display)
+                        for exp in new_explanations:
+                            print(f"-----{exp.text()}")
+
+                        # Add new explanations to a list of all explanations for this round
+                        # TODO
+
+                    
+                # Check if target is found
+                # TODO
                     
 
                 # Increment

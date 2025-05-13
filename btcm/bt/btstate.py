@@ -725,6 +725,7 @@ class BTStateManager:
                                 same_batch_ancestors = [anc for anc in state_ancestors if self.state_batches[anc] == self.state_batches[parent]]
                                 vars_to_update = [parent] + same_batch_ancestors
                                 for var in vars_to_update:
+                                    
                                     data_tick_time = self.data[str(last_state_time[0])][str(last_state_time[1])] # Use t-1
                                     self.state.set_value(var,data_tick_time["state"][self.state.node_names[var]])
                                     self.add_to_val_history(var,last_state_time[0],last_state_time[1],data_tick_time["state"][self.state.node_names[var]])

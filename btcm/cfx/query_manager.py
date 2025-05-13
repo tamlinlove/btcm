@@ -35,8 +35,8 @@ class QueryManager:
 
         return self.explainer.construct_query(q_foil,tick=tick,time=time)
     
-    def make_follow_up_query(self,foil:dict[str,list]):
-        return CounterfactualQuery(foil,tick=None,time=None)
+    def make_follow_up_query(self,foil:dict[str,list],tick:int,time:int):
+        return CounterfactualQuery(foil,tick,time)
     
     '''
     DISPLAY

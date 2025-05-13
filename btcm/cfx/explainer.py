@@ -32,12 +32,14 @@ class CounterfactualQuery:
         return True
     
 class CounterfactualExplanation:
-    def __init__(self,interventions:dict,counterfactual_foil:dict,state:State):
+    def __init__(self,interventions:dict,counterfactual_foil:dict,state:State,tick:int,time:int):
         self.reason = {node:state.get_value(node) for node in interventions}
         self.counterfactual_intervention = interventions
         self.counterfactual_foil = counterfactual_foil
         self.state_vals = copy.deepcopy(state.vals)
         self.state = state
+        self.tick = tick
+        self.time = time
 
     def assignment_string(self,names:dict,values:dict=None,node_names:dict[str,str]=None):
         if values is None:
@@ -72,8 +74,8 @@ class CounterfactualExplanation:
 
 
 class AggregatedCounterfactualExplanation(CounterfactualExplanation):
-    def __init__(self,interventions:Dict[str,list],counterfactual_foil:dict,state:State):
-        super().__init__(interventions,counterfactual_foil,state)
+    def __init__(self,interventions:Dict[str,list],counterfactual_foil:dict,state:State,tick:int,time:int):
+        super().__init__(interventions,counterfactual_foil,state,tick,time)
 
     def text(self,names:dict[str,str]=None):
         if len(self.reason.keys()) == 1:
@@ -294,7 +296,7 @@ class Explainer:
             satisfied = False
             if query.satisfies_query(new_state):
                 satisfied = True
-                explanations.append(CounterfactualExplanation(combo,new_state.get_values(query.foil_vars()),self.model.state))
+                explanations.append(CounterfactualExplanation(combo,new_state.get_values(query.foil_vars()),self.model.state,query.tick,query.time))
 
             if visualise:
                 display_this = True
@@ -345,8 +347,10 @@ class Explainer:
                 
                 foil = grouped_explanations[intervention][foil_value][0].counterfactual_foil
                 state = grouped_explanations[intervention][foil_value][0].state
+                tick = grouped_explanations[intervention][foil_value][0].tick
+                time = grouped_explanations[intervention][foil_value][0].time
 
-                aggregated_exp = AggregatedCounterfactualExplanation(intervention_dict,foil,state)
+                aggregated_exp = AggregatedCounterfactualExplanation(intervention_dict,foil,state,tick,time)
                 new_explanations.append(aggregated_exp)
 
         return new_explanations

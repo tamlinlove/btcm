@@ -207,3 +207,13 @@ profile_experiments = {
     "no_memory":run_no_memory,
     "frustrated":run_frustrated,
 }
+
+profile_targets = {
+    "default":None,
+    "perfect":None,
+    "worst":None,
+    "no_attention":"UserAttention",
+    "no_reactivity":"UserReactivity",
+    "no_memory":"UserMemory",
+    "frustrated":"UserFrustration",
+}

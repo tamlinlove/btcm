@@ -659,6 +659,14 @@ class BTStateManager:
         else:
             self.value_history[var_name][str(tick)][str(time)] = value
 
+    def add_to_update_history(self,var:str,tick:int,time:int,value):
+        if var not in self.update_history:
+            self.update_history[var] = {str(tick):{str(time):value}}
+        elif str(tick) not in self.update_history[var]:
+            self.update_history[var][str(tick)] = {str(time):value}
+        else:
+            self.update_history[var][str(tick)][str(time)] = value
+
     def load_state(self,tick:int=0,time="end"):
         if str(tick) not in self.data:
             raise ValueError(f"Timestep {tick}-{time} not in data")
@@ -681,6 +689,7 @@ class BTStateManager:
         dummy_state = self.state.state_class()
 
         self.value_history = {}
+        self.update_history = {}
 
         node_updates = {}
         while str(curr_tick) in self.data and not found_time:
@@ -698,9 +707,11 @@ class BTStateManager:
                         # Update the values of the BT node variables
                         if "status" in update[node]:
                             self.state.set_value(self.state.sub_vars[node]["Return"],self.status_map[update[node]["status"]])
+                            self.add_to_update_history(self.state.sub_vars[node]["Return"],curr_tick,curr_time,self.status_map[update[node]["status"]])
                         if "action" in update[node] and self.data["tree"][node]["category"] == "Action":
                             action = dummy_state.retrieve_action(update[node]["action"])
                             self.state.set_value(self.state.sub_vars[node]["Decision"],action)
+                            self.add_to_update_history(self.state.sub_vars[node]["Decision"],curr_tick,curr_time,action)
 
                         node_updates[node] = update[node]["status"]!="Status.INVALID"
 
@@ -717,6 +728,7 @@ class BTStateManager:
                                     data_tick_time = self.data[str(last_state_time[0])][str(last_state_time[1])] # Use t-1
                                     self.state.set_value(var,data_tick_time["state"][self.state.node_names[var]])
                                     self.add_to_val_history(var,last_state_time[0],last_state_time[1],data_tick_time["state"][self.state.node_names[var]])
+                                    self.add_to_update_history(var,last_state_time[0],last_state_time[1],data_tick_time["state"][self.state.node_names[var]])
 
                             # Update the states of output variables
                             children = [var for var in self.model.nodes if self.state.sub_vars[node]["Executed"] in self.model.parents(var)]
@@ -725,6 +737,7 @@ class BTStateManager:
                                 data_tick_time = self.data[str(curr_tick)][str(curr_time)] # Use t
                                 self.state.set_value(child,data_tick_time["state"][self.state.node_names[child]])
                                 self.add_to_val_history(child,curr_tick,curr_time,data_tick_time["state"][self.state.node_names[child]])
+                                self.add_to_update_history(child,curr_tick,curr_time,data_tick_time["state"][self.state.node_names[child]])
 
                         # Check if we need to reset the tree
                         root_node_status = self.state.get_value(self.state.sub_vars[self.behaviours_to_nodes[self.tree.root]]['Return'])
@@ -744,11 +757,13 @@ class BTStateManager:
         # Executed nodes
         for node in node_updates:
             self.state.set_value(self.state.sub_vars[node]["Executed"],node_updates[node])
+            # TODO: UPDATE EXECUTION TIME
         
         # Correct node executions
         executed_leaves = [node for node in node_updates if node_updates[node]]
         for node in executed_leaves:
             self.update_parent_executions(node)
+        # TODO: Update update times for all execution variables based on earliest executed child
         
     def update_parent_executions(self,node):
         # Update node

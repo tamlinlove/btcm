@@ -14,6 +14,7 @@ if __name__ == "__main__":
     parser.add_argument('--visualise',  action='store_true')
     parser.add_argument('--visualise_only_valid',  action='store_true')
     parser.add_argument('--max_depth',  type=int, default=1)
+    parser.add_argument('--max_follow_ups',  type=int, default=2)
     args = parser.parse_args()
 
     '''
@@ -35,6 +36,8 @@ if __name__ == "__main__":
     compare_runs(
         file1=file1,
         file2=file2,
+        target_profile=profile_name_2,
+        max_follow_ups=args.max_follow_ups,
         max_depth=args.max_depth,
         visualise=args.visualise,
         visualise_only_valid=args.visualise_only_valid,

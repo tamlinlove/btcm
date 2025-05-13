@@ -1,7 +1,7 @@
 import py_trees
 
 from btcm.cfx.query_manager import QueryManager
-from btcm.cfx.explainer import Explainer
+from btcm.cfx.explainer import Explainer,AggregatedCounterfactualExplanation
 from btcm.bt.btstate import BTStateManager
 
 def display(text,hide_display:bool=False):
@@ -25,7 +25,63 @@ class Comparer:
         self.manager2 = manager2
 
     '''
-    QUERY
+    FOLLOW-UP
+    '''
+    def explain_follow_ups(
+            self,
+            target_var:str,
+            max_follow_ups:int=2,
+            max_depth:int=1,
+            visualise:bool=False,
+            visualise_only_valid:bool=False,
+            hide_display:bool=False,
+    ):
+        # First round of explanations
+        explanations = self.explain_first_difference(
+            max_depth=max_depth,
+            visualise=visualise,
+            visualise_only_valid=visualise_only_valid,
+            hide_display=hide_display,
+        )
+
+        # Check if target found
+        if target_var is None:
+            print("\nNo need for follow-ups\n")
+        if self.target_found(explanations,target_var):
+            print("\nTarget found in 1 step\n")
+        else:
+            # Need to do follow up queries
+            step = 1
+
+            # Reinitialise
+            explainer = Explainer(self.manager2.model, node_names=self.node_names, history=self.manager2.value_history)
+            query_manager = QueryManager(explainer, self.manager2, visualise=visualise, visualise_only_valid=visualise_only_valid)
+
+            while step < max_follow_ups:
+                display(f"\n==========\n==========\nROUND {step+1}\n==========\n==========")
+
+                for explanation in explanations:
+                    # Create query
+                    foil = self.foil_from_explanation(explanation)
+                    query = query_manager.make_follow_up_query(foil)
+                    new_explanations = explainer.explain(query, max_depth=max_depth, visualise=visualise, visualise_only_valid=visualise_only_valid)
+                    
+                    display(f"\n=====QUERY=====\n{query_manager.query_text(query)}", hide_display=hide_display)
+                    display("\n=====EXPLANATION=====",hide_display=hide_display)
+                    for exp in new_explanations:
+                        print(f"-----{exp.text()}")
+                    
+
+                # Increment
+                step += 1
+
+        
+
+
+
+
+    '''
+    EXPLANATION
     '''
     def explain_first_difference(self,max_depth:int=1,visualise:bool=False,visualise_only_valid:bool=False,hide_display:bool=False):
         # Get the first difference between the two queries
@@ -38,10 +94,10 @@ class Comparer:
         
         # Load the state
         self.manager2.load_state(tick=update2.tick, time=update2.time)
-        node_names = self.manager2.pretty_node_names()
+        self.node_names = self.manager2.pretty_node_names()
 
         # Load the explainer
-        explainer = Explainer(self.manager2.model, node_names=node_names, history=self.manager2.value_history)
+        explainer = Explainer(self.manager2.model, node_names=self.node_names, history=self.manager2.value_history)
 
         # Query manager
         query_manager = QueryManager(explainer, self.manager2, visualise=visualise, visualise_only_valid=visualise_only_valid)
@@ -58,25 +114,55 @@ class Comparer:
                 "Status.INVALID": py_trees.common.Status.INVALID,
             }
             query = query_manager.make_query(update2.name, "Return", tick=update2.tick, time=update2.time, foils=[statuses[update1.status]])
-            display(f"\n=====QUERY=====\n{query_manager.query_text(query)}", hide_display=hide_display)
-            display("\n=====EXPLANATION=====",hide_display=hide_display)
-            explanations = explainer.explain(query, max_depth=max_depth, visualise=visualise, visualise_only_valid=visualise_only_valid)
-
         elif difference == "action":
             foils = [self.manager1.state.retrieve_action(update1.action)]
             query = query_manager.make_query(update2.name, "Decision", tick=update2.tick, time=update2.time, foils=foils)
-            display(f"\n=====QUERY=====\n{query_manager.query_text(query)}", hide_display=hide_display)
-            display("\n=====EXPLANATION=====",hide_display=hide_display)
-            explanations = explainer.explain(query, max_depth=max_depth, visualise=visualise, visualise_only_valid=visualise_only_valid)
         else:
             raise ValueError(f"Unknown difference {difference}")
         
+        explanations = explainer.explain(query, max_depth=max_depth, visualise=visualise, visualise_only_valid=visualise_only_valid)
+        display(f"\n=====QUERY=====\n{query_manager.query_text(query)}", hide_display=hide_display)
+        display("\n=====EXPLANATION=====",hide_display=hide_display)
+        for explanation in explanations:
+            #print(f"-----{explanation.text(names=self.node_names)}")
+            print(f"-----{explanation.text(names=None)}")
+        
+        
         return explanations
+    
+    '''
+    QUERY
+    '''
+    def target_found(self,explanations:list[AggregatedCounterfactualExplanation],target:str):
+        target_found = False
+        for explanation in explanations:
+            for var in explanation.counterfactual_intervention:
+                var_name = self.node_names[var]
+                if var_name == target:
+                    target_found = True
+                    break
+            if target_found:
+                break
+
+        return target_found
+    
+    def foil_from_explanation(self,explanation:AggregatedCounterfactualExplanation):
+        # TODO: Add previous foil???
+        # TODO: Handle explanations with multiple intervention variables
+
+        # Validation
+        if len(list(explanation.counterfactual_intervention.keys())) != 1:
+            raise NotImplementedError("Can't handle explanations with more than 1 variable yet!!!")
+        
+        # Foil
+        return explanation.counterfactual_intervention
+
 
     '''
     COMPARISON
     '''
     def find_first_difference(self,difference_type=None):
+        # TODO: Maybe difference type should be in a different function that looks at updates of a particular type regardless of the tick and time
         data1 = self.manager1.data
         data2 = self.manager2.data
 

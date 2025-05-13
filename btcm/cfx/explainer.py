@@ -93,31 +93,36 @@ class AggregatedCounterfactualExplanation(CounterfactualExplanation):
         for var in self.counterfactual_intervention:
             vals = self.counterfactual_intervention[var]
             real_val = self.reason[var]
+            
+            if names is not None:
+                var_name = names[var]
+            else:
+                var_name = var
 
             var_range = self.state.ranges()[var]
             if var_range.range_type == "disc_cont":
                 if len(vals) == 1:
-                    text += f"{names[var]} = {vals[0]}"
+                    text += f"{var_name} = {vals[0]}"
                 elif self.is_continuous_subset(vals,var_range.values):
                     if vals[0] == var_range.values[0]:
-                        text += f"{names[var]} <= {vals[-1]}"
+                        text += f"{var_name} <= {vals[-1]}"
                     elif vals[-1] == var_range.values[-1]:
-                        text += f"{names[var]} >= {vals[0]}"
+                        text += f"{var_name} >= {vals[0]}"
                     elif real_val > vals[0] and real_val < vals[-1]:
-                        text += f"{names[var]} is in the set {vals}"
+                        text += f"{var_name} is in the set {vals}"
                     else:
-                        text += f"{names[var]} is in the interval [{vals[0]},{vals[-1]}]"
+                        text += f"{var_name} is in the interval [{vals[0]},{vals[-1]}]"
                 else:
-                    text += f"{names[var]} is in the set {vals}"
+                    text += f"{var_name} is in the set {vals}"
             elif var_range.range_type == "bool":
-                text += f"{names[var]} = {vals[0]}"
+                text += f"{var_name} = {vals[0]}"
             elif var_range.range_type == "cat":
                 if len(vals) == 1:
-                    text += f"{names[var]} = {vals[0]}"
+                    text += f"{var_name} = {vals[0]}"
                 elif len(vals) == 2:
-                    text += f"{names[var]} is either {vals[0]} or {vals[1]}"
+                    text += f"{var_name} is either {vals[0]} or {vals[1]}"
                 else:
-                    text += f"{names[var]} is in the set {vals}"
+                    text += f"{var_name} is in the set {vals}"
             else:
                 raise NotImplementedError(f"Can't handle {var_range.range_type} yet")
             
@@ -265,9 +270,8 @@ class Explainer:
 
             explanations += new_exps
 
-        
-        for exp in explanations:
-            print("---",exp.text(names=self.node_names))
+            if len(explanations) > 0:
+                break
 
         return explanations
 

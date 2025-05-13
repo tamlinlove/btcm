@@ -35,6 +35,9 @@ class QueryManager:
 
         return self.explainer.construct_query(q_foil,tick=tick,time=time)
     
+    def make_follow_up_query(self,foil:dict[str,list]):
+        return CounterfactualQuery(foil,tick=None,time=None)
+    
     '''
     DISPLAY
     '''
@@ -46,10 +49,15 @@ class QueryManager:
             # Currently only supports one foil var
             return str(query)
         else:
+            if query.tick is not None:
+                timestep_text = f" at timestep {query.tick}:{query.time}"
+            else:
+                timestep_text = ""
+
             var = query.foil_vars()[0]
             node_category = self.manager.state.categories[var]
             if node_category == "State":
-                value_text = f"does {self.manager.state.node_names[var]} = {self.manager.state.get_value(var)} at timestep {query.tick}:{query.time}"
+                value_text = f"does {self.manager.state.node_names[var]} = {self.manager.state.get_value(var)}{timestep_text}"
                 if query.foils[var] is not None:
                     if len(query.foils[var]) > 1:
                         foil_text = f"one of {query.foils[var]}"
@@ -66,7 +74,7 @@ class QueryManager:
                     py_trees.common.Status.RUNNING: "running",
                     py_trees.common.Status.INVALID: "an invalid status",
                 }
-                value_text = f"does node {node_name} return {status_texts[value]} at timestep {query.tick}:{query.time}"
+                value_text = f"does node {node_name} return {status_texts[value]}{timestep_text}"
                 if len(query.foils[var]) > 1:
                     foil_var_statuses = [status_texts[status] for status in query.foils[var]]
                     foil_text = f"return one of {foil_var_statuses}"
@@ -76,9 +84,9 @@ class QueryManager:
                 node_name = self.manager.state.behaviour_dict[self.manager.state.nodes[var]].name
                 value = self.manager.state.get_value(var)
                 if value:
-                    value_text = f"had node {node_name} been executed at timestep {query.tick}:{query.time}"
+                    value_text = f"had node {node_name} been executed{timestep_text}"
                 else:
-                    value_text = f"had node {node_name} not been executed at timestep {query.tick}:{query.time}"
+                    value_text = f"had node {node_name} not been executed{timestep_text}"
 
                 return f"Why {value_text}?"
             elif node_category == "Decision":
@@ -88,7 +96,7 @@ class QueryManager:
                     raise ValueError(f"Node {node_name} is not an ActionNode, cannot query decision")
                 
                 value = self.manager.state.get_value(var)
-                value_text = f"had node {node_name} selected decision {value} at timestep {query.tick}:{query.time}"
+                value_text = f"had node {node_name} selected decision {value}{timestep_text}"
 
                 if len(query.foils[var]) > 1:
                     action_list = [str(action) for action in query.foils[var]]

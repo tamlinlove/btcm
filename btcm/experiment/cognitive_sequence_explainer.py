@@ -53,6 +53,8 @@ def explain_single(
 def compare_runs(
         file1: str,
         file2: str,
+        target_profile: str,
+        max_follow_ups: int = 2,
         max_depth: int = 1,
         visualise: bool = False,
         visualise_only_valid: bool = False,
@@ -64,4 +66,6 @@ def compare_runs(
 
     # Compare
     comparer = Comparer(manager1,manager2)
-    comparer.explain_first_difference(max_depth=max_depth,visualise=visualise,visualise_only_valid=visualise_only_valid,hide_display=hide_display)
+
+    target_var = cognitive_sequence_experiment.profile_targets[target_profile]
+    comparer.explain_follow_ups(target_var=target_var,max_follow_ups=max_follow_ups,max_depth=max_depth,visualise=visualise,visualise_only_valid=visualise_only_valid,hide_display=hide_display)

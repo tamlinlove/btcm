@@ -43,7 +43,7 @@ def explain_single(
     # Set up the query and foils
 
     query_manager = QueryManager(explainer,manager,visualise=visualise,visualise_only_valid=visualise_only_valid)
-    query = query_manager.make_query(nodename,nodetype,foils=foils)
+    query = query_manager.make_query(nodename,nodetype,tick=tick,time=time,foils=foils)
     display(f"\n=====QUERY=====\n{query_manager.query_text(query)}",hide_display=hide_display)
 
     # Explain

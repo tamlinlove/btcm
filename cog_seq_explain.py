@@ -42,7 +42,7 @@ if __name__ == "__main__":
         file=file,
         nodename=args.nodename,
         nodetype=args.nodetype,
-        tick=args.tick,
+        tick=int(args.tick),
         time=args.time,
         foils=args.foils,
         max_depth=args.max_depth,

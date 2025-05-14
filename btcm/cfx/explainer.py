@@ -108,14 +108,17 @@ class AggregatedCounterfactualExplanation(CounterfactualExplanation):
                 elif self.is_continuous_subset(vals,var_range.values):
                     if vals[0] == var_range.values[0]:
                         text += f"{var_name} <= {vals[-1]}"
+                        print(vals)
                     elif vals[-1] == var_range.values[-1]:
                         text += f"{var_name} >= {vals[0]}"
                     elif real_val > vals[0] and real_val < vals[-1]:
-                        text += f"{var_name} is in the set {vals}"
+                        val_list = [str(val) for val in vals]
+                        text += f"{var_name} is in the set {val_list}"
                     else:
                         text += f"{var_name} is in the interval [{vals[0]},{vals[-1]}]"
                 else:
-                    text += f"{var_name} is in the set {vals}"
+                    val_list = [str(val) for val in vals]
+                    text += f"{var_name} is in the set {val_list}"
             elif var_range.range_type == "bool":
                 text += f"{var_name} = {vals[0]}"
             elif var_range.range_type == "cat":
@@ -124,7 +127,8 @@ class AggregatedCounterfactualExplanation(CounterfactualExplanation):
                 elif len(vals) == 2:
                     text += f"{var_name} is either {vals[0]} or {vals[1]}"
                 else:
-                    text += f"{var_name} is in the set {vals}"
+                    val_list = [str(val) for val in vals]
+                    text += f"{var_name} is in the set {val_list}"
             else:
                 raise NotImplementedError(f"Can't handle {var_range.range_type} yet")
             

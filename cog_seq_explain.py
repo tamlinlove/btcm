@@ -1,5 +1,6 @@
 import argparse
 
+from btcm.examples.cognitive_sequence.basic import CognitiveSequenceState
 from btcm.experiment import cognitive_sequence_experiment
 from btcm.experiment.cognitive_sequence_explainer import explain_single
 
@@ -14,10 +15,11 @@ if __name__ == "__main__":
     parser.add_argument('-t', '--nodetype', type=str, default="State")
     parser.add_argument('-i', '--tick', type=int, default=0)
     parser.add_argument('-j', '--time', default="end")
-    parser.add_argument('-v', '--foils', type=int, nargs='*', default=None)
+    parser.add_argument('-v', '--foils', nargs='*', default=None)
     parser.add_argument('--hide_display', action='store_true')
     parser.add_argument('--visualise',  action='store_true')
     parser.add_argument('--visualise_only_valid',  action='store_true')
+    parser.add_argument('--action_foil_all_but_null',  action='store_true')
     parser.add_argument('--max_depth',  type=int, default=1)
     args = parser.parse_args()
 
@@ -38,15 +40,22 @@ if __name__ == "__main__":
         filename = f"cog_log_{profile_name}"
     file = f"{filename}.json"
 
+    # Foils
+    foils = None
+    if args.foils is not None and args.nodetype == "Decision":
+        foils = [CognitiveSequenceState.retrieve_action(foil) for foil in args.foils]
+        
+
     explain_single(
         file=file,
         nodename=args.nodename,
         nodetype=args.nodetype,
         tick=int(args.tick),
         time=args.time,
-        foils=args.foils,
+        foils=foils,
         max_depth=args.max_depth,
         visualise=args.visualise,
         visualise_only_valid=args.visualise_only_valid,
         hide_display=args.hide_display,
+        action_foil_all_but_null=args.action_foil_all_but_null,
     )

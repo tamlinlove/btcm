@@ -24,6 +24,7 @@ def explain_single(
         visualise: bool = False,
         visualise_only_valid: bool = False,
         hide_display: bool = False,
+        action_foil_all_but_null: bool = False,
 ):
     # Reconstruct BT
     manager = BTStateManager(file,dummy_env=DummyCognitiveSequenceEnvironment(),directory=cognitive_sequence_experiment.LOG_DIRECTORY)
@@ -43,12 +44,14 @@ def explain_single(
     # Set up the query and foils
 
     query_manager = QueryManager(explainer,manager,visualise=visualise,visualise_only_valid=visualise_only_valid)
-    query = query_manager.make_query(nodename,nodetype,tick=tick,time=time,foils=foils)
+    query = query_manager.make_query(nodename,nodetype,tick=tick,time=time,foils=foils,action_foil_all_but_null=action_foil_all_but_null)
     display(f"\n=====QUERY=====\n{query_manager.query_text(query)}",hide_display=hide_display)
 
     # Explain
     display("\n=====EXPLANATION=====",hide_display=hide_display)
-    explainer.explain(query,max_depth=max_depth,visualise=visualise,visualise_only_valid=visualise_only_valid)
+    explanations = explainer.explain(query,max_depth=max_depth,visualise=visualise,visualise_only_valid=visualise_only_valid)
+    for exp in explanations:
+        print(f"-----{exp.text(names=manager.pretty_node_names())}")
 
 def compare_runs(
         file1: str,

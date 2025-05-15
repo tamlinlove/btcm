@@ -175,8 +175,8 @@ class CognitiveSequenceState(State):
     '''
     ACTIONS
     '''
-    
-    def retrieve_action(self, action_name):
+    @staticmethod
+    def retrieve_action(action_name):
         if action_name == "NullAction":
             return NullAction()
         elif action_name == "EndGame":

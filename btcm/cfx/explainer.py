@@ -168,7 +168,7 @@ class Explainer:
     '''
     QUERY
     '''
-    def construct_query(self,foils:dict[str,list],tick:int = 0, time:int = "end") -> CounterfactualQuery:
+    def construct_query(self,foils:dict[str,list],tick:int = 0, time:int = "end", remove:list=[]) -> CounterfactualQuery:
         proper_foil:Dict[str,list] = {}
         for var in foils:
             # First, validate var
@@ -193,6 +193,11 @@ class Explainer:
                 real_val = self.model.state.get_value(var)
                 if real_val in proper_foil[var]:
                     proper_foil[var].remove(real_val)
+
+                # Remove any specified values
+                for remove_val in remove:
+                    print(remove_val)
+                    proper_foil[var].remove(remove_val)
         return CounterfactualQuery(foils=proper_foil,tick=tick,time=time)
     
     '''
@@ -294,6 +299,7 @@ class Explainer:
         search_combos = self.generate_combinations(search_space=search_space,N=depth)
 
         explanations = []
+        print(f"Depth {depth}: {len(search_combos)} combinations")
         for combo in search_combos:
             new_graph,new_state = self.model.intervene(combo,search_graph)
            

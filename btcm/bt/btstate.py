@@ -246,6 +246,8 @@ class BTState(State):
         var_state.vals = {}
         node_name = self.nodes[node]
 
+        
+
         if node_name in self.node_to_inputs:
             node_input = self.node_to_inputs[node_name]
 
@@ -254,12 +256,12 @@ class BTState(State):
             for var in node_input:
                 if self.categories[var] == "State":
                     if self.node_names[var] not in node_counts:
-                        node_counts[self.node_names[var]] = 0
+                        node_counts[self.node_names[var]] = [var]
                     else:
-                        node_counts[self.node_names[var]] += 1
+                        node_counts[self.node_names[var]].append(var)
             
             for var in node_counts:
-                latest_var = f"{var}_{node_counts[var]}"
+                latest_var = sorted(node_counts[var])[-1]
                 var_state.set_value(var,self.get_value(latest_var))
 
             if self.categories[node] == "Return":
@@ -765,6 +767,26 @@ class BTStateManager:
         for node in executed_leaves:
             self.update_parent_executions(node)
         # TODO: Update update times for all execution variables based on earliest executed child
+
+        # Go through un-updated state variables and set their values based on previous iterations
+        var_chain = {}
+        for node in self.state.vars():
+            if self.state.categories[node] == "State":
+                node_name = self.state.node_names[node]
+                if node_name not in var_chain:
+                    var_chain[node_name] = [node]
+                else:
+                    var_chain[node_name].append(node)
+        
+        for var in var_chain:
+            var_chain[var] = sorted(var_chain[var])
+            last_val = None
+            for var_x in var_chain[var]:
+                if self.state.get_value(var_x) is None and last_val is not None:
+                    self.state.set_value(var_x,last_val)
+                else:
+                    last_val = self.state.get_value(var_x)
+            
         
     def update_parent_executions(self,node):
         # Update node

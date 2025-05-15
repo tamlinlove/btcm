@@ -3,6 +3,7 @@ import py_trees
 from btcm.cfx.explainer import Explainer,CounterfactualQuery
 from btcm.bt.btstate import BTStateManager,BTState
 from btcm.bt.nodes import ActionNode
+from btcm.dm.action import NullAction
 
 # TODO: Add different query makers (e.g. all except null for actions, etc.)
 
@@ -16,7 +17,15 @@ class QueryManager:
     '''
     QUERIES
     '''
-    def make_query(self,name:str,nodetype:str,tick=0,time="end",foils:list=None) -> CounterfactualQuery:
+    def make_query(
+            self,
+            name:str,
+            nodetype:str,
+            tick:int=0,
+            time="end",
+            foils:list=None,
+            action_foil_all_but_null:bool=False,
+    ) -> CounterfactualQuery:
         '''
         Given a node's name and type, as well as the tick and time to refernce, and a list of foils, create a query object to pass to the explainer
 
@@ -25,6 +34,7 @@ class QueryManager:
         if time == "end":
             time = sorted(int(key) for key in self.manager.data[str(tick)].keys())[-1]
 
+        remove = []
         if nodetype == "State":
             var_name = self.manager.get_var_name_for_time(name,tick,time)
             q_foil = {var_name:foils}
@@ -33,7 +43,10 @@ class QueryManager:
             node_id = self.manager.get_node_from_name(name,nodetype)
             q_foil = {node_id:foils}
 
-        return self.explainer.construct_query(q_foil,tick=tick,time=time)
+            if action_foil_all_but_null and nodetype == "Decision":
+                remove = [NullAction()]
+
+        return self.explainer.construct_query(q_foil,tick=tick,time=time,remove=remove)
     
     def make_follow_up_query(self,foil:dict[str,list],tick:int,time:int):
         return CounterfactualQuery(foil,tick,time)

@@ -10,17 +10,31 @@ LOG_DIRECTORY = "logs/cognitive_sequence"
 BASIC RUN EXPERIMENT
 '''
 
-def cognitive_sequence_run(initial_vals:dict,user_profile:UserProfile,log_file:str="cog_log",skip=False,display=True):
+def cognitive_sequence_run(
+        initial_vals:dict,
+        user_profile:UserProfile,
+        log_file:str="cog_log",
+        skip:bool=False,
+        display:bool=True,
+        log_dir:str=LOG_DIRECTORY,
+        seed_override:tuple[int,int]=None,
+    ):
     '''
     Tree
     '''
-    board = cognitive_sequence.setup_board(vals=initial_vals,user_profile=user_profile,skip=skip,display=display)
+    board = cognitive_sequence.setup_board(
+        vals=initial_vals,
+        user_profile=user_profile,
+        skip=skip,
+        display=display,
+        seed_override=seed_override
+    )
     tree = cognitive_sequence.make_tree()
 
     '''
     Visitor
     '''
-    logger = Logger(tree=tree,filename=f"{LOG_DIRECTORY}/{log_file}")
+    logger = Logger(tree=tree,filename=f"{log_dir}/{log_file}")
     tree.visitors.append(logger)    
 
     '''

@@ -78,16 +78,20 @@ class AggregatedCounterfactualExplanation(CounterfactualExplanation):
         super().__init__(interventions,counterfactual_foil,state,tick,time)
 
     def text(self,names:dict[str,str]=None):
+        fact_text = self.assignment_string(self.counterfactual_foil,self.state_vals,node_names=names)
+        reason_text = self.assignment_string(self.reason,node_names=names)
+        foil_text = self.assignment_string(self.counterfactual_foil,node_names=names)
+
         if len(self.reason.keys()) == 1:
-            fact_text = self.assignment_string(self.counterfactual_foil,self.state_vals,node_names=names)
-            reason_text = self.assignment_string(self.reason,node_names=names)
             intervention_text = self.intervention_text(names=names)
-            foil_text = self.assignment_string(self.counterfactual_foil,node_names=names)
-            
-            return f"The reason that {fact_text} is because {reason_text}. If instead {intervention_text}, then what would have happened is that {foil_text}."
+        
 
         else:
-            raise NotImplementedError("Can't handle more than one reason yet")
+            intervention_text = str(self.counterfactual_intervention)
+
+        return f"The reason that {fact_text} is because {reason_text}. If instead {intervention_text}, then what would have happened is that {foil_text}."
+            
+            
         
     def intervention_text(self,names:dict[str,str]=None):
         text = ""
@@ -108,7 +112,6 @@ class AggregatedCounterfactualExplanation(CounterfactualExplanation):
                 elif self.is_continuous_subset(vals,var_range.values):
                     if vals[0] == var_range.values[0]:
                         text += f"{var_name} <= {vals[-1]}"
-                        print(vals)
                     elif vals[-1] == var_range.values[-1]:
                         text += f"{var_name} >= {vals[0]}"
                     elif real_val > vals[0] and real_val < vals[-1]:
@@ -299,7 +302,6 @@ class Explainer:
         search_combos = self.generate_combinations(search_space=search_space,N=depth)
 
         explanations = []
-        print(f"Depth {depth}: {len(search_combos)} combinations")
         for combo in search_combos:
             new_graph,new_state = self.model.intervene(combo,search_graph)
            

@@ -252,6 +252,10 @@ class CognitiveSequenceState(State):
             "BaseUserResponseTime":0,
             "ObservedUserResponseTime":0,
         }
+    
+    def override_seeds(self,seed_override:tuple[int,int]):
+        self.set_value("AccuracySeed",seed_override[0])
+        self.set_value("ResponseTimeSeed",seed_override[1])
 
     '''
     CAUSAL MODEL

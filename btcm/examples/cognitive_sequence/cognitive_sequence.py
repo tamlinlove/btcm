@@ -8,7 +8,7 @@ from btcm.examples.cognitive_sequence.initial_checks import initial_checks_subtr
 '''
 BLACKBOARD
 '''
-def setup_board(vals:dict=None,user_profile:UserProfile=None,skip=False,display=True):
+def setup_board(vals:dict=None,user_profile:UserProfile=None,skip=False,display=True,seed_override=None):
     board = py_trees.blackboard.Client(name="Board")
     board.register_key("state", access=py_trees.common.Access.WRITE)
     board.register_key("environment", access=py_trees.common.Access.WRITE)
@@ -28,6 +28,10 @@ def setup_board(vals:dict=None,user_profile:UserProfile=None,skip=False,display=
 
     # User Profile
     user_profile.update_state(board.state)
+
+    # Seed
+    if seed_override is not None:
+        board.state.override_seeds(seed_override)
 
     # Other experiment parameters
     board.display = display

@@ -43,12 +43,12 @@ class Comparer:
             visualise_only_valid=visualise_only_valid,
             hide_display=hide_display,
         )
-
         # Check if target found
         if target_var is None:
-            print("\nNo need for follow-ups\n")
+            display("\nNo need for follow-ups\n",hide_display=hide_display)
         elif self.target_found(explanations,target_var):
-            print("\nTarget found in 1 step\n")
+            display("Found target in 1 step",hide_display=hide_display)
+            return True,1
         else:
             # Need to do follow up queries
             step = 1
@@ -58,8 +58,8 @@ class Comparer:
             query_manager = QueryManager(explainer, self.manager2, visualise=visualise, visualise_only_valid=visualise_only_valid)
 
             while step < max_follow_ups:
-                display(f"\n==========\n==========\nROUND {step+1}\n==========\n==========")
-
+                display(f"\n==========\n==========\nROUND {step+1}\n==========\n==========",hide_display=hide_display)
+                next_exps = []
                 for explanation in explanations:
                     # Reinitialise
                     self.manager2.load_state(tick=explanation.tick,time=explanation.time)
@@ -107,18 +107,24 @@ class Comparer:
                         display(f"\n=====QUERY=====\n{query_manager.query_text(query)}", hide_display=hide_display)
                         display("\n=====EXPLANATION=====",hide_display=hide_display)
                         for exp in new_explanations:
-                            print(f"-----{exp.text()}")
+                            display(f"-----{exp.text()}",hide_display=hide_display)
 
                         # Add new explanations to a list of all explanations for this round
-                        # TODO
+                        next_exps += new_explanations
 
                     
                 # Check if target is found
-                # TODO
+                if self.target_found(next_exps,target_var):
+                    display(f"Found target in {step} steps",hide_display=hide_display)
+                    return True,step
+                
+                explanations = next_exps
                     
 
                 # Increment
                 step += 1
+
+        return False,0
 
         
 
@@ -134,7 +140,7 @@ class Comparer:
         explanations = []
 
         if same:
-            print("No differences found")
+            display("No differences found",hide_display=hide_display)
             return None
         
         # Load the state
@@ -169,8 +175,7 @@ class Comparer:
         display(f"\n=====QUERY=====\n{query_manager.query_text(query)}", hide_display=hide_display)
         display("\n=====EXPLANATION=====",hide_display=hide_display)
         for explanation in explanations:
-            print(f"-----{explanation.text(names=self.node_names)}")
-            #print(f"-----{explanation.text(names=None)}")
+            display(f"-----{explanation.text(names=self.node_names)}",hide_display=hide_display)
         
         
         return explanations,update2.tick,update2.time
@@ -179,6 +184,7 @@ class Comparer:
     QUERY
     '''
     def target_found(self,explanations:list[AggregatedCounterfactualExplanation],target:str):
+        # TODO: Make sure this works for multiple foils
         target_found = False
         for explanation in explanations:
             for var in explanation.counterfactual_intervention:

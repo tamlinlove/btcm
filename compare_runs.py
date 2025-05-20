@@ -10,6 +10,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('-p1', '--profile1', type=str)
     parser.add_argument('-p2', '--profile2', type=str)
+    parser.add_argument('-f1', '--file1', type=str)
+    parser.add_argument('-f2', '--file2', type=str)
     parser.add_argument('--hide_display', action='store_true')
     parser.add_argument('--visualise',  action='store_true')
     parser.add_argument('--visualise_only_valid',  action='store_true')
@@ -30,8 +32,14 @@ if __name__ == "__main__":
         raise ValueError(f"Profile {args.profile2} is not valid")
     
     # Filename
-    file1 = f"cog_log_{profile_name_1}.json"
-    file2 = f"cog_log_{profile_name_2}.json"
+    if args.file1 is None:
+        file1 = f"cog_log_{profile_name_1}.json"
+    else:
+        file1 = args.file1
+    if args.file2 is None:
+        file2 = f"cog_log_{profile_name_2}.json"
+    else:
+        file2 = args.file2
 
     compare_runs(
         file1=file1,

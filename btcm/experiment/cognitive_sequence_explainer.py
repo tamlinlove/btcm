@@ -57,6 +57,8 @@ def compare_runs(
         file1: str,
         file2: str,
         target_profile: str,
+        log_dir1:str=cognitive_sequence_experiment.LOG_DIRECTORY,
+        log_dir2:str=cognitive_sequence_experiment.LOG_DIRECTORY,
         max_follow_ups: int = 2,
         max_depth: int = 1,
         visualise: bool = False,
@@ -64,11 +66,11 @@ def compare_runs(
         hide_display: bool = False,
 ):
     # Reconstruct BT
-    manager1 = BTStateManager(file1,dummy_env=DummyCognitiveSequenceEnvironment(),directory=cognitive_sequence_experiment.LOG_DIRECTORY)
-    manager2 = BTStateManager(file2,dummy_env=DummyCognitiveSequenceEnvironment(),directory=cognitive_sequence_experiment.LOG_DIRECTORY)
+    manager1 = BTStateManager(file1,dummy_env=DummyCognitiveSequenceEnvironment(),directory=log_dir1)
+    manager2 = BTStateManager(file2,dummy_env=DummyCognitiveSequenceEnvironment(),directory=log_dir2)
 
     # Compare
     comparer = Comparer(manager1,manager2)
 
     target_var = cognitive_sequence_experiment.profile_targets[target_profile]
-    comparer.explain_follow_ups(target_var=target_var,max_follow_ups=max_follow_ups,max_depth=max_depth,visualise=visualise,visualise_only_valid=visualise_only_valid,hide_display=hide_display)
+    return comparer.explain_follow_ups(target_var=target_var,max_follow_ups=max_follow_ups,max_depth=max_depth,visualise=visualise,visualise_only_valid=visualise_only_valid,hide_display=hide_display)

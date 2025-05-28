@@ -129,13 +129,13 @@ class CognitiveSequenceEnvironment(Environment):
             # First time for this unique sequence
             if state.get_value("NumSequences") > 1:
                 # Second, third, etc. unique sequence
-                self.robot_speak(f"Here is the new sequence. Listen carefully. {state.get_value("CurrentSequence")}")
+                self.robot_speak(f"Here is the new sequence. Listen carefully. {state.get_value('CurrentSequence')}")
             else:
                 # First time for this unique sequence
-                self.robot_speak(f"Here is the sequence. Listen carefully. {state.get_value("CurrentSequence")}")
+                self.robot_speak(f"Here is the sequence. Listen carefully. {state.get_value('CurrentSequence')}")
         else:
             # Sequence has been repeated
-            self.robot_speak(f"Here is the sequence again. Listen carefully. {state.get_value("CurrentSequence")}")
+            self.robot_speak(f"Here is the sequence again. Listen carefully. {state.get_value('CurrentSequence')}")
 
         # Update user response now that new sequence is here
         state.set_value("UserResponded",False)
@@ -187,7 +187,7 @@ class CognitiveSequenceEnvironment(Environment):
                 # User has responded
                 state.set_value("UserResponded",True)
                 self.user_speak(state.get_value("UserSequence"))
-                self.env_speak(f"User responded in {state.get_value("ObservedUserResponseTime")} seconds")
+                self.env_speak(f"User responded in {state.get_value('ObservedUserResponseTime')} seconds")
         else:
             # User has not responded yet
             state.set_value("UserResponded",False)
@@ -203,7 +203,7 @@ class CognitiveSequenceEnvironment(Environment):
         elif state.get_value("UserNumErrors") == 1:
             self.robot_speak("Almost right, you made only one mistake.")
         else:
-            self.robot_speak(f"Hmmm...that's not quite right. Here's a hint: you made {str(state.get_value("UserNumErrors"))} mistakes.")
+            self.robot_speak(f"Hmmm...that's not quite right. Here's a hint: you made {str(state.get_value('UserNumErrors'))} mistakes.")
 
         # Update frustration
         self.user_profile.update_frustration(state)

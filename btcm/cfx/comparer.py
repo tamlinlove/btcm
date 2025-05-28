@@ -43,6 +43,12 @@ class Comparer:
             visualise_only_valid=visualise_only_valid,
             hide_display=hide_display,
         )
+
+        # Check if explanation is valid
+        if explanations is None:
+            display("No differences",hide_display=hide_display)
+            return False,0
+
         # Check if target found
         if target_var is None:
             display("\nNo need for follow-ups\n",hide_display=hide_display)
@@ -69,16 +75,26 @@ class Comparer:
 
                     # Create query
                     foil = self.foil_from_explanation(explanation)
+                    curr_tick = explanation.tick
                     if len(list(foil.keys())) == 1:
+                        # TODO: Fix to handle multiple 
                         var = list(foil.keys())[0]
                         update_history = self.manager2.update_history[var]
-                        curr_tick = explanation.tick
                         curr_time = list(update_history[str(curr_tick)].keys())[-1]
+                        num_parents = sum(1 for _ in self.manager2.model.graph.predecessors(var))
                     else:
-                        raise NotImplementedError("Can't handle multiple foils yet!")
+                        vars = list(foil.keys())
+                        update_history = {var:self.manager2.update_history[var] for var in vars}
+                        curr_times = [int(list(update_history[var][str(curr_tick)].keys())[-1]) for var in vars]
+                        curr_time = max(curr_times)
+                        num_parents_list = [sum(1 for _ in self.manager2.model.graph.predecessors(var)) for var in vars]
+                        num_parents = max(num_parents_list)
+
+
                     
+                    # TODO: fix to handle multiple
                     # Check if the variable has any parents
-                    num_parents = sum(1 for _ in self.manager2.model.graph.predecessors(var))
+                    
                     attempt_explanation = True
                     if num_parents == 0:
                         if curr_tick == 0:
@@ -141,7 +157,7 @@ class Comparer:
 
         if same:
             display("No differences found",hide_display=hide_display)
-            return None
+            return None,None,None
         
         # Load the state
         self.manager2.load_state(tick=update2.tick, time=update2.time)
@@ -200,10 +216,6 @@ class Comparer:
     def foil_from_explanation(self,explanation:AggregatedCounterfactualExplanation):
         # TODO: Add previous foil???
         # TODO: Handle explanations with multiple intervention variables
-
-        # Validation
-        if len(list(explanation.counterfactual_intervention.keys())) != 1:
-            raise NotImplementedError("Can't handle explanations with more than 1 variable yet!!!")
         
         # Foil
         return explanation.counterfactual_intervention

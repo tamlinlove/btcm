@@ -20,6 +20,7 @@ if __name__ == "__main__":
     seed = 0
     seed_interval = 1000
     for run in range(args.num_exps):
+        print(f"Run {run+1}/{args.num_exps}")
         for profile in args.profiles:
             profile_name = profile.lower()
             if profile_name not in cognitive_sequence_experiment.profile_experiments:
@@ -39,7 +40,7 @@ if __name__ == "__main__":
                 seed_override=seed_override
             )
 
-            seed += 1
+        seed += 1
 
     
 

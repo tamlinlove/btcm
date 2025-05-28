@@ -1,5 +1,6 @@
 import argparse
 from os import walk
+import csv
 
 from btcm.experiment import cognitive_sequence_experiment
 from btcm.experiment.cognitive_sequence_explainer import compare_runs
@@ -38,28 +39,50 @@ if __name__ == "__main__":
     files1 = next(walk(log_dir1), (None, None, []))[2]
     files2 = next(walk(log_dir2), (None, None, []))[2]
 
+    # Matching files
+    seed_dict = {}
+    for file1 in files1:
+        seed = file1.split("_")[-1].split(".")[0]
+        seed_dict[seed] = [file1]
+
+    for file2 in files2:
+        seed = file2.split("_")[-1].split(".")[0]
+        seed_dict[seed].append(file2)
+
+    # RUN
     founds = []
     depths = []
-    for file1 in files1:
-        for file2 in files2:
-            if not args.hide_display:
-                print(f"\n\n===Comparing {file1} and {file2}===")
+    data = []
+    for seed in seed_dict:
+        file1 = seed_dict[seed][0]
+        file2 = seed_dict[seed][1]
 
-            found,depth = compare_runs(
-                file1=file1,
-                file2=file2,
-                target_profile=profile_name_2,
-                log_dir1=log_dir1,
-                log_dir2=log_dir2,
-                max_follow_ups=args.max_follow_ups,
-                max_depth=args.max_depth,
-                visualise=args.visualise,
-                visualise_only_valid=args.visualise_only_valid,
-                hide_display=args.hide_display,
-            )
+        if not args.hide_display:
+            print(f"\n\n===Comparing {file1} and {file2}===")
 
-            founds.append(found)
-            depths.append(depth)
+        found,depth = compare_runs(
+            file1=file1,
+            file2=file2,
+            target_profile=profile_name_2,
+            log_dir1=log_dir1,
+            log_dir2=log_dir2,
+            max_follow_ups=args.max_follow_ups,
+            max_depth=args.max_depth,
+            visualise=args.visualise,
+            visualise_only_valid=args.visualise_only_valid,
+            hide_display=args.hide_display,
+        )
+
+        founds.append(found)
+        depths.append(depth) 
+
+        data.append(
+            {
+                'seed': seed,
+                'found': found,
+                'depth': depth
+            }
+        )
 
     percentage = (sum(founds) / len(founds)) * 100
     print(f"{percentage}% of comparisons successfully recovered target variable")
@@ -74,4 +97,11 @@ if __name__ == "__main__":
             print(f"{percentage}% of comparisons recovered the target variable in 1 step")
         else:
             print(f"{percentage}% of comparisons recovered the target variable in {u} steps")
+
+    # Save
+    csv_file = f'results/results_{profile_name_1}_{profile_name_2}.csv'
+    with open(csv_file, mode='w', newline='') as file:
+        writer = csv.DictWriter(file, fieldnames=['seed', 'found', 'depth'])
+        writer.writeheader()
+        writer.writerows(data)
 

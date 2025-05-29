@@ -398,7 +398,7 @@ class BTState(State):
 
         
         # Shouldn't be here
-        raise TypeError(f"Unknown parent type: {self.data["tree"][self.behaviours_to_node[behaviour.parent]]["category"]}")
+        raise TypeError(f"Unknown parent type: {self.data['tree'][self.behaviours_to_node[behaviour.parent]]['category']}")
         
     def run_decision(self,node:str,var_state:State):
         executed_node = self.sub_vars[self.nodes[node]]["Executed"]

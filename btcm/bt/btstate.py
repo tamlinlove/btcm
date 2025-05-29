@@ -826,14 +826,20 @@ class BTStateManager:
 
             parents = self.model.parents(self.state.sub_vars[node]["Return"])
             parent_state_vars = [parent for parent in parents if self.state.categories[parent] == "State"]
+            '''
+            # TODO: Pretty sure this is redundant, keeping just in case I need to return it
             for parent in parent_state_vars:
+                
                 ancestors = list(nx.ancestors(self.model.graph, parent))
                 state_ancestors = [anc for anc in ancestors if self.state.categories[anc] == "State"]
                 same_batch_ancestors = [anc for anc in state_ancestors if self.state_batches[anc] == self.state_batches[parent]]
+                same_batch_ancestors = []
                 vars_to_update = [parent] + same_batch_ancestors
                 node_to_inputs[node] += vars_to_update
+            '''
+            node_to_inputs[node] = parent_state_vars
 
-            node_to_inputs[node] = list(set(node_to_inputs[node]))
+            #node_to_inputs[node] = list(set(node_to_inputs[node]))
 
         # State vars
         for var in self.state.vars():

@@ -60,8 +60,10 @@ class Comparer:
             step = 1
 
             # Reinitialise
+            
             explainer = Explainer(self.manager2.model, node_names=self.node_names, history=self.manager2.value_history)
             query_manager = QueryManager(explainer, self.manager2, visualise=visualise, visualise_only_valid=visualise_only_valid)
+           
 
             while step < max_follow_ups:
                 display(f"\n==========\n==========\nROUND {step+1}\n==========\n==========",hide_display=hide_display)
@@ -76,17 +78,16 @@ class Comparer:
                     # Create query
                     foil = self.foil_from_explanation(explanation)
                     curr_tick = explanation.tick
+                    vars = list(foil.keys())
                     if len(list(foil.keys())) == 1:
                         # TODO: Fix to handle multiple 
-                        var = list(foil.keys())[0]
+                        var = vars[0]
                         update_history = self.manager2.update_history[var]
-                        curr_time = list(update_history[str(curr_tick)].keys())[-1]
+                        curr_tick,curr_time = self.get_curr_time([var],{var:update_history},curr_tick)
                         num_parents = sum(1 for _ in self.manager2.model.graph.predecessors(var))
                     else:
-                        vars = list(foil.keys())
                         update_history = {var:self.manager2.update_history[var] for var in vars}
-                        curr_times = [int(list(update_history[var][str(curr_tick)].keys())[-1]) for var in vars]
-                        curr_time = max(curr_times)
+                        curr_tick,curr_time = self.get_curr_time(vars,update_history,curr_tick)
                         num_parents_list = [sum(1 for _ in self.manager2.model.graph.predecessors(var)) for var in vars]
                         num_parents = max(num_parents_list)
 
@@ -99,21 +100,26 @@ class Comparer:
                     if num_parents == 0:
                         if curr_tick == 0:
                             #Impossible to go back further
+                            display("Cannot attempt explanation")
                             attempt_explanation = False
                         else:
                             # TODO: keep going back until a the chosen variable has parents
                             # Reinitialise to a new tick
                             curr_tick = curr_tick - 1
-                            same_nodes = sorted([node for node in self.manager2.update_history if str(curr_tick) in self.manager2.update_history[node] and self.node_names[node] == self.node_names[var]])
-                            last_node = same_nodes[-1]
-                            
-                            curr_time = int(list(self.manager2.update_history[last_node][str(curr_tick)].keys())[-1])
-                            self.manager2.load_state(tick=curr_tick,time="end")
+                            curr_times = []
+                            new_foil = {}
+                            for var in vars:
+                                same_nodes = sorted([node for node in self.manager2.update_history if str(curr_tick) in self.manager2.update_history[node] and self.node_names[node] == self.node_names[var]])
+                                last_node = same_nodes[-1]
+                                new_foil[last_node] = foil[var]
+                                curr_times.append(int(list(self.manager2.update_history[last_node][str(curr_tick)].keys())[-1]))
+                            curr_time = max(curr_times)
+                            self.manager2.load_state(tick=curr_tick,time=curr_time)
                             explainer = Explainer(self.manager2.model, node_names=self.node_names, history=self.manager2.value_history)
                             query_manager = QueryManager(explainer, self.manager2, visualise=visualise, visualise_only_valid=visualise_only_valid)
 
                             # Update foil value
-                            foil = {last_node:foil[var]}
+                            foil = new_foil
 
                         
                     if attempt_explanation:
@@ -286,3 +292,17 @@ class Comparer:
                     return False,comparison_point,contents1,contents2
                 
         return True,None,None,None
+    
+    '''
+    UTILITY
+    '''
+    def get_curr_time(self,vars,update_history,curr_tick):
+        times = []
+        for var in vars:
+            if str(curr_tick) not in update_history[var]:
+                curr_tick = max([int(key) for key in update_history[var]])
+                
+            times.append(int(list(update_history[var][str(curr_tick)].keys())[-1]))
+            
+        curr_time = max(times)
+        return curr_tick,curr_time

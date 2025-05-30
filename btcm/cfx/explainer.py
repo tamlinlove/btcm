@@ -206,7 +206,6 @@ class Explainer:
 
                 # Remove any specified values
                 for remove_val in remove:
-                    print(remove_val)
                     proper_foil[var].remove(remove_val)
         return CounterfactualQuery(foils=proper_foil,tick=tick,time=time)
     

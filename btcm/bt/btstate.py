@@ -675,6 +675,8 @@ class BTStateManager:
 
         if time == "end":
             time = sorted(int(key) for key in self.data[str(tick)].keys())[-1]
+        else:
+            time = int(time)
 
         if str(time) not in self.data[str(tick)]:
             raise ValueError(f"Timestep {tick}-{time} not in data")

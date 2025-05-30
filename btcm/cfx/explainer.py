@@ -4,6 +4,7 @@ import copy
 
 from btcm.cm.causalmodel import CausalModel
 from btcm.dm.state import State
+from btcm.util.util import take_closest
 
 from typing import Dict,List
 
@@ -22,12 +23,18 @@ class CounterfactualQuery:
     def foil_vars(self):
         return list(self.foils.keys())
 
-    def satisfies_query(self,state:State) -> bool:
+    def satisfies_query(self,state:State,rounding:bool=True) -> bool:
         '''
         Returns True if the state satisfies the conditions outlined by the foils provided to the query
         '''
         for var in self.foils:
-            if state.get_value(var) not in self.foils[var]: 
+            val = state.get_value(var)
+            if rounding and state.range_dict[var].range_type == "disc_cont":
+                # Round the queried value to the nearest discretisation if applicable
+                disc_vals = state.range_dict[var].values
+                val = take_closest(disc_vals,val)
+
+            if val not in self.foils[var]: 
                 return False
         return True
     

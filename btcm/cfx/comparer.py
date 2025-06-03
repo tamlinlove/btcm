@@ -74,7 +74,6 @@ class Comparer:
                     explainer = Explainer(self.manager2.model, node_names=self.node_names, history=self.manager2.value_history)
                     query_manager = QueryManager(explainer, self.manager2, visualise=visualise, visualise_only_valid=visualise_only_valid)
 
-
                     # Create query
                     foil = self.foil_from_explanation(explanation)
                     curr_tick = explanation.tick
@@ -91,11 +90,7 @@ class Comparer:
                         num_parents_list = [sum(1 for _ in self.manager2.model.graph.predecessors(var)) for var in vars]
                         num_parents = max(num_parents_list)
 
-
-                    
-                    # TODO: fix to handle multiple
                     # Check if the variable has any parents
-                    
                     attempt_explanation = True
                     if num_parents == 0:
                         if curr_tick == 0:
@@ -120,9 +115,15 @@ class Comparer:
 
                             # Update foil value
                             foil = new_foil
+                            
 
                         
                     if attempt_explanation:
+                        # Reinitialise
+                        self.manager2.load_state(tick=explanation.tick,time=explanation.time)
+                        explainer = Explainer(self.manager2.model, node_names=self.node_names, history=self.manager2.value_history)
+                        query_manager = QueryManager(explainer, self.manager2, visualise=visualise, visualise_only_valid=visualise_only_valid)
+
                         query = query_manager.make_follow_up_query(foil,curr_tick,curr_time)
                         new_explanations = explainer.explain(query, max_depth=max_depth, visualise=visualise, visualise_only_valid=visualise_only_valid)
                         

@@ -190,10 +190,14 @@ class ProvideSequence(ActionNode):
         return py_trees.common.Status.SUCCESS
     
     def input_variables(self):
-        return ["SequenceSet","NumRepetitions"]
+        my_input = ["SequenceSet","NumRepetitions"]
+        env_input = ["SequenceLength","SequenceComplexity","UserMemory","UserAttention","UserReactivity","AccuracySeed","ResponseTimeSeed"]
+        return my_input + env_input
     
     def output_variables(self):
-        return ["NumRepetitions"]
+        my_output = ["NumRepetitions"]
+        env_output = ["UserResponded","UserConfusion","UserEngagement","BaseUserAccuracy","UserNumErrors","BaseUserResponseTime","ObservedUserResponseTime","UserSequence","AccuracySeed","ResponseTimeSeed"]
+        return my_output + env_output
     
     def action_space(self):
         return [ProvideSequenceAction(),NullAction()]

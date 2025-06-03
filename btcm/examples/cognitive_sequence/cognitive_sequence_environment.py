@@ -137,6 +137,11 @@ class CognitiveSequenceEnvironment(Environment):
             # Sequence has been repeated
             self.robot_speak(f"Here is the sequence again. Listen carefully. {state.get_value('CurrentSequence')}")
 
+        self.provide_sequence_changes(state)
+
+        return True
+    
+    def provide_sequence_changes(self,state:CognitiveSequenceState,update_sequence:bool=True):
         # Update user response now that new sequence is here
         state.set_value("UserResponded",False)
 
@@ -147,13 +152,13 @@ class CognitiveSequenceEnvironment(Environment):
         state.set_value("UserNumErrors",CognitiveSequenceState.get_num_errors(state))
         state.set_value("BaseUserResponseTime",CognitiveSequenceState.get_time(state))
         state.set_value("ObservedUserResponseTime",CognitiveSequenceState.get_observed_time(state))
-        state.set_value("UserSequence",UserProfile.generate_sequence(state))
+        if update_sequence:
+            state.set_value("UserSequence",UserProfile.generate_sequence(state))
 
         # Update seeds
         state.set_value("AccuracySeed",np.random.randint(0,1000000000))
         state.set_value("ResponseTimeSeed",np.random.randint(0,1000000000))
 
-        return True
     
     def reset_timer(self,state:CognitiveSequenceState):
         # Ask the user to respond
@@ -164,10 +169,14 @@ class CognitiveSequenceEnvironment(Environment):
         self.user_response_timer = time.time()
         self.first_check = False
 
+        self.reset_timer_changes(state)
+
+        return True
+    
+    def reset_timer_changes(self,state:CognitiveSequenceState):
         state.set_value("UserResponded",False)
         state.set_value("UserTimeout",False)
 
-        return True
     
     def check_timer(self,state:CognitiveSequenceState):
         # Get time

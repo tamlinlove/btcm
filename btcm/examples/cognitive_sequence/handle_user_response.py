@@ -41,7 +41,9 @@ class StartResponseTimer(ActionNode):
         return ["ResponseTimerActive"]
     
     def output_variables(self):
-        return ["ResponseTimerActive"]
+        my_output = ["ResponseTimerActive"]
+        env_output = ["UserResponded","UserTimeout"]
+        return my_output + env_output
     
     def action_space(self):
         return [ResetTimerAction(),NullAction()]
@@ -66,10 +68,14 @@ class NudgeTimer(ActionNode):
         return py_trees.common.Status.FAILURE
 
     def input_variables(self):
-        return []
+        my_input = []
+        env_input = ["ObservedUserResponseTime"]
+        return my_input + env_input
     
     def output_variables(self):
-        return []
+        my_ouptut = []
+        env_output = ["UserResponded","UserTimeout"]
+        return my_ouptut + env_output
     
     def action_space(self):
         return [CheckTimerAction(),NullAction()]

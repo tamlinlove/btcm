@@ -20,16 +20,27 @@ class DummyCognitiveSequenceEnvironment(CognitiveSequenceEnvironment):
         return True
     
     def provide_sequence(self, state:CognitiveSequenceState):
-        # TODO: State Changes
+        self.provide_sequence_changes(state,update_sequence=False)
 
         return True
     
     def reset_timer(self, state:CognitiveSequenceState):
-        # TODO: State changes
+        self.reset_timer_changes(state)
+
         return True
 
     def check_timer(self, state:CognitiveSequenceState):
-        # TODO: State changes
+        
+        # Simplification by the dummy environment: remove timer and always look directly at ObservedUserResponseTime
+        if state.get_value("ObservedUserResponseTime")>=CognitiveSequenceState.MAX_TIMEOUT:
+            # Timeout
+            state.set_value("UserResponded",False)
+            state.set_value("UserTimeout",True)
+        else:
+            # User has responded
+            state.set_value("UserResponded",True)
+            state.set_value("UserTimeout",False)
+
         pass
     
     def give_hint(self,state:CognitiveSequenceState):

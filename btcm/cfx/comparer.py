@@ -57,7 +57,7 @@ class Comparer:
             return True,1,len(explanations)
         else:
             # Need to do follow up queries
-            step = 1
+            step = 2
 
             # Reinitialise
             
@@ -65,8 +65,8 @@ class Comparer:
             query_manager = QueryManager(explainer, self.manager2, visualise=visualise, visualise_only_valid=visualise_only_valid)
            
 
-            while step < max_follow_ups:
-                display(f"\n==========\n==========\nROUND {step+1}\n==========\n==========",hide_display=hide_display)
+            while step <= max_follow_ups:
+                display(f"\n==========\n==========\nROUND {step}\n==========\n==========",hide_display=hide_display)
                 next_exps = []
                 for explanation in explanations:
                     # Reinitialise

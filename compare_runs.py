@@ -17,6 +17,8 @@ if __name__ == "__main__":
     parser.add_argument('--visualise_only_valid',  action='store_true')
     parser.add_argument('--max_depth',  type=int, default=1)
     parser.add_argument('--max_follow_ups',  type=int, default=2)
+    parser.add_argument('--multi',  action='store_true')
+    parser.add_argument('--seed',  type=int)
     args = parser.parse_args()
 
     '''
@@ -31,19 +33,34 @@ if __name__ == "__main__":
     if profile_name_2 not in cognitive_sequence_experiment.profile_experiments:
         raise ValueError(f"Profile {args.profile2} is not valid")
     
-    # Filename
-    if args.file1 is None:
-        file1 = f"cog_log_{profile_name_1}.json"
+
+    if args.multi:
+        if args.seed is None:
+            raise ValueError("Seed must be provided for multi-profile comparison")
+        log_dir = "logs/cognitive_sequence/multi/"
+        log_dir1 = f"{log_dir}{profile_name_1}/"
+        log_dir2 = f"{log_dir}{profile_name_2}/"
+        file1 = f"cog_log_{profile_name_1}_{args.seed}.json"
+        file2 = f"cog_log_{profile_name_2}_{args.seed}.json"
+
     else:
-        file1 = args.file1
-    if args.file2 is None:
-        file2 = f"cog_log_{profile_name_2}.json"
-    else:
-        file2 = args.file2
+        # Filename
+        if args.file1 is None:
+            file1 = f"cog_log_{profile_name_1}.json"
+        else:
+            file1 = args.file1
+        if args.file2 is None:
+            file2 = f"cog_log_{profile_name_2}.json"
+        else:
+            file2 = args.file2
+        log_dir1 = cognitive_sequence_experiment.LOG_DIRECTORY
+        log_dir2 = cognitive_sequence_experiment.LOG_DIRECTORY
 
     compare_runs(
         file1=file1,
         file2=file2,
+        log_dir1=log_dir1,
+        log_dir2=log_dir2,
         target_profile=profile_name_2,
         max_follow_ups=args.max_follow_ups,
         max_depth=args.max_depth,

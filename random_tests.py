@@ -10,7 +10,7 @@ if __name__ == "__main__":
     num_leaves_set = [2,4,8]
     num_composites_set = [1,4,8]
 
-    # Start by generating ground truth state models
+    # Execution
     for seed in seed_set:
         for num_vars in num_vars_set:
             for cm_connectivity in cm_connectivity_set:
@@ -19,5 +19,6 @@ if __name__ == "__main__":
                     num_vars=num_vars,
                     connectivity=cm_connectivity,
                     top_ratio=top_ratio,
-                    seed=seed
+                    seed=seed,
+                    visualise=False,
                 )

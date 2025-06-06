@@ -152,8 +152,8 @@ class State:
     '''
     ACTION INFO
     '''
-    
-    def retrieve_action(self,action_name:str) -> Action:
+    @staticmethod
+    def retrieve_action(action_name:str) -> Action:
         '''
         Given a string id of an action, return an Action object
         '''

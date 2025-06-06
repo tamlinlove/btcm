@@ -7,7 +7,7 @@ from typing import Self,Dict
 import matplotlib.pyplot as plt
 
 from btcm.dm.state import State,VarRange
-from btcm.dm.action import Action
+from btcm.dm.action import Action,NullAction
 
 class RandomState(State):
     def __init__(
@@ -178,6 +178,8 @@ class RandomState(State):
             if action_num < 0 or action_num >= RandomAction.num_vals:
                 raise ValueError(f"Action number must be in range 0 to {RandomAction.num_vals - 1}, got {action_num}")
             return RandomAction(action_num)
+        elif action_name == "NullAction":
+            return NullAction()
         else:
             raise ValueError(f"Unknown action name: {action_name}")
         

@@ -248,3 +248,11 @@ class State:
             info[int_text][var] = semantics[var]
 
         return info
+    
+    '''
+    INFORMATION FOR STATE RECONSTRUCTION
+    '''
+    def consistent(self):
+        # Returns true if the state variable list is always the same regardless of runtime
+        # e.g. a random state could be False here
+        return True

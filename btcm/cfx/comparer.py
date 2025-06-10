@@ -47,14 +47,15 @@ class Comparer:
         # Check if explanation is valid
         if explanations is None:
             display("No differences",hide_display=hide_display)
-            return False,0,0
+            return False,0,0,"NoDiff"
 
         # Check if target found
         if target_var is None:
             display("\nNo need for follow-ups\n",hide_display=hide_display)
+            return False,0,0,"NoTarget"
         elif self.target_found(explanations,target_var):
             display("Found target in 1 step",hide_display=hide_display)
-            return True,1,len(explanations)
+            return True,1,len(explanations),"Found"
         else:
             # Need to do follow up queries
             step = 2
@@ -139,7 +140,7 @@ class Comparer:
                 # Check if target is found
                 if self.target_found(next_exps,target_var):
                     display(f"Found target in {step} steps",hide_display=hide_display)
-                    return True,step,len(next_exps)
+                    return True,step,len(next_exps),"Found"
                 
                 explanations = next_exps
                     
@@ -147,7 +148,7 @@ class Comparer:
                 # Increment
                 step += 1
 
-        return False,0,0
+        return False,0,0,"Unknown"
 
         
 

@@ -143,9 +143,11 @@ class RandomState(State):
         return func_dict,func_seeds
     
     def set_initial_values(self):
+        default = self.default_values()
+
         self.vals = {}
         for var in self.var_list:
-            self.set_value(var, bool(np.random.choice(self.range_dict[var].values)))
+            self.set_value(var, default[var])
 
         self.propagate_internal_values()
 
@@ -192,6 +194,20 @@ class RandomState(State):
             raise ValueError(f"Unknown action name: {action_name}")
         
     '''
+    Values
+    '''
+    def default_values(self):
+        # Should be consistent across all seeds
+        rng = np.random.default_rng(42)
+
+        default_vals = {}
+        for var in self.var_list:
+            default_vals[var] = bool(rng.choice(self.range_dict[var].values))
+
+        return default_vals
+
+               
+    '''
     Causal Model
     '''
     def cm_edges(self) -> list[tuple[str,str]]:
@@ -218,6 +234,12 @@ class RandomState(State):
     '''
     def semantic_dict(self) -> dict[str,str]:
         return {var:f"{var} is a variable in the random state." for var in self.var_list}
+    
+    '''
+    INFORMATION FOR STATE RECONSTRUCTION
+    '''
+    def consistent(self):
+        return False
 
         
         

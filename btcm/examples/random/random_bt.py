@@ -20,31 +20,41 @@ class RandomActionNode(ActionNode):
         self.seed = seed
 
     def decide(self, state:RandomState) -> RandomAction:
-        if self.inputs == []:
-            state_seed = 0
+        rng = np.random.default_rng(self.seed if self.seed is not None else 0)
+        key_action = rng.choice(self.actions)
+
+        state_ints = [1 if var else 0 for var in self.inputs]
+        state_sum = sum(state_ints)
+        if state_sum > 0:
+            # At least one input variable must be true
+            return key_action
         else:
-            state_seed = int(''.join('1' if var else '0' for var in self.inputs), 2)
+            # No variables are true, select randomly among remaining actions
 
-        seed_seed = self.seed if self.seed is not None else 0
-        combined_seed = state_seed + seed_seed
+            if self.inputs == []:
+                state_seed = 0
+            else:
+                state_seed = int(''.join('1' if state.get_value(var) else '0' for var in self.inputs), 2)
 
-        rng = np.random.default_rng(combined_seed)
+            seed_seed = self.seed if self.seed is not None else 0
+            combined_seed = state_seed + seed_seed
 
-        return rng.choice(self.actions)
+            rng = np.random.default_rng(combined_seed)
+
+            remaining_actions = [action for action in self.actions if action != key_action]
+            if remaining_actions == []:
+                return NullAction()
+            else:
+                return rng.choice(self.actions)
     
     def execute(self, state:RandomState, action:RandomAction) -> py_trees.common.Status:
-        if self.inputs == []:
-            state_seed = 0
+        rng = np.random.default_rng(self.seed if self.seed is not None else 0)
+        key_action = rng.choice(self.actions)
+
+        if action == key_action:
+            return py_trees.common.Status.SUCCESS
         else:
-            state_seed = int(''.join('1' if var else '0' for var in self.inputs), 2)
-        action_seed = int(action.name.replace("RandomAction", ""))
-        seed_seed = self.seed if self.seed is not None else 0
-        combined_seed = state_seed + action_seed + seed_seed
-
-        rng = np.random.default_rng(combined_seed)
-
-        # For this formulation, we ignore Running status
-        return rng.choice([py_trees.common.Status.SUCCESS, py_trees.common.Status.FAILURE])
+            return py_trees.common.Status.FAILURE
     
     def input_variables(self):
         return self.inputs
@@ -65,8 +75,8 @@ class RandomConditionNode(ConditionNode):
         self.inputs = inputs
         self.seed = seed
 
-    def execute(self, state, _):
-        state_seed = int(''.join('1' if var else '0' for var in self.inputs), 2)
+    def execute(self, state:RandomState, _):
+        state_seed = int(''.join('1' if state.get_value(var) else '0' for var in self.inputs), 2)
         seed_seed = self.seed if self.seed is not None else 0
         combined_seed = state_seed + seed_seed
 

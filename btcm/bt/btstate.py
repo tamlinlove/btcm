@@ -59,7 +59,7 @@ class BTState(State):
 
     @classmethod
     def copy_state(cls,state:Self) -> Self:
-        obj = cls(state.data,state.behaviour_dict,state.behaviours_to_node,state.root_node)
+        obj = cls(state.data,state.behaviour_dict,state.behaviours_to_node,state.root_node,state.filename,state.directory)
         obj.vars_list = state.vars_list
         obj.range_dict = state.range_dict
         obj.func_dict = state.func_dict
@@ -71,6 +71,8 @@ class BTState(State):
         obj.state_class = state.state_class
         obj.filename = state.filename
         obj.directory = state.directory
+        obj.make_state_func = state.make_state_func
+        obj.state_class_func = state.state_class_func
         if state.make_state_func is None:
             obj.dummy_state = state.state_class()
         else:
@@ -157,7 +159,7 @@ class BTState(State):
             self.state_class = getattr(module, self.data["state"]["class"])
             self.dummy_state = self.state_class()
         else:
-            self.state_class = state_class_func
+            self.state_class = state_class_func()
             self.dummy_state = make_state_func(self.filename,self.directory)
 
     def discretise_range(self,var_range:VarRange,num_steps:int=10):
@@ -262,7 +264,10 @@ class BTState(State):
             return self.run_executed(node)
         
         # If here, then we need to create a var_state
-        var_state = self.state_class()
+        if self.make_state_func is None:
+            var_state = self.state_class()
+        else:
+            var_state = self.make_state_func(self.filename,self.directory)
         var_state.vals = {}
         node_name = self.nodes[node]
 
@@ -352,7 +357,10 @@ class BTState(State):
                 return self_val
             else:
                 # Variable never set, can use the default value provided by the state
-                return self.state_class.default_values()[self.node_names[node]]
+                if var_state.consistent():
+                    return self.state_class.default_values()[self.node_names[node]]
+                else:
+                    return var_state.default_values()[self.node_names[node]]
         
     def run_return(self,node:str,var_state:State):
         executed_node = self.sub_vars[self.nodes[node]]["Executed"]

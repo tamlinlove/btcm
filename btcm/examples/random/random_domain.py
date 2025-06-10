@@ -1,5 +1,6 @@
 import py_trees
 import time
+import networkx as nx
 
 from btcm.examples.random.random_state import RandomState
 from btcm.examples.random.random_bt import random_bt
@@ -54,6 +55,87 @@ def setup_board(num_vars:int,connectivity:float,top_ratio:float,internal_ratio:f
 
 def make_tree(num_leaves:int,state:RandomState,seed:int=None, visualise:bool=False):
     return random_bt(num_leaves=num_leaves, state=state, seed=seed, visualise=visualise)
+
+def reconstruct_random_tree(filename:str,directory:str="logs/random/",data:dict=None):
+    '''
+    Recreate a random tree from a file.
+    '''
+    # Parse filename
+    flist = filename.split("_")
+    run_name = flist[1]
+    seed = int(flist[3])
+    num_vars = int(flist[5])
+    cm_connectivity = float(flist[7])
+    num_leaves = int(flist[9].split(".")[0])
+
+    # Reconstruct the tree
+    state = RandomState(
+        num_vars=num_vars,
+        connectivity=cm_connectivity,
+        top_ratio=0.5,
+        internal_ratio=0.25,
+        seed=seed,
+        visualise=False
+    )
+    tree = random_bt(num_leaves=num_leaves, state=state, seed=seed, visualise=False)
+
+    # Read in ids from data
+    node_ids = {}
+    if data is not None:
+        # NOTE: Assumes all nodes in the tree have a unique name
+        for id in data["tree"]:
+            node_ids[data["tree"][id]["name"]] = id
+
+    # Reconstruct the tree graph
+    graph = nx.DiGraph()
+    behaviours = {} # Maps node name to behaviour object
+    behaviours_to_nodes = {} # Maps behaviour object to node name
+
+    def add_nodes_and_edges(node):
+        if data is None:
+            node_id = node.name
+        else:
+            node_id = node_ids[node.name]
+
+        graph.add_node(node_id)
+        behaviours[node_id] = node
+        behaviours_to_nodes[node] = node_id
+        for child in node.children:
+            if data is None:
+                child_id = child.name
+            else:
+                child_id = node_ids[child.name]
+
+            graph.add_edge(node_id, child_id)
+            add_nodes_and_edges(child)
+
+    add_nodes_and_edges(tree.root)
+
+    return graph, tree, behaviours, behaviours_to_nodes
+
+    
+def make_state(filename,directory:str="logs/random/"):
+    # Parse filename
+    flist = filename.split("_")
+    run_name = flist[1]
+    seed = int(flist[3])
+    num_vars = int(flist[5])
+    cm_connectivity = float(flist[7])
+    num_leaves = int(flist[9].split(".")[0])
+
+    state = RandomState(
+        num_vars=num_vars,
+        connectivity=cm_connectivity,
+        top_ratio=0.5,
+        internal_ratio=0.25,
+        seed=seed,
+        visualise=False
+    )
+
+    return state
+
+def state_class():
+    return RandomState
 
 '''
 RUN TREE

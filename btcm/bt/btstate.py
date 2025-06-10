@@ -31,11 +31,15 @@ class BTState(State):
             behaviour_dict: Dict[str,py_trees.behaviour.Behaviour],
             behaviours_to_node: Dict[py_trees.behaviour.Behaviour,str],
             root:py_trees.behaviour.Behaviour,
+            filename:str,
+            directory:str
     ):  
         self.data = data
         self.behaviour_dict = behaviour_dict
         self.behaviours_to_node = behaviours_to_node
         self.root_node = root
+        self.filename = filename
+        self.directory = directory
 
     @classmethod
     def from_data(
@@ -44,9 +48,13 @@ class BTState(State):
             behaviour_dict: Dict[str,py_trees.behaviour.Behaviour],
             behaviours_to_node: Dict[py_trees.behaviour.Behaviour,str],
             root:py_trees.behaviour.Behaviour,
+            filename:str,
+            directory:str,
+            make_state_func:Callable,
+            state_class_func:Callable
     ) -> Self:
-        obj = cls(data,behaviour_dict,behaviours_to_node,root)
-        obj.calculate_state_attributes()
+        obj = cls(data,behaviour_dict,behaviours_to_node,root,filename,directory)
+        obj.calculate_state_attributes(make_state_func,state_class_func)
         return obj
 
     @classmethod
@@ -61,7 +69,12 @@ class BTState(State):
         obj.sub_vars = state.sub_vars
         obj.node_names = state.node_names
         obj.state_class = state.state_class
-        obj.dummy_state = state.state_class()
+        obj.filename = state.filename
+        obj.directory = state.directory
+        if state.make_state_func is None:
+            obj.dummy_state = state.state_class()
+        else:
+            obj.dummy_state = state.make_state_func(state.filename,state.directory)
         obj.node_to_inputs = state.node_to_inputs
 
         return obj
@@ -89,7 +102,7 @@ class BTState(State):
     RECONSTRUCT STATE
     '''
     
-    def calculate_state_attributes(self):
+    def calculate_state_attributes(self,make_state_func:Callable=None,state_class_func:Callable=None):
         self.vars_list = []
         self.range_dict = {}
         self.func_dict = {}
@@ -99,6 +112,9 @@ class BTState(State):
         self.node_names = {}
         self.sub_vars = {node:{} for node in self.behaviour_dict}
         self.node_to_inputs = None
+
+        self.make_state_func = make_state_func
+        self.state_class_func = state_class_func
 
         for node in self.behaviour_dict:
             # Return Status
@@ -136,9 +152,13 @@ class BTState(State):
                 self.node_names[vname] = vname
 
         # State variables
-        module = importlib.import_module(self.data["state"]["module"])
-        self.state_class = getattr(module, self.data["state"]["class"])
-        self.dummy_state = self.state_class()
+        if make_state_func is None:
+            module = importlib.import_module(self.data["state"]["module"])
+            self.state_class = getattr(module, self.data["state"]["class"])
+            self.dummy_state = self.state_class()
+        else:
+            self.state_class = state_class_func
+            self.dummy_state = make_state_func(self.filename,self.directory)
 
     def discretise_range(self,var_range:VarRange,num_steps:int=10):
         if var_range.values is not None:
@@ -432,17 +452,49 @@ class BTStateManager:
         "Status.INVALID":py_trees.common.Status.INVALID,
     }
 
-    def __init__(self,filename:str,causal_edges:list[tuple[str,str]] = None,dummy_env:Environment=None,directory=""):
+    def __init__(
+            self,
+            filename:str,
+            causal_edges:list[tuple[str,str]] = None,
+            dummy_env:Environment=None,
+            directory:str="",
+            reconstruct_func:Callable=None,
+            make_state_func:Callable=None,
+            state_class_func:Callable=None,
+            no_env:bool = False,
+        ):
+        self.filename = filename
+        self.directory = directory
+
+        # Flags
+        self.no_env = no_env
+
         # Read Data
-        self.read_from_file(filename,directory)
+        self.read_from_file()
 
         # Reconstruct BT
         self.behaviours = {} # Stores mapping from node id string to behaviour object
         self.behaviours_to_nodes = {} # Stores mapping from behaviour object to node id string
-        self.graph,self.tree = self.reconstruct_bt()
+        if reconstruct_func is None:
+            # Must reconstruct from the log file
+            self.graph,self.tree = self.reconstruct_bt()
+        else:
+            # Reconstruct using injected function
+            self.graph,self.tree,self.behaviours,self.behaviours_to_nodes = reconstruct_func(filename,directory,data=self.data)
 
         # Create a BT State
-        self.state = BTState.from_data(self.data,self.behaviours,self.behaviours_to_nodes,self.tree.root)
+        self.make_state_func = make_state_func
+        self.state_class_func = state_class_func
+        self.state = BTState.from_data(
+            self.data,
+            self.behaviours,
+            self.behaviours_to_nodes,
+            self.tree.root,
+            filename,
+            directory,
+            make_state_func,
+            state_class_func,
+            )
 
         # Create causal model
         self.model,self.state_batches = self.create_causal_model(causal_edges)
@@ -460,11 +512,11 @@ class BTStateManager:
         self.state.node_to_inputs = self.node_to_inputs
 
 
-    def read_from_file(self,filename:str,directory:str):
-        if directory == "":
-            filepath = filename
+    def read_from_file(self):
+        if self.directory == "":
+            filepath = self.filename
         else:
-            filepath = f"{directory}/{filename}"
+            filepath = f"{self.directory}/{self.filename}"
         with open(filepath, 'r') as file:
             self.data = json.load(file)
 
@@ -522,7 +574,7 @@ class BTStateManager:
         if env is not None:
             # Use provided dummy environment
             board.set("environment", env)
-        else:
+        elif not self.no_env:
             # Create new environment based on logger data
             module = importlib.import_module(self.data["environment"]["module"])
             cls = getattr(module, self.data["environment"]["class"])
@@ -647,6 +699,13 @@ class BTStateManager:
                 right = mid - 1
 
         return left
+    
+    def make_dummy_state(self):
+        if self.make_state_func is None:
+            dummy_state = self.state.state_class()
+        else:
+            dummy_state = self.make_state_func(self.filename,self.directory)
+        return dummy_state
 
     '''
     VALUES
@@ -690,7 +749,7 @@ class BTStateManager:
         last_state_time = (0,0)
         reset_tree = False
 
-        dummy_state = self.state.state_class()
+        dummy_state = self.make_dummy_state()
 
         self.value_history = {}
         self.update_history = {}
@@ -851,7 +910,7 @@ class BTStateManager:
         return node_to_inputs
 
     def create_state_graph(self,causal_edges:list[tuple[str,str]] = None):
-        dummy_state = self.state.state_class()
+        dummy_state = self.make_dummy_state()
         if causal_edges is None:
             causal_edges = dummy_state.cm_edges()
 
@@ -924,7 +983,7 @@ class BTStateManager:
                     raise TypeError(f"Unknown node category: {self.data['tree'][parent_node]['category']}")
                 
         # Now, create state variables representing every time the variable is potentially modified
-        dummy_state = self.state.state_class()
+        dummy_state = self.make_dummy_state()
         state_vars = list(dummy_state.ranges().keys())
         var_counts = {var:0 for var in state_vars}
         state_batches = {}

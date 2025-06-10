@@ -78,6 +78,9 @@ class RandomConditionNode(ConditionNode):
     def input_variables(self):
         return self.inputs
     
+    def output_variables(self):
+        return []
+    
     def semantic_description(self):
         return "Random condition node"
         

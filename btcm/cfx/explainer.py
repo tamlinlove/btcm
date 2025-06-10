@@ -310,9 +310,6 @@ class Explainer:
         explanations = []
         for combo in search_combos:
             new_graph,new_state = self.model.intervene(combo,search_graph)
-
-            if "UserAttention_0" in combo and combo["UserAttention_0"] == 0.8:
-                print(self.visualise_intervention(combo,new_graph,new_state,query,search_space))
            
             satisfied = False
             if query.satisfies_query(new_state):

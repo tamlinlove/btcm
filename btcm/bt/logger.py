@@ -11,7 +11,7 @@ from btcm.bt.lognode import LogNode
 
 
 class Logger(py_trees.visitors.VisitorBase):
-    def __init__(self, full:bool = False, tree: py_trees.trees.BehaviourTree = None, filename="log") -> None:
+    def __init__(self, full:bool = False, tree: py_trees.trees.BehaviourTree = None, filename="log", log_env:bool = True) -> None:
         super().__init__(full)
 
         self.tick = 0 # The current tick iteration
@@ -21,13 +21,16 @@ class Logger(py_trees.visitors.VisitorBase):
         self.tree = tree # Points to the tree itself
         self.node_name_counts = {} # Counts the number of nodes with the same name
 
+        self.log_env = log_env # Whether to register the environment in the log
+
         # Create dict of tree nodes and types
         self.make_tree(tree)
 
         # Setup board
         self.board = py_trees.blackboard.Client(name="LoggerBoard")
         self.board.register_key("state", access=py_trees.common.Access.READ)
-        self.board.register_key("environment", access=py_trees.common.Access.READ)
+        if self.log_env:
+            self.board.register_key("environment", access=py_trees.common.Access.READ)
 
         # Log Dictionary to be saved
         self.log_dict = {}
@@ -127,10 +130,11 @@ class Logger(py_trees.visitors.VisitorBase):
         }
 
         # Log Environment Information
-        self.log_dict["environment"] = {
-            "class":self.board.environment.__class__.__name__,
-            "module":self.board.environment.__class__.__module__,
-        }
+        if self.log_env:
+            self.log_dict["environment"] = {
+                "class":self.board.environment.__class__.__name__,
+                "module":self.board.environment.__class__.__module__,
+            }
 
     def log(self,behaviour:py_trees.behaviour.Behaviour):
         if str(self.tick) in self.log_dict:

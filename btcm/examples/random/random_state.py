@@ -1,5 +1,4 @@
 import numpy as np
-import random
 import networkx as nx
 from typing import Self,Dict
 
@@ -127,14 +126,13 @@ class RandomState(State):
         for var in self.var_list:
             var_parents = list(self.state_graph.predecessors(var))
             func_seeds[var] = np.random.randint(0, 10000)
-            if len(var_parents) >= 0:
-
+            if len(var_parents) > 0:
                 def child_func(state:Self,var:str=var,var_parents:list[str]=var_parents):
                     rng = np.random.default_rng(state.func_seeds[var])
                     combined_value = state.get_value(var_parents[0])
                     
                     for parent in var_parents[1:]:
-                        if rng.random.choice([True, False]):
+                        if rng.choice([True, False]):
                             combined_value = combined_value and state.get_value(parent)
                         else:
                             combined_value = combined_value or state.get_value(parent)
@@ -148,6 +146,16 @@ class RandomState(State):
         self.vals = {}
         for var in self.var_list:
             self.set_value(var, bool(np.random.choice(self.range_dict[var].values)))
+
+        self.propagate_internal_values()
+
+
+    def propagate_internal_values(self):
+        order = nx.topological_sort(self.state_graph)
+        for node in order:
+            old_value = self.get_value(node)
+            new_value = self.run(node,self)
+            self.set_value(node, new_value)
             
     
     '''
@@ -191,6 +199,19 @@ class RandomState(State):
     
     def can_intervene(self, node):
         return True
+    
+    '''
+    Interventions for experiments
+    '''
+    def flip(self, var:str) -> None:
+        
+        # Flip the value of the variable
+        current_value = self.get_value(var)
+        new_value = not current_value
+        self.set_value(var, new_value)
+        
+        # Update the state graph if necessary
+        self.propagate_internal_values()
     
     '''
     Semantic Info

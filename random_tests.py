@@ -55,7 +55,7 @@ if __name__ == "__main__":
     top_ratio = 0.5
     internal_ratio = 0.25
     num_leaves_set = [2,4,8]
-    num_ticks = 3
+    num_ticks = 1
 
     # Counter
     counter = 0

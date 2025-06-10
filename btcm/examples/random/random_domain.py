@@ -140,16 +140,19 @@ def state_class():
 '''
 RUN TREE
 '''
-def run(tree:py_trees.trees.BehaviourTree,display_tree:bool=False):
+def run(tree:py_trees.trees.BehaviourTree,display_tree:bool=False,num_ticks:int=1):
     tree.setup()
-    try:
-        # Tick the tree
-        tree.tick()
-        # Sleep for a bit to simulate time passing
-        time.sleep(0.1)
-        # Optional, print the tree structure
-        if display_tree:
-            print(py_trees.display.unicode_tree(tree.root, show_status=True))
-    except KeyboardInterrupt:
-        print("KILL")
-        pass
+    curr_tick = 0
+    while curr_tick < num_ticks:
+        try:
+            # Tick the tree
+            tree.tick()
+            # Sleep for a bit to simulate time passing
+            time.sleep(0.1)
+            # Optional, print the tree structure
+            if display_tree:
+                print(py_trees.display.unicode_tree(tree.root, show_status=True))
+        except KeyboardInterrupt:
+            print("KILL")
+            break
+        curr_tick += 1

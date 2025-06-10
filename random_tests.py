@@ -12,6 +12,7 @@ def run(
         internal_ratio:float=0.25,
         itervention:str = None,
         run_name:str = "default",
+        num_ticks:int = 1,
         counter:int = 0,
         max_executions:int=5400,
     ):
@@ -39,7 +40,7 @@ def run(
     tree.visitors.append(logger)
 
     # Run the tree
-    random_domain.run(tree=tree, display_tree=False)
+    random_domain.run(tree=tree, display_tree=False, num_ticks=num_ticks)
 
     # Increment counter
     counter += 1
@@ -54,6 +55,7 @@ if __name__ == "__main__":
     top_ratio = 0.5
     internal_ratio = 0.25
     num_leaves_set = [2,4,8]
+    num_ticks = 3
 
     # Counter
     counter = 0
@@ -90,6 +92,7 @@ if __name__ == "__main__":
                             internal_ratio=internal_ratio,
                             itervention=intervention,
                             run_name=f"T{var_index+1}",
+                            num_ticks=num_ticks,
                             counter=counter,
                             max_executions=max_executions,
                         )

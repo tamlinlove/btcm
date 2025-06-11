@@ -35,10 +35,17 @@ class UserProfile():
     UTILITY
     '''
     def update_state(self,state:CognitiveSequenceState):
+        # Update state with user profile data
         state.set_value("UserMemory", self.memory)
         state.set_value("UserAttention", self.attention)
         state.set_value("UserReactivity", self.reactivity)
         state.set_value("UserFrustration", self.initial_frustration)
+        
+        # Update descendents
+        order = ["UserConfusion","UserEngagement","BaseUserAccuracy","UserNumErrors","BaseUserResponseTime","ObservedUserResponseTime"]
+        for node in order:
+            new_val = state.run(node,state)
+            state.set_value(node,new_val)
 
     '''
     USER SIMULATION

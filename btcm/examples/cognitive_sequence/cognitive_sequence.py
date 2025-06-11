@@ -55,7 +55,7 @@ def run(tree:py_trees.trees.BehaviourTree, board:py_trees.blackboard.Client,disp
             # Tick the tree
             tree.tick()
             # Sleep for a bit to simulate time passing
-            time.sleep(0.5)
+            time.sleep(0.1)
             # Check if the game is over
             finished = board.environment.game_over
             # Optional, print the tree structure

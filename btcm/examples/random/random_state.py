@@ -155,7 +155,6 @@ class RandomState(State):
     def propagate_internal_values(self):
         order = nx.topological_sort(self.state_graph)
         for node in order:
-            old_value = self.get_value(node)
             new_value = self.run(node,self)
             self.set_value(node, new_value)
             

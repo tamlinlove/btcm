@@ -1126,10 +1126,11 @@ class BTStateManager:
                 top_level = True
 
             if top_level:
-                for i in range(var_counts[var]-1):
-                    e0 = f"{var}_{i}"
-                    e1 = f"{var}_{i+1}"
-                    cm.add_edge((e0,e1))
+                for i in range(var_counts[var]):
+                    if f"{var}_{i+1}" in cm.graph.nodes:
+                        e0 = f"{var}_{i}"
+                        e1 = f"{var}_{i+1}"
+                        cm.add_edge((e0,e1))
 
         return cm,state_batches
     

@@ -84,6 +84,8 @@ class CaseStudyState(State):
             return Action1()
         elif action_name == "Action2":
             return Action2()
+        elif action_name == "Action3":
+            return Action3()
         
     '''
     VALUES
@@ -142,6 +144,12 @@ class Action1(Action):
 
 class Action2(Action):
     name = "Action2"
+
+    def __init__(self):
+        super().__init__()
+
+class Action3(Action):
+    name = "Action3"
 
     def __init__(self):
         super().__init__()
@@ -213,11 +221,13 @@ class L2(ActionNode):
         if state.get_value("X_d"):
             return Action2()
         else:
-            return NullAction()
+            return Action3()
     
     def execute(self, state:CaseStudyState, action:Action):
         if action == Action2():
             state.set_value("X_b",True)
+        elif action == Action3():
+            state.set_value("X_b",False)
         else:
             # Do nothing
             return py_trees.common.Status.FAILURE
@@ -230,7 +240,7 @@ class L2(ActionNode):
         return ["X_b"]
     
     def action_space(self):
-        return [Action2(),NullAction()]
+        return [Action2(),Action3(),NullAction()]
     
 def case_study_tree():
     case_study_sequence = py_trees.composites.Sequence(

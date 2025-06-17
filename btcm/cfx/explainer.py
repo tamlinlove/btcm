@@ -310,15 +310,6 @@ class Explainer:
         explanations = []
         for combo in search_combos:
             new_graph,new_state = self.model.intervene(combo,search_graph)
-
-            # DEBUG
-            
-            '''
-            if "UserEngagement_0" in combo:
-                self.visualise_intervention(combo,new_graph,new_state,query,search_space)
-            else:
-                pass
-            '''
             
 
            

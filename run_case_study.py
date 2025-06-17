@@ -18,6 +18,15 @@ if __name__ == "__main__":
         "X_d":True,
     }
 
+    '''
+    vals = {
+        "X_a":True,
+        "X_b":True,
+        "X_c":True,
+        "X_d":False,
+    }
+    '''
+
     board = case_study.setup_board(vals=vals)
     tree = case_study.make_tree()
 
@@ -43,6 +52,7 @@ if __name__ == "__main__":
     query_manager = QueryManager(explainer,manager,visualise=False,visualise_only_valid=False)
 
     # Query parameters
+    action_foil_all_but_null = False
     '''
     # Case Study Return
     nodename = "L0"
@@ -51,14 +61,49 @@ if __name__ == "__main__":
     time = 1
     foils = [py_trees.common.Status.SUCCESS]
     '''
-
+    
+    '''
     nodename = "CaseStudySequence"
     nodetype = "Return"
     tick = 0
     time = 2
     foils = [py_trees.common.Status.SUCCESS]
+    '''
 
-    query = query_manager.make_query(nodename,nodetype,tick=tick,time=time,foils=foils,action_foil_all_but_null=False)
+    '''
+    nodename = "L1"
+    nodetype = "Executed"
+    tick = 0
+    time = 2
+    foils = [True]
+    '''
+
+    '''
+    nodename = "L2"
+    nodetype = "Decision"
+    tick = 0
+    time = 3
+    foils = None
+    action_foil_all_but_null = True
+    '''
+
+    #'''
+    nodename = "X_c"
+    nodetype = "State"
+    tick = 0
+    time = 2
+    foils = [True]
+    #'''
+
+    '''
+    nodename = "X_b"
+    nodetype = "State"
+    tick = 0
+    time = 3
+    foils = [True]
+    '''    
+
+    query = query_manager.make_query(nodename,nodetype,tick=tick,time=time,foils=foils,action_foil_all_but_null=action_foil_all_but_null)
 
     explanations = explainer.explain(query,max_depth=2,visualise=False,visualise_only_valid=False)
     print(f"{len(explanations)} explanations found")

@@ -1,0 +1,4645 @@
+{
+    "tree": {
+        "510413b8-b6ee-468d-8e68-e8480787e60a": {
+            "name": "OverrideOrContinueFallback",
+            "category": "Fallback",
+            "memory": false,
+            "children": [
+                "51358f02-7b6f-422e-874f-993c33733f31",
+                "abe1e8d6-9d3f-445e-bfee-0ed5b55a69d7"
+            ]
+        },
+        "51358f02-7b6f-422e-874f-993c33733f31": {
+            "name": "CheckOverrideAndEndSequence",
+            "category": "Sequence",
+            "memory": false,
+            "children": [
+                "61ab02f8-0ca7-4950-b394-b34f0ed39cba",
+                "c67a2698-a189-4d57-9135-1569e6234c54"
+            ]
+        },
+        "61ab02f8-0ca7-4950-b394-b34f0ed39cba": {
+            "name": "CheckOverride",
+            "category": "Condition",
+            "description": "Checks if the game must be ended. If so, it returns SUCCESS, otherwise FAILURE.",
+            "class": "CheckOverride",
+            "module": "btcm.examples.cognitive_sequence.initial_checks"
+        },
+        "c67a2698-a189-4d57-9135-1569e6234c54": {
+            "name": "EndGame",
+            "category": "Action",
+            "description": "Ends the cognitive sequence task.",
+            "class": "EndGame",
+            "module": "btcm.examples.cognitive_sequence.initial_checks"
+        },
+        "abe1e8d6-9d3f-445e-bfee-0ed5b55a69d7": {
+            "name": "StartGameSequence",
+            "category": "Sequence",
+            "memory": true,
+            "children": [
+                "d5aa95d7-d6b8-40de-800c-857f01c14874",
+                "75142fa5-fbf3-42ab-8402-aae382b45fb5",
+                "87eb79c7-cfea-4052-864b-e8691730b58d"
+            ]
+        },
+        "d5aa95d7-d6b8-40de-800c-857f01c14874": {
+            "name": "SetParamsOrHandleRepeatedFallback",
+            "category": "Fallback",
+            "memory": true,
+            "children": [
+                "cf517e02-4b97-4781-b959-e767df7d65dd",
+                "ff7d76ac-3a52-4f60-a2bc-247c2531ed66"
+            ]
+        },
+        "cf517e02-4b97-4781-b959-e767df7d65dd": {
+            "name": "CheckInitialAndSetParamsSequence",
+            "category": "Sequence",
+            "memory": true,
+            "children": [
+                "2fe27a5a-1c06-41aa-91ee-533245b0632b",
+                "0a67f6a8-4141-4318-b4d7-ce31524bdd12"
+            ]
+        },
+        "2fe27a5a-1c06-41aa-91ee-533245b0632b": {
+            "name": "CheckInitialSequence",
+            "category": "Condition",
+            "description": "Checks if a sequence has already been set or not. If not, it returns SUCCESS, otherwise FAILURE.",
+            "class": "CheckInitialSequence",
+            "module": "btcm.examples.cognitive_sequence.start_game"
+        },
+        "0a67f6a8-4141-4318-b4d7-ce31524bdd12": {
+            "name": "SetSequenceParameters",
+            "category": "Action",
+            "description": "Sets the parameters for the sequence, based on a number of human factors in the state.",
+            "class": "SetSequenceParameters",
+            "module": "btcm.examples.cognitive_sequence.start_game"
+        },
+        "ff7d76ac-3a52-4f60-a2bc-247c2531ed66": {
+            "name": "HandleRepeatedSequence",
+            "category": "Action",
+            "description": "Handles the case where a sequence has already been set.",
+            "class": "HandleRepeatedSequence",
+            "module": "btcm.examples.cognitive_sequence.start_game"
+        },
+        "75142fa5-fbf3-42ab-8402-aae382b45fb5": {
+            "name": "ProvideSequence",
+            "category": "Action",
+            "description": "Presents the sequence that was selected.",
+            "class": "ProvideSequence",
+            "module": "btcm.examples.cognitive_sequence.start_game"
+        },
+        "87eb79c7-cfea-4052-864b-e8691730b58d": {
+            "name": "HandleResponseAndEndRepetition",
+            "category": "Sequence",
+            "memory": true,
+            "children": [
+                "a59caf6f-0523-4fc5-aae2-37907ee4977b",
+                "bc70139d-7d99-4831-9a01-b58520c2656a"
+            ]
+        },
+        "a59caf6f-0523-4fc5-aae2-37907ee4977b": {
+            "name": "HandleResponseOrNoResponseFallback",
+            "category": "Fallback",
+            "memory": true,
+            "children": [
+                "059004f0-3b01-4f0b-aea6-4d6418fa63d6",
+                "c39f379b-09ef-432a-a75f-d94a68d667d9"
+            ]
+        },
+        "059004f0-3b01-4f0b-aea6-4d6418fa63d6": {
+            "name": "WaitAndHandleResponse",
+            "category": "Sequence",
+            "memory": true,
+            "children": [
+                "312c5c92-71a6-45e5-a5e4-41faa21c393d",
+                "0f7a9331-cd76-4a4b-a45b-2149075f549c"
+            ]
+        },
+        "312c5c92-71a6-45e5-a5e4-41faa21c393d": {
+            "name": "StartTimerAndWait",
+            "category": "Sequence",
+            "memory": true,
+            "children": [
+                "c6dc60e3-5578-433c-87d3-14b69e521d94",
+                "eb16cdf5-9be7-4b37-a502-8a29a992066f"
+            ]
+        },
+        "c6dc60e3-5578-433c-87d3-14b69e521d94": {
+            "name": "StartResponseTimer",
+            "category": "Action",
+            "description": "A leaf node in a behaviour tree.",
+            "class": "StartResponseTimer",
+            "module": "btcm.examples.cognitive_sequence.handle_user_response"
+        },
+        "eb16cdf5-9be7-4b37-a502-8a29a992066f": {
+            "name": "NudgeTimerAndHandleResponse",
+            "category": "Sequence",
+            "memory": false,
+            "children": [
+                "48a87cf6-1585-4809-a941-e978f5c79801",
+                "2bfa93b8-4b89-4fed-b541-a678aeaaf5bd"
+            ]
+        },
+        "48a87cf6-1585-4809-a941-e978f5c79801": {
+            "name": "NudgeTimer",
+            "category": "Action",
+            "description": "A leaf node in a behaviour tree.",
+            "class": "NudgeTimer",
+            "module": "btcm.examples.cognitive_sequence.handle_user_response"
+        },
+        "2bfa93b8-4b89-4fed-b541-a678aeaaf5bd": {
+            "name": "HandleTimerResponse",
+            "category": "Action",
+            "description": "A leaf node in a behaviour tree.",
+            "class": "HandleTimerResponse",
+            "module": "btcm.examples.cognitive_sequence.handle_user_response"
+        },
+        "0f7a9331-cd76-4a4b-a45b-2149075f549c": {
+            "name": "AssessSequenceAndHandleUserResponse",
+            "category": "Sequence",
+            "memory": true,
+            "children": [
+                "2e966e09-ad7d-47c7-846b-c16b89c8dd15",
+                "6a90ee8a-6b3a-4a48-a3ce-1ec9973f2fba",
+                "c9442521-fa73-4d06-bb15-4219b888e345"
+            ]
+        },
+        "2e966e09-ad7d-47c7-846b-c16b89c8dd15": {
+            "name": "AssessUserSequence",
+            "category": "Action",
+            "description": "A leaf node in a behaviour tree.",
+            "class": "AssessUserSequence",
+            "module": "btcm.examples.cognitive_sequence.handle_user_response"
+        },
+        "6a90ee8a-6b3a-4a48-a3ce-1ec9973f2fba": {
+            "name": "HandleUserResponse",
+            "category": "Action",
+            "description": "A leaf node in a behaviour tree.",
+            "class": "HandleUserResponse",
+            "module": "btcm.examples.cognitive_sequence.handle_user_response"
+        },
+        "c9442521-fa73-4d06-bb15-4219b888e345": {
+            "name": "DecideRepeatAndSocialAction",
+            "category": "Sequence",
+            "memory": true,
+            "children": [
+                "9d9593af-95e5-410f-adf6-02f840aa8729",
+                "2f06c18a-d94a-497f-9662-7b3b0dfa76c6"
+            ]
+        },
+        "9d9593af-95e5-410f-adf6-02f840aa8729": {
+            "name": "RepeatOrEnd",
+            "category": "Action",
+            "description": "A leaf node in a behaviour tree.",
+            "class": "RepeatOrEnd",
+            "module": "btcm.examples.cognitive_sequence.handle_user_response"
+        },
+        "2f06c18a-d94a-497f-9662-7b3b0dfa76c6": {
+            "name": "DecideSocialAction",
+            "category": "Action",
+            "description": "A leaf node in a behaviour tree.",
+            "class": "DecideSocialAction",
+            "module": "btcm.examples.cognitive_sequence.handle_user_response"
+        },
+        "c39f379b-09ef-432a-a75f-d94a68d667d9": {
+            "name": "DecideRepeatAndSocialAction2",
+            "category": "Sequence",
+            "memory": true,
+            "children": [
+                "1fe1dabf-2abc-4b9e-bdf0-3fb4089321c7",
+                "b152c4df-2e83-4d04-a450-1a15ad44fa94"
+            ]
+        },
+        "1fe1dabf-2abc-4b9e-bdf0-3fb4089321c7": {
+            "name": "RepeatOrEnd2",
+            "category": "Action",
+            "description": "A leaf node in a behaviour tree.",
+            "class": "RepeatOrEnd",
+            "module": "btcm.examples.cognitive_sequence.handle_user_response"
+        },
+        "b152c4df-2e83-4d04-a450-1a15ad44fa94": {
+            "name": "DecideSocialAction2",
+            "category": "Action",
+            "description": "A leaf node in a behaviour tree.",
+            "class": "DecideSocialAction",
+            "module": "btcm.examples.cognitive_sequence.handle_user_response"
+        },
+        "bc70139d-7d99-4831-9a01-b58520c2656a": {
+            "name": "EndOrRepeatFallback",
+            "category": "Fallback",
+            "memory": false,
+            "children": [
+                "8c90a548-5f89-4d0a-b6fd-664124ca8e67",
+                "8bf5db8c-dcae-4b74-9a70-e12353965699"
+            ]
+        },
+        "8c90a548-5f89-4d0a-b6fd-664124ca8e67": {
+            "name": "CheckEndAndEndSequence",
+            "category": "Sequence",
+            "memory": false,
+            "children": [
+                "85c704b3-97ef-4020-a426-21249ffb8752",
+                "e2043bea-6d48-4b66-ab38-d1f66c84c72a"
+            ]
+        },
+        "85c704b3-97ef-4020-a426-21249ffb8752": {
+            "name": "CheckEndCurrentSequence",
+            "category": "Condition",
+            "description": "A leaf node in a behaviour tree.",
+            "class": "CheckEndCurrentSequence",
+            "module": "btcm.examples.cognitive_sequence.handle_task_end"
+        },
+        "e2043bea-6d48-4b66-ab38-d1f66c84c72a": {
+            "name": "EndCurrentSequence",
+            "category": "Action",
+            "description": "A leaf node in a behaviour tree.",
+            "class": "EndCurrentSequence",
+            "module": "btcm.examples.cognitive_sequence.handle_task_end"
+        },
+        "8bf5db8c-dcae-4b74-9a70-e12353965699": {
+            "name": "RepeatCurrentSequence",
+            "category": "Action",
+            "description": "A leaf node in a behaviour tree.",
+            "class": "RepeatCurrentSequence",
+            "module": "btcm.examples.cognitive_sequence.handle_task_end"
+        }
+    },
+    "state": {
+        "variables": {
+            "EndGame": "Represents the decision to end the game at the next available moment.",
+            "RepeatSequence": "Represents the decision to repeat the current sequence rather than end the game or move to a new sequence.",
+            "SequenceComplexity": "The complexity of the sequence - determined by the number of unique symbols used.",
+            "SequenceLength": "The length of the sequence - determined by the number of characters in the sequence.",
+            "NumRepetitions": "The number of times the current sequence has been repeated.",
+            "NumSequences": "The number of unique sequences that have been provided thus far.",
+            "SequenceSet": "If true, the sequence has been decided upon this round. False otherwise.",
+            "ResponseTimerActive": "If true, the robot has activated a timer and is waiting for the user to repeat a sequence.",
+            "AttemptedReengageUser": "If true, the robot has attempted to reengage the user in the task.",
+            "FeedbackGiven": "If true, the robot has provided feedback to the user about their performance.",
+            "UserResponded": "If true, the user has repeated (successfully or not) the sequence back to the robot.",
+            "UserTimeout": "If true the timeout expired before the user could respond.",
+            "CurrentSequence": "A string of characters representing the current sequence provided to the user.",
+            "UserSequence": "A string of characters representing the current sequence responded by the user.",
+            "AccuracySeed": "The seed used to generate random errors by the user, saved for reproducibility.",
+            "ResponseTimeSeed": "The seed used to generate random response times by the user, saved for reproducibility.",
+            "UserMemory": "A number from 0 to 1 representing the user's ability to recall sequences and instructions.",
+            "UserAttention": "A number from 0 to 1 representing the user's attention span.",
+            "UserReactivity": "A number from 0 to 1 representing the user's ability to respond quickly to sequences.",
+            "UserConfusion": "A number from 0 to 1 representing the user's confusion about the current sequence, with 1 indicating complete confusion.",
+            "UserEngagement": "A number from 0 to 1 representing the user's engagement in the task at the moment.",
+            "UserFrustration": "A number from 0 to 1 representing the user's frustration with the current task.",
+            "BaseUserAccuracy": "A number from 0 to 1 representing the base accuracy of the sequence a user has provided.",
+            "UserNumErrors": "The number of erros the user has made in their latest sequence.",
+            "BaseUserResponseTime": "The base time it takes for the user to respond to a sequence. If it equals the maximum value 7, then the user did not respond in time.",
+            "ObservedUserResponseTime": "The observed time it has taken for the user to respond to a sequence. If it equals the maximum value 7, then the user did not respond in time."
+        },
+        "class": "CognitiveSequenceState",
+        "module": "btcm.examples.cognitive_sequence.basic"
+    },
+    "environment": {
+        "class": "CognitiveSequenceEnvironment",
+        "module": "btcm.examples.cognitive_sequence.cognitive_sequence_environment"
+    },
+    "0": {
+        "0": {
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 3,
+                "SequenceLength": 4,
+                "NumRepetitions": 0,
+                "NumSequences": 0,
+                "SequenceSet": false,
+                "ResponseTimerActive": false,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": false,
+                "UserTimeout": false,
+                "CurrentSequence": "",
+                "UserSequence": "",
+                "AccuracySeed": 45,
+                "ResponseTimeSeed": 1045,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.2899999999999999,
+                "UserEngagement": 0.7550000000000001,
+                "UserFrustration": 0.8,
+                "BaseUserAccuracy": 0.668,
+                "UserNumErrors": 0,
+                "BaseUserResponseTime": 2.7327999999999997,
+                "ObservedUserResponseTime": 4.496852345967664
+            }
+        },
+        "1": {
+            "update": {
+                "61ab02f8-0ca7-4950-b394-b34f0ed39cba": {
+                    "name": "CheckOverride",
+                    "status": "Status.FAILURE",
+                    "action": "NullAction"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 3,
+                "SequenceLength": 4,
+                "NumRepetitions": 0,
+                "NumSequences": 0,
+                "SequenceSet": false,
+                "ResponseTimerActive": false,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": false,
+                "UserTimeout": false,
+                "CurrentSequence": "",
+                "UserSequence": "",
+                "AccuracySeed": 45,
+                "ResponseTimeSeed": 1045,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.2899999999999999,
+                "UserEngagement": 0.7550000000000001,
+                "UserFrustration": 0.8,
+                "BaseUserAccuracy": 0.668,
+                "UserNumErrors": 0,
+                "BaseUserResponseTime": 2.7327999999999997,
+                "ObservedUserResponseTime": 4.496852345967664
+            }
+        },
+        "2": {
+            "update": {
+                "51358f02-7b6f-422e-874f-993c33733f31": {
+                    "name": "CheckOverrideAndEndSequence",
+                    "status": "Status.FAILURE"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 3,
+                "SequenceLength": 4,
+                "NumRepetitions": 0,
+                "NumSequences": 0,
+                "SequenceSet": false,
+                "ResponseTimerActive": false,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": false,
+                "UserTimeout": false,
+                "CurrentSequence": "",
+                "UserSequence": "",
+                "AccuracySeed": 45,
+                "ResponseTimeSeed": 1045,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.2899999999999999,
+                "UserEngagement": 0.7550000000000001,
+                "UserFrustration": 0.8,
+                "BaseUserAccuracy": 0.668,
+                "UserNumErrors": 0,
+                "BaseUserResponseTime": 2.7327999999999997,
+                "ObservedUserResponseTime": 4.496852345967664
+            }
+        },
+        "3": {
+            "update": {
+                "2fe27a5a-1c06-41aa-91ee-533245b0632b": {
+                    "name": "CheckInitialSequence",
+                    "status": "Status.SUCCESS",
+                    "action": "NullAction"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 3,
+                "SequenceLength": 4,
+                "NumRepetitions": 0,
+                "NumSequences": 0,
+                "SequenceSet": false,
+                "ResponseTimerActive": false,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": false,
+                "UserTimeout": false,
+                "CurrentSequence": "",
+                "UserSequence": "",
+                "AccuracySeed": 45,
+                "ResponseTimeSeed": 1045,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.2899999999999999,
+                "UserEngagement": 0.7550000000000001,
+                "UserFrustration": 0.8,
+                "BaseUserAccuracy": 0.668,
+                "UserNumErrors": 0,
+                "BaseUserResponseTime": 2.7327999999999997,
+                "ObservedUserResponseTime": 4.496852345967664
+            }
+        },
+        "4": {
+            "update": {
+                "0a67f6a8-4141-4318-b4d7-ce31524bdd12": {
+                    "name": "SetSequenceParameters",
+                    "status": "Status.SUCCESS",
+                    "action": "SetSequenceParameters(5,3)"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 3,
+                "SequenceLength": 5,
+                "NumRepetitions": 0,
+                "NumSequences": 1,
+                "SequenceSet": true,
+                "ResponseTimerActive": false,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": false,
+                "UserTimeout": false,
+                "CurrentSequence": "BBCAC",
+                "UserSequence": "",
+                "AccuracySeed": 45,
+                "ResponseTimeSeed": 1045,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.2899999999999999,
+                "UserEngagement": 0.7550000000000001,
+                "UserFrustration": 0.8,
+                "BaseUserAccuracy": 0.668,
+                "UserNumErrors": 0,
+                "BaseUserResponseTime": 2.7327999999999997,
+                "ObservedUserResponseTime": 4.496852345967664
+            }
+        },
+        "5": {
+            "update": {
+                "cf517e02-4b97-4781-b959-e767df7d65dd": {
+                    "name": "CheckInitialAndSetParamsSequence",
+                    "status": "Status.SUCCESS"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 3,
+                "SequenceLength": 5,
+                "NumRepetitions": 0,
+                "NumSequences": 1,
+                "SequenceSet": true,
+                "ResponseTimerActive": false,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": false,
+                "UserTimeout": false,
+                "CurrentSequence": "BBCAC",
+                "UserSequence": "",
+                "AccuracySeed": 45,
+                "ResponseTimeSeed": 1045,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.2899999999999999,
+                "UserEngagement": 0.7550000000000001,
+                "UserFrustration": 0.8,
+                "BaseUserAccuracy": 0.668,
+                "UserNumErrors": 0,
+                "BaseUserResponseTime": 2.7327999999999997,
+                "ObservedUserResponseTime": 4.496852345967664
+            }
+        },
+        "6": {
+            "update": {
+                "d5aa95d7-d6b8-40de-800c-857f01c14874": {
+                    "name": "SetParamsOrHandleRepeatedFallback",
+                    "status": "Status.SUCCESS"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 3,
+                "SequenceLength": 5,
+                "NumRepetitions": 0,
+                "NumSequences": 1,
+                "SequenceSet": true,
+                "ResponseTimerActive": false,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": false,
+                "UserTimeout": false,
+                "CurrentSequence": "BBCAC",
+                "UserSequence": "",
+                "AccuracySeed": 45,
+                "ResponseTimeSeed": 1045,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.2899999999999999,
+                "UserEngagement": 0.7550000000000001,
+                "UserFrustration": 0.8,
+                "BaseUserAccuracy": 0.668,
+                "UserNumErrors": 0,
+                "BaseUserResponseTime": 2.7327999999999997,
+                "ObservedUserResponseTime": 4.496852345967664
+            }
+        },
+        "7": {
+            "update": {
+                "75142fa5-fbf3-42ab-8402-aae382b45fb5": {
+                    "name": "ProvideSequence",
+                    "status": "Status.SUCCESS",
+                    "action": "ProvideSequence"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 3,
+                "SequenceLength": 5,
+                "NumRepetitions": 1,
+                "NumSequences": 1,
+                "SequenceSet": true,
+                "ResponseTimerActive": false,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": false,
+                "UserTimeout": false,
+                "CurrentSequence": "BBCAC",
+                "UserSequence": "BBAAC",
+                "AccuracySeed": 14624023,
+                "ResponseTimeSeed": 18507427,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.2899999999999999,
+                "UserEngagement": 0.7550000000000001,
+                "UserFrustration": 0.8,
+                "BaseUserAccuracy": 0.668,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.4159999999999995,
+                "ObservedUserResponseTime": 3.6388446072256775
+            }
+        },
+        "8": {
+            "update": {
+                "c6dc60e3-5578-433c-87d3-14b69e521d94": {
+                    "name": "StartResponseTimer",
+                    "status": "Status.SUCCESS",
+                    "action": "ResetTimer"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 3,
+                "SequenceLength": 5,
+                "NumRepetitions": 1,
+                "NumSequences": 1,
+                "SequenceSet": true,
+                "ResponseTimerActive": true,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": false,
+                "UserTimeout": false,
+                "CurrentSequence": "BBCAC",
+                "UserSequence": "BBAAC",
+                "AccuracySeed": 14624023,
+                "ResponseTimeSeed": 18507427,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.2899999999999999,
+                "UserEngagement": 0.7550000000000001,
+                "UserFrustration": 0.8,
+                "BaseUserAccuracy": 0.668,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.4159999999999995,
+                "ObservedUserResponseTime": 3.6388446072256775
+            }
+        },
+        "9": {
+            "update": {
+                "48a87cf6-1585-4809-a941-e978f5c79801": {
+                    "name": "NudgeTimer",
+                    "status": "Status.SUCCESS",
+                    "action": "CheckTimer"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 3,
+                "SequenceLength": 5,
+                "NumRepetitions": 1,
+                "NumSequences": 1,
+                "SequenceSet": true,
+                "ResponseTimerActive": true,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": false,
+                "UserTimeout": false,
+                "CurrentSequence": "BBCAC",
+                "UserSequence": "BBAAC",
+                "AccuracySeed": 14624023,
+                "ResponseTimeSeed": 18507427,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.2899999999999999,
+                "UserEngagement": 0.7550000000000001,
+                "UserFrustration": 0.8,
+                "BaseUserAccuracy": 0.668,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.4159999999999995,
+                "ObservedUserResponseTime": 3.6388446072256775
+            }
+        },
+        "10": {
+            "update": {
+                "2bfa93b8-4b89-4fed-b541-a678aeaaf5bd": {
+                    "name": "HandleTimerResponse",
+                    "status": "Status.RUNNING",
+                    "action": "NullAction"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 3,
+                "SequenceLength": 5,
+                "NumRepetitions": 1,
+                "NumSequences": 1,
+                "SequenceSet": true,
+                "ResponseTimerActive": true,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": false,
+                "UserTimeout": false,
+                "CurrentSequence": "BBCAC",
+                "UserSequence": "BBAAC",
+                "AccuracySeed": 14624023,
+                "ResponseTimeSeed": 18507427,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.2899999999999999,
+                "UserEngagement": 0.7550000000000001,
+                "UserFrustration": 0.8,
+                "BaseUserAccuracy": 0.668,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.4159999999999995,
+                "ObservedUserResponseTime": 3.6388446072256775
+            }
+        },
+        "11": {
+            "update": {
+                "eb16cdf5-9be7-4b37-a502-8a29a992066f": {
+                    "name": "NudgeTimerAndHandleResponse",
+                    "status": "Status.RUNNING"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 3,
+                "SequenceLength": 5,
+                "NumRepetitions": 1,
+                "NumSequences": 1,
+                "SequenceSet": true,
+                "ResponseTimerActive": true,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": false,
+                "UserTimeout": false,
+                "CurrentSequence": "BBCAC",
+                "UserSequence": "BBAAC",
+                "AccuracySeed": 14624023,
+                "ResponseTimeSeed": 18507427,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.2899999999999999,
+                "UserEngagement": 0.7550000000000001,
+                "UserFrustration": 0.8,
+                "BaseUserAccuracy": 0.668,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.4159999999999995,
+                "ObservedUserResponseTime": 3.6388446072256775
+            }
+        },
+        "12": {
+            "update": {
+                "312c5c92-71a6-45e5-a5e4-41faa21c393d": {
+                    "name": "StartTimerAndWait",
+                    "status": "Status.RUNNING"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 3,
+                "SequenceLength": 5,
+                "NumRepetitions": 1,
+                "NumSequences": 1,
+                "SequenceSet": true,
+                "ResponseTimerActive": true,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": false,
+                "UserTimeout": false,
+                "CurrentSequence": "BBCAC",
+                "UserSequence": "BBAAC",
+                "AccuracySeed": 14624023,
+                "ResponseTimeSeed": 18507427,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.2899999999999999,
+                "UserEngagement": 0.7550000000000001,
+                "UserFrustration": 0.8,
+                "BaseUserAccuracy": 0.668,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.4159999999999995,
+                "ObservedUserResponseTime": 3.6388446072256775
+            }
+        },
+        "13": {
+            "update": {
+                "059004f0-3b01-4f0b-aea6-4d6418fa63d6": {
+                    "name": "WaitAndHandleResponse",
+                    "status": "Status.RUNNING"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 3,
+                "SequenceLength": 5,
+                "NumRepetitions": 1,
+                "NumSequences": 1,
+                "SequenceSet": true,
+                "ResponseTimerActive": true,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": false,
+                "UserTimeout": false,
+                "CurrentSequence": "BBCAC",
+                "UserSequence": "BBAAC",
+                "AccuracySeed": 14624023,
+                "ResponseTimeSeed": 18507427,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.2899999999999999,
+                "UserEngagement": 0.7550000000000001,
+                "UserFrustration": 0.8,
+                "BaseUserAccuracy": 0.668,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.4159999999999995,
+                "ObservedUserResponseTime": 3.6388446072256775
+            }
+        },
+        "14": {
+            "update": {
+                "a59caf6f-0523-4fc5-aae2-37907ee4977b": {
+                    "name": "HandleResponseOrNoResponseFallback",
+                    "status": "Status.RUNNING"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 3,
+                "SequenceLength": 5,
+                "NumRepetitions": 1,
+                "NumSequences": 1,
+                "SequenceSet": true,
+                "ResponseTimerActive": true,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": false,
+                "UserTimeout": false,
+                "CurrentSequence": "BBCAC",
+                "UserSequence": "BBAAC",
+                "AccuracySeed": 14624023,
+                "ResponseTimeSeed": 18507427,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.2899999999999999,
+                "UserEngagement": 0.7550000000000001,
+                "UserFrustration": 0.8,
+                "BaseUserAccuracy": 0.668,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.4159999999999995,
+                "ObservedUserResponseTime": 3.6388446072256775
+            }
+        },
+        "15": {
+            "update": {
+                "87eb79c7-cfea-4052-864b-e8691730b58d": {
+                    "name": "HandleResponseAndEndRepetition",
+                    "status": "Status.RUNNING"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 3,
+                "SequenceLength": 5,
+                "NumRepetitions": 1,
+                "NumSequences": 1,
+                "SequenceSet": true,
+                "ResponseTimerActive": true,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": false,
+                "UserTimeout": false,
+                "CurrentSequence": "BBCAC",
+                "UserSequence": "BBAAC",
+                "AccuracySeed": 14624023,
+                "ResponseTimeSeed": 18507427,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.2899999999999999,
+                "UserEngagement": 0.7550000000000001,
+                "UserFrustration": 0.8,
+                "BaseUserAccuracy": 0.668,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.4159999999999995,
+                "ObservedUserResponseTime": 3.6388446072256775
+            }
+        },
+        "16": {
+            "update": {
+                "abe1e8d6-9d3f-445e-bfee-0ed5b55a69d7": {
+                    "name": "StartGameSequence",
+                    "status": "Status.RUNNING"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 3,
+                "SequenceLength": 5,
+                "NumRepetitions": 1,
+                "NumSequences": 1,
+                "SequenceSet": true,
+                "ResponseTimerActive": true,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": false,
+                "UserTimeout": false,
+                "CurrentSequence": "BBCAC",
+                "UserSequence": "BBAAC",
+                "AccuracySeed": 14624023,
+                "ResponseTimeSeed": 18507427,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.2899999999999999,
+                "UserEngagement": 0.7550000000000001,
+                "UserFrustration": 0.8,
+                "BaseUserAccuracy": 0.668,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.4159999999999995,
+                "ObservedUserResponseTime": 3.6388446072256775
+            }
+        },
+        "17": {
+            "update": {
+                "510413b8-b6ee-468d-8e68-e8480787e60a": {
+                    "name": "OverrideOrContinueFallback",
+                    "status": "Status.RUNNING"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 3,
+                "SequenceLength": 5,
+                "NumRepetitions": 1,
+                "NumSequences": 1,
+                "SequenceSet": true,
+                "ResponseTimerActive": true,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": false,
+                "UserTimeout": false,
+                "CurrentSequence": "BBCAC",
+                "UserSequence": "BBAAC",
+                "AccuracySeed": 14624023,
+                "ResponseTimeSeed": 18507427,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.2899999999999999,
+                "UserEngagement": 0.7550000000000001,
+                "UserFrustration": 0.8,
+                "BaseUserAccuracy": 0.668,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.4159999999999995,
+                "ObservedUserResponseTime": 3.6388446072256775
+            }
+        }
+    },
+    "1": {
+        "18": {
+            "update": {
+                "61ab02f8-0ca7-4950-b394-b34f0ed39cba": {
+                    "name": "CheckOverride",
+                    "status": "Status.FAILURE",
+                    "action": "NullAction"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 3,
+                "SequenceLength": 5,
+                "NumRepetitions": 1,
+                "NumSequences": 1,
+                "SequenceSet": true,
+                "ResponseTimerActive": true,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": false,
+                "UserTimeout": false,
+                "CurrentSequence": "BBCAC",
+                "UserSequence": "BBAAC",
+                "AccuracySeed": 14624023,
+                "ResponseTimeSeed": 18507427,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.2899999999999999,
+                "UserEngagement": 0.7550000000000001,
+                "UserFrustration": 0.8,
+                "BaseUserAccuracy": 0.668,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.4159999999999995,
+                "ObservedUserResponseTime": 3.6388446072256775
+            }
+        },
+        "19": {
+            "update": {
+                "51358f02-7b6f-422e-874f-993c33733f31": {
+                    "name": "CheckOverrideAndEndSequence",
+                    "status": "Status.FAILURE"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 3,
+                "SequenceLength": 5,
+                "NumRepetitions": 1,
+                "NumSequences": 1,
+                "SequenceSet": true,
+                "ResponseTimerActive": true,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": false,
+                "UserTimeout": false,
+                "CurrentSequence": "BBCAC",
+                "UserSequence": "BBAAC",
+                "AccuracySeed": 14624023,
+                "ResponseTimeSeed": 18507427,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.2899999999999999,
+                "UserEngagement": 0.7550000000000001,
+                "UserFrustration": 0.8,
+                "BaseUserAccuracy": 0.668,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.4159999999999995,
+                "ObservedUserResponseTime": 3.6388446072256775
+            }
+        },
+        "20": {
+            "update": {
+                "48a87cf6-1585-4809-a941-e978f5c79801": {
+                    "name": "NudgeTimer",
+                    "status": "Status.SUCCESS",
+                    "action": "CheckTimer"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 3,
+                "SequenceLength": 5,
+                "NumRepetitions": 1,
+                "NumSequences": 1,
+                "SequenceSet": true,
+                "ResponseTimerActive": true,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": true,
+                "UserTimeout": false,
+                "CurrentSequence": "BBCAC",
+                "UserSequence": "BBAAC",
+                "AccuracySeed": 14624023,
+                "ResponseTimeSeed": 18507427,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.2899999999999999,
+                "UserEngagement": 0.7550000000000001,
+                "UserFrustration": 0.8,
+                "BaseUserAccuracy": 0.668,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.4159999999999995,
+                "ObservedUserResponseTime": 3.6388446072256775
+            }
+        },
+        "21": {
+            "update": {
+                "2bfa93b8-4b89-4fed-b541-a678aeaaf5bd": {
+                    "name": "HandleTimerResponse",
+                    "status": "Status.SUCCESS",
+                    "action": "NullAction"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 3,
+                "SequenceLength": 5,
+                "NumRepetitions": 1,
+                "NumSequences": 1,
+                "SequenceSet": true,
+                "ResponseTimerActive": false,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": true,
+                "UserTimeout": false,
+                "CurrentSequence": "BBCAC",
+                "UserSequence": "BBAAC",
+                "AccuracySeed": 14624023,
+                "ResponseTimeSeed": 18507427,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.2899999999999999,
+                "UserEngagement": 0.7550000000000001,
+                "UserFrustration": 0.8,
+                "BaseUserAccuracy": 0.668,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.4159999999999995,
+                "ObservedUserResponseTime": 3.6388446072256775
+            }
+        },
+        "22": {
+            "update": {
+                "eb16cdf5-9be7-4b37-a502-8a29a992066f": {
+                    "name": "NudgeTimerAndHandleResponse",
+                    "status": "Status.SUCCESS"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 3,
+                "SequenceLength": 5,
+                "NumRepetitions": 1,
+                "NumSequences": 1,
+                "SequenceSet": true,
+                "ResponseTimerActive": false,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": true,
+                "UserTimeout": false,
+                "CurrentSequence": "BBCAC",
+                "UserSequence": "BBAAC",
+                "AccuracySeed": 14624023,
+                "ResponseTimeSeed": 18507427,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.2899999999999999,
+                "UserEngagement": 0.7550000000000001,
+                "UserFrustration": 0.8,
+                "BaseUserAccuracy": 0.668,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.4159999999999995,
+                "ObservedUserResponseTime": 3.6388446072256775
+            }
+        },
+        "23": {
+            "update": {
+                "312c5c92-71a6-45e5-a5e4-41faa21c393d": {
+                    "name": "StartTimerAndWait",
+                    "status": "Status.SUCCESS"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 3,
+                "SequenceLength": 5,
+                "NumRepetitions": 1,
+                "NumSequences": 1,
+                "SequenceSet": true,
+                "ResponseTimerActive": false,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": true,
+                "UserTimeout": false,
+                "CurrentSequence": "BBCAC",
+                "UserSequence": "BBAAC",
+                "AccuracySeed": 14624023,
+                "ResponseTimeSeed": 18507427,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.2899999999999999,
+                "UserEngagement": 0.7550000000000001,
+                "UserFrustration": 0.8,
+                "BaseUserAccuracy": 0.668,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.4159999999999995,
+                "ObservedUserResponseTime": 3.6388446072256775
+            }
+        },
+        "24": {
+            "update": {
+                "2e966e09-ad7d-47c7-846b-c16b89c8dd15": {
+                    "name": "AssessUserSequence",
+                    "status": "Status.SUCCESS",
+                    "action": "AssessSequence"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 3,
+                "SequenceLength": 5,
+                "NumRepetitions": 1,
+                "NumSequences": 1,
+                "SequenceSet": true,
+                "ResponseTimerActive": false,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": true,
+                "UserTimeout": false,
+                "CurrentSequence": "BBCAC",
+                "UserSequence": "BBAAC",
+                "AccuracySeed": 14624023,
+                "ResponseTimeSeed": 18507427,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.2899999999999999,
+                "UserEngagement": 0.7550000000000001,
+                "UserFrustration": 0.8,
+                "BaseUserAccuracy": 0.668,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.4159999999999995,
+                "ObservedUserResponseTime": 3.6388446072256775
+            }
+        },
+        "25": {
+            "update": {
+                "6a90ee8a-6b3a-4a48-a3ce-1ec9973f2fba": {
+                    "name": "HandleUserResponse",
+                    "status": "Status.SUCCESS",
+                    "action": "NullAction"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 3,
+                "SequenceLength": 5,
+                "NumRepetitions": 1,
+                "NumSequences": 1,
+                "SequenceSet": true,
+                "ResponseTimerActive": false,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": true,
+                "UserTimeout": false,
+                "CurrentSequence": "BBCAC",
+                "UserSequence": "BBAAC",
+                "AccuracySeed": 14624023,
+                "ResponseTimeSeed": 18507427,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.2899999999999999,
+                "UserEngagement": 0.7550000000000001,
+                "UserFrustration": 0.8,
+                "BaseUserAccuracy": 0.668,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.4159999999999995,
+                "ObservedUserResponseTime": 3.6388446072256775
+            }
+        },
+        "26": {
+            "update": {
+                "9d9593af-95e5-410f-adf6-02f840aa8729": {
+                    "name": "RepeatOrEnd",
+                    "status": "Status.SUCCESS",
+                    "action": "EndThisSequence"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 3,
+                "SequenceLength": 5,
+                "NumRepetitions": 1,
+                "NumSequences": 1,
+                "SequenceSet": true,
+                "ResponseTimerActive": false,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": true,
+                "UserTimeout": false,
+                "CurrentSequence": "BBCAC",
+                "UserSequence": "BBAAC",
+                "AccuracySeed": 14624023,
+                "ResponseTimeSeed": 18507427,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.2899999999999999,
+                "UserEngagement": 0.7550000000000001,
+                "UserFrustration": 0.8,
+                "BaseUserAccuracy": 0.668,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.4159999999999995,
+                "ObservedUserResponseTime": 3.6388446072256775
+            }
+        },
+        "27": {
+            "update": {
+                "2f06c18a-d94a-497f-9662-7b3b0dfa76c6": {
+                    "name": "DecideSocialAction",
+                    "status": "Status.SUCCESS",
+                    "action": "EndSequenceSocial"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 3,
+                "SequenceLength": 5,
+                "NumRepetitions": 1,
+                "NumSequences": 1,
+                "SequenceSet": true,
+                "ResponseTimerActive": false,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": true,
+                "UserResponded": true,
+                "UserTimeout": false,
+                "CurrentSequence": "BBCAC",
+                "UserSequence": "BBAAC",
+                "AccuracySeed": 14624023,
+                "ResponseTimeSeed": 18507427,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.2899999999999999,
+                "UserEngagement": 0.7550000000000001,
+                "UserFrustration": 0.8500000000000001,
+                "BaseUserAccuracy": 0.668,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.4159999999999995,
+                "ObservedUserResponseTime": 3.6388446072256775
+            }
+        },
+        "28": {
+            "update": {
+                "c9442521-fa73-4d06-bb15-4219b888e345": {
+                    "name": "DecideRepeatAndSocialAction",
+                    "status": "Status.SUCCESS"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 3,
+                "SequenceLength": 5,
+                "NumRepetitions": 1,
+                "NumSequences": 1,
+                "SequenceSet": true,
+                "ResponseTimerActive": false,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": true,
+                "UserResponded": true,
+                "UserTimeout": false,
+                "CurrentSequence": "BBCAC",
+                "UserSequence": "BBAAC",
+                "AccuracySeed": 14624023,
+                "ResponseTimeSeed": 18507427,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.2899999999999999,
+                "UserEngagement": 0.7550000000000001,
+                "UserFrustration": 0.8500000000000001,
+                "BaseUserAccuracy": 0.668,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.4159999999999995,
+                "ObservedUserResponseTime": 3.6388446072256775
+            }
+        },
+        "29": {
+            "update": {
+                "0f7a9331-cd76-4a4b-a45b-2149075f549c": {
+                    "name": "AssessSequenceAndHandleUserResponse",
+                    "status": "Status.SUCCESS"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 3,
+                "SequenceLength": 5,
+                "NumRepetitions": 1,
+                "NumSequences": 1,
+                "SequenceSet": true,
+                "ResponseTimerActive": false,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": true,
+                "UserResponded": true,
+                "UserTimeout": false,
+                "CurrentSequence": "BBCAC",
+                "UserSequence": "BBAAC",
+                "AccuracySeed": 14624023,
+                "ResponseTimeSeed": 18507427,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.2899999999999999,
+                "UserEngagement": 0.7550000000000001,
+                "UserFrustration": 0.8500000000000001,
+                "BaseUserAccuracy": 0.668,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.4159999999999995,
+                "ObservedUserResponseTime": 3.6388446072256775
+            }
+        },
+        "30": {
+            "update": {
+                "059004f0-3b01-4f0b-aea6-4d6418fa63d6": {
+                    "name": "WaitAndHandleResponse",
+                    "status": "Status.SUCCESS"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 3,
+                "SequenceLength": 5,
+                "NumRepetitions": 1,
+                "NumSequences": 1,
+                "SequenceSet": true,
+                "ResponseTimerActive": false,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": true,
+                "UserResponded": true,
+                "UserTimeout": false,
+                "CurrentSequence": "BBCAC",
+                "UserSequence": "BBAAC",
+                "AccuracySeed": 14624023,
+                "ResponseTimeSeed": 18507427,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.2899999999999999,
+                "UserEngagement": 0.7550000000000001,
+                "UserFrustration": 0.8500000000000001,
+                "BaseUserAccuracy": 0.668,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.4159999999999995,
+                "ObservedUserResponseTime": 3.6388446072256775
+            }
+        },
+        "31": {
+            "update": {
+                "a59caf6f-0523-4fc5-aae2-37907ee4977b": {
+                    "name": "HandleResponseOrNoResponseFallback",
+                    "status": "Status.SUCCESS"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 3,
+                "SequenceLength": 5,
+                "NumRepetitions": 1,
+                "NumSequences": 1,
+                "SequenceSet": true,
+                "ResponseTimerActive": false,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": true,
+                "UserResponded": true,
+                "UserTimeout": false,
+                "CurrentSequence": "BBCAC",
+                "UserSequence": "BBAAC",
+                "AccuracySeed": 14624023,
+                "ResponseTimeSeed": 18507427,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.2899999999999999,
+                "UserEngagement": 0.7550000000000001,
+                "UserFrustration": 0.8500000000000001,
+                "BaseUserAccuracy": 0.668,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.4159999999999995,
+                "ObservedUserResponseTime": 3.6388446072256775
+            }
+        },
+        "32": {
+            "update": {
+                "85c704b3-97ef-4020-a426-21249ffb8752": {
+                    "name": "CheckEndCurrentSequence",
+                    "status": "Status.SUCCESS",
+                    "action": "NullAction"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 3,
+                "SequenceLength": 5,
+                "NumRepetitions": 1,
+                "NumSequences": 1,
+                "SequenceSet": true,
+                "ResponseTimerActive": false,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": true,
+                "UserResponded": true,
+                "UserTimeout": false,
+                "CurrentSequence": "BBCAC",
+                "UserSequence": "BBAAC",
+                "AccuracySeed": 14624023,
+                "ResponseTimeSeed": 18507427,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.2899999999999999,
+                "UserEngagement": 0.7550000000000001,
+                "UserFrustration": 0.8500000000000001,
+                "BaseUserAccuracy": 0.668,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.4159999999999995,
+                "ObservedUserResponseTime": 3.6388446072256775
+            }
+        },
+        "33": {
+            "update": {
+                "e2043bea-6d48-4b66-ab38-d1f66c84c72a": {
+                    "name": "EndCurrentSequence",
+                    "status": "Status.SUCCESS",
+                    "action": "EndThisSequence"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 3,
+                "SequenceLength": 5,
+                "NumRepetitions": 0,
+                "NumSequences": 1,
+                "SequenceSet": false,
+                "ResponseTimerActive": false,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": true,
+                "UserTimeout": false,
+                "CurrentSequence": "BBCAC",
+                "UserSequence": "BBAAC",
+                "AccuracySeed": 14624023,
+                "ResponseTimeSeed": 18507427,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.2899999999999999,
+                "UserEngagement": 0.7550000000000001,
+                "UserFrustration": 0.8500000000000001,
+                "BaseUserAccuracy": 0.668,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.4159999999999995,
+                "ObservedUserResponseTime": 3.6388446072256775
+            }
+        },
+        "34": {
+            "update": {
+                "8c90a548-5f89-4d0a-b6fd-664124ca8e67": {
+                    "name": "CheckEndAndEndSequence",
+                    "status": "Status.SUCCESS"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 3,
+                "SequenceLength": 5,
+                "NumRepetitions": 0,
+                "NumSequences": 1,
+                "SequenceSet": false,
+                "ResponseTimerActive": false,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": true,
+                "UserTimeout": false,
+                "CurrentSequence": "BBCAC",
+                "UserSequence": "BBAAC",
+                "AccuracySeed": 14624023,
+                "ResponseTimeSeed": 18507427,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.2899999999999999,
+                "UserEngagement": 0.7550000000000001,
+                "UserFrustration": 0.8500000000000001,
+                "BaseUserAccuracy": 0.668,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.4159999999999995,
+                "ObservedUserResponseTime": 3.6388446072256775
+            }
+        },
+        "35": {
+            "update": {
+                "bc70139d-7d99-4831-9a01-b58520c2656a": {
+                    "name": "EndOrRepeatFallback",
+                    "status": "Status.SUCCESS"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 3,
+                "SequenceLength": 5,
+                "NumRepetitions": 0,
+                "NumSequences": 1,
+                "SequenceSet": false,
+                "ResponseTimerActive": false,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": true,
+                "UserTimeout": false,
+                "CurrentSequence": "BBCAC",
+                "UserSequence": "BBAAC",
+                "AccuracySeed": 14624023,
+                "ResponseTimeSeed": 18507427,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.2899999999999999,
+                "UserEngagement": 0.7550000000000001,
+                "UserFrustration": 0.8500000000000001,
+                "BaseUserAccuracy": 0.668,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.4159999999999995,
+                "ObservedUserResponseTime": 3.6388446072256775
+            }
+        },
+        "36": {
+            "update": {
+                "87eb79c7-cfea-4052-864b-e8691730b58d": {
+                    "name": "HandleResponseAndEndRepetition",
+                    "status": "Status.SUCCESS"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 3,
+                "SequenceLength": 5,
+                "NumRepetitions": 0,
+                "NumSequences": 1,
+                "SequenceSet": false,
+                "ResponseTimerActive": false,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": true,
+                "UserTimeout": false,
+                "CurrentSequence": "BBCAC",
+                "UserSequence": "BBAAC",
+                "AccuracySeed": 14624023,
+                "ResponseTimeSeed": 18507427,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.2899999999999999,
+                "UserEngagement": 0.7550000000000001,
+                "UserFrustration": 0.8500000000000001,
+                "BaseUserAccuracy": 0.668,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.4159999999999995,
+                "ObservedUserResponseTime": 3.6388446072256775
+            }
+        },
+        "37": {
+            "update": {
+                "abe1e8d6-9d3f-445e-bfee-0ed5b55a69d7": {
+                    "name": "StartGameSequence",
+                    "status": "Status.SUCCESS"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 3,
+                "SequenceLength": 5,
+                "NumRepetitions": 0,
+                "NumSequences": 1,
+                "SequenceSet": false,
+                "ResponseTimerActive": false,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": true,
+                "UserTimeout": false,
+                "CurrentSequence": "BBCAC",
+                "UserSequence": "BBAAC",
+                "AccuracySeed": 14624023,
+                "ResponseTimeSeed": 18507427,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.2899999999999999,
+                "UserEngagement": 0.7550000000000001,
+                "UserFrustration": 0.8500000000000001,
+                "BaseUserAccuracy": 0.668,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.4159999999999995,
+                "ObservedUserResponseTime": 3.6388446072256775
+            }
+        },
+        "38": {
+            "update": {
+                "510413b8-b6ee-468d-8e68-e8480787e60a": {
+                    "name": "OverrideOrContinueFallback",
+                    "status": "Status.SUCCESS"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 3,
+                "SequenceLength": 5,
+                "NumRepetitions": 0,
+                "NumSequences": 1,
+                "SequenceSet": false,
+                "ResponseTimerActive": false,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": true,
+                "UserTimeout": false,
+                "CurrentSequence": "BBCAC",
+                "UserSequence": "BBAAC",
+                "AccuracySeed": 14624023,
+                "ResponseTimeSeed": 18507427,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.2899999999999999,
+                "UserEngagement": 0.7550000000000001,
+                "UserFrustration": 0.8500000000000001,
+                "BaseUserAccuracy": 0.668,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.4159999999999995,
+                "ObservedUserResponseTime": 3.6388446072256775
+            }
+        }
+    },
+    "2": {
+        "39": {
+            "update": {
+                "61ab02f8-0ca7-4950-b394-b34f0ed39cba": {
+                    "name": "CheckOverride",
+                    "status": "Status.FAILURE",
+                    "action": "NullAction"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 3,
+                "SequenceLength": 5,
+                "NumRepetitions": 0,
+                "NumSequences": 1,
+                "SequenceSet": false,
+                "ResponseTimerActive": false,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": true,
+                "UserTimeout": false,
+                "CurrentSequence": "BBCAC",
+                "UserSequence": "BBAAC",
+                "AccuracySeed": 14624023,
+                "ResponseTimeSeed": 18507427,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.2899999999999999,
+                "UserEngagement": 0.7550000000000001,
+                "UserFrustration": 0.8500000000000001,
+                "BaseUserAccuracy": 0.668,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.4159999999999995,
+                "ObservedUserResponseTime": 3.6388446072256775
+            }
+        },
+        "40": {
+            "update": {
+                "51358f02-7b6f-422e-874f-993c33733f31": {
+                    "name": "CheckOverrideAndEndSequence",
+                    "status": "Status.FAILURE"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 3,
+                "SequenceLength": 5,
+                "NumRepetitions": 0,
+                "NumSequences": 1,
+                "SequenceSet": false,
+                "ResponseTimerActive": false,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": true,
+                "UserTimeout": false,
+                "CurrentSequence": "BBCAC",
+                "UserSequence": "BBAAC",
+                "AccuracySeed": 14624023,
+                "ResponseTimeSeed": 18507427,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.2899999999999999,
+                "UserEngagement": 0.7550000000000001,
+                "UserFrustration": 0.8500000000000001,
+                "BaseUserAccuracy": 0.668,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.4159999999999995,
+                "ObservedUserResponseTime": 3.6388446072256775
+            }
+        },
+        "41": {
+            "update": {
+                "2fe27a5a-1c06-41aa-91ee-533245b0632b": {
+                    "name": "CheckInitialSequence",
+                    "status": "Status.SUCCESS",
+                    "action": "NullAction"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 3,
+                "SequenceLength": 5,
+                "NumRepetitions": 0,
+                "NumSequences": 1,
+                "SequenceSet": false,
+                "ResponseTimerActive": false,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": true,
+                "UserTimeout": false,
+                "CurrentSequence": "BBCAC",
+                "UserSequence": "BBAAC",
+                "AccuracySeed": 14624023,
+                "ResponseTimeSeed": 18507427,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.2899999999999999,
+                "UserEngagement": 0.7550000000000001,
+                "UserFrustration": 0.8500000000000001,
+                "BaseUserAccuracy": 0.668,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.4159999999999995,
+                "ObservedUserResponseTime": 3.6388446072256775
+            }
+        },
+        "42": {
+            "update": {
+                "0a67f6a8-4141-4318-b4d7-ce31524bdd12": {
+                    "name": "SetSequenceParameters",
+                    "status": "Status.SUCCESS",
+                    "action": "SetSequenceParameters(5,4)"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 4,
+                "SequenceLength": 5,
+                "NumRepetitions": 0,
+                "NumSequences": 2,
+                "SequenceSet": true,
+                "ResponseTimerActive": false,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": true,
+                "UserTimeout": false,
+                "CurrentSequence": "BABAA",
+                "UserSequence": "BBAAC",
+                "AccuracySeed": 14624023,
+                "ResponseTimeSeed": 18507427,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.2899999999999999,
+                "UserEngagement": 0.7550000000000001,
+                "UserFrustration": 0.8500000000000001,
+                "BaseUserAccuracy": 0.668,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.4159999999999995,
+                "ObservedUserResponseTime": 3.6388446072256775
+            }
+        },
+        "43": {
+            "update": {
+                "cf517e02-4b97-4781-b959-e767df7d65dd": {
+                    "name": "CheckInitialAndSetParamsSequence",
+                    "status": "Status.SUCCESS"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 4,
+                "SequenceLength": 5,
+                "NumRepetitions": 0,
+                "NumSequences": 2,
+                "SequenceSet": true,
+                "ResponseTimerActive": false,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": true,
+                "UserTimeout": false,
+                "CurrentSequence": "BABAA",
+                "UserSequence": "BBAAC",
+                "AccuracySeed": 14624023,
+                "ResponseTimeSeed": 18507427,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.2899999999999999,
+                "UserEngagement": 0.7550000000000001,
+                "UserFrustration": 0.8500000000000001,
+                "BaseUserAccuracy": 0.668,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.4159999999999995,
+                "ObservedUserResponseTime": 3.6388446072256775
+            }
+        },
+        "44": {
+            "update": {
+                "d5aa95d7-d6b8-40de-800c-857f01c14874": {
+                    "name": "SetParamsOrHandleRepeatedFallback",
+                    "status": "Status.SUCCESS"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 4,
+                "SequenceLength": 5,
+                "NumRepetitions": 0,
+                "NumSequences": 2,
+                "SequenceSet": true,
+                "ResponseTimerActive": false,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": true,
+                "UserTimeout": false,
+                "CurrentSequence": "BABAA",
+                "UserSequence": "BBAAC",
+                "AccuracySeed": 14624023,
+                "ResponseTimeSeed": 18507427,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.2899999999999999,
+                "UserEngagement": 0.7550000000000001,
+                "UserFrustration": 0.8500000000000001,
+                "BaseUserAccuracy": 0.668,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.4159999999999995,
+                "ObservedUserResponseTime": 3.6388446072256775
+            }
+        },
+        "45": {
+            "update": {
+                "75142fa5-fbf3-42ab-8402-aae382b45fb5": {
+                    "name": "ProvideSequence",
+                    "status": "Status.SUCCESS",
+                    "action": "ProvideSequence"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 4,
+                "SequenceLength": 5,
+                "NumRepetitions": 1,
+                "NumSequences": 2,
+                "SequenceSet": true,
+                "ResponseTimerActive": false,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": false,
+                "UserTimeout": false,
+                "CurrentSequence": "BABAA",
+                "UserSequence": "DABAA",
+                "AccuracySeed": 734992870,
+                "ResponseTimeSeed": 497613389,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.43999999999999995,
+                "UserEngagement": 0.68,
+                "UserFrustration": 0.8500000000000001,
+                "BaseUserAccuracy": 0.44800000000000006,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.776,
+                "ObservedUserResponseTime": 3.9584287282440496
+            }
+        },
+        "46": {
+            "update": {
+                "c6dc60e3-5578-433c-87d3-14b69e521d94": {
+                    "name": "StartResponseTimer",
+                    "status": "Status.SUCCESS",
+                    "action": "ResetTimer"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 4,
+                "SequenceLength": 5,
+                "NumRepetitions": 1,
+                "NumSequences": 2,
+                "SequenceSet": true,
+                "ResponseTimerActive": true,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": false,
+                "UserTimeout": false,
+                "CurrentSequence": "BABAA",
+                "UserSequence": "DABAA",
+                "AccuracySeed": 734992870,
+                "ResponseTimeSeed": 497613389,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.43999999999999995,
+                "UserEngagement": 0.68,
+                "UserFrustration": 0.8500000000000001,
+                "BaseUserAccuracy": 0.44800000000000006,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.776,
+                "ObservedUserResponseTime": 3.9584287282440496
+            }
+        },
+        "47": {
+            "update": {
+                "48a87cf6-1585-4809-a941-e978f5c79801": {
+                    "name": "NudgeTimer",
+                    "status": "Status.SUCCESS",
+                    "action": "CheckTimer"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 4,
+                "SequenceLength": 5,
+                "NumRepetitions": 1,
+                "NumSequences": 2,
+                "SequenceSet": true,
+                "ResponseTimerActive": true,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": false,
+                "UserTimeout": false,
+                "CurrentSequence": "BABAA",
+                "UserSequence": "DABAA",
+                "AccuracySeed": 734992870,
+                "ResponseTimeSeed": 497613389,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.43999999999999995,
+                "UserEngagement": 0.68,
+                "UserFrustration": 0.8500000000000001,
+                "BaseUserAccuracy": 0.44800000000000006,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.776,
+                "ObservedUserResponseTime": 3.9584287282440496
+            }
+        },
+        "48": {
+            "update": {
+                "2bfa93b8-4b89-4fed-b541-a678aeaaf5bd": {
+                    "name": "HandleTimerResponse",
+                    "status": "Status.RUNNING",
+                    "action": "NullAction"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 4,
+                "SequenceLength": 5,
+                "NumRepetitions": 1,
+                "NumSequences": 2,
+                "SequenceSet": true,
+                "ResponseTimerActive": true,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": false,
+                "UserTimeout": false,
+                "CurrentSequence": "BABAA",
+                "UserSequence": "DABAA",
+                "AccuracySeed": 734992870,
+                "ResponseTimeSeed": 497613389,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.43999999999999995,
+                "UserEngagement": 0.68,
+                "UserFrustration": 0.8500000000000001,
+                "BaseUserAccuracy": 0.44800000000000006,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.776,
+                "ObservedUserResponseTime": 3.9584287282440496
+            }
+        },
+        "49": {
+            "update": {
+                "eb16cdf5-9be7-4b37-a502-8a29a992066f": {
+                    "name": "NudgeTimerAndHandleResponse",
+                    "status": "Status.RUNNING"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 4,
+                "SequenceLength": 5,
+                "NumRepetitions": 1,
+                "NumSequences": 2,
+                "SequenceSet": true,
+                "ResponseTimerActive": true,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": false,
+                "UserTimeout": false,
+                "CurrentSequence": "BABAA",
+                "UserSequence": "DABAA",
+                "AccuracySeed": 734992870,
+                "ResponseTimeSeed": 497613389,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.43999999999999995,
+                "UserEngagement": 0.68,
+                "UserFrustration": 0.8500000000000001,
+                "BaseUserAccuracy": 0.44800000000000006,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.776,
+                "ObservedUserResponseTime": 3.9584287282440496
+            }
+        },
+        "50": {
+            "update": {
+                "312c5c92-71a6-45e5-a5e4-41faa21c393d": {
+                    "name": "StartTimerAndWait",
+                    "status": "Status.RUNNING"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 4,
+                "SequenceLength": 5,
+                "NumRepetitions": 1,
+                "NumSequences": 2,
+                "SequenceSet": true,
+                "ResponseTimerActive": true,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": false,
+                "UserTimeout": false,
+                "CurrentSequence": "BABAA",
+                "UserSequence": "DABAA",
+                "AccuracySeed": 734992870,
+                "ResponseTimeSeed": 497613389,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.43999999999999995,
+                "UserEngagement": 0.68,
+                "UserFrustration": 0.8500000000000001,
+                "BaseUserAccuracy": 0.44800000000000006,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.776,
+                "ObservedUserResponseTime": 3.9584287282440496
+            }
+        },
+        "51": {
+            "update": {
+                "059004f0-3b01-4f0b-aea6-4d6418fa63d6": {
+                    "name": "WaitAndHandleResponse",
+                    "status": "Status.RUNNING"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 4,
+                "SequenceLength": 5,
+                "NumRepetitions": 1,
+                "NumSequences": 2,
+                "SequenceSet": true,
+                "ResponseTimerActive": true,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": false,
+                "UserTimeout": false,
+                "CurrentSequence": "BABAA",
+                "UserSequence": "DABAA",
+                "AccuracySeed": 734992870,
+                "ResponseTimeSeed": 497613389,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.43999999999999995,
+                "UserEngagement": 0.68,
+                "UserFrustration": 0.8500000000000001,
+                "BaseUserAccuracy": 0.44800000000000006,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.776,
+                "ObservedUserResponseTime": 3.9584287282440496
+            }
+        },
+        "52": {
+            "update": {
+                "a59caf6f-0523-4fc5-aae2-37907ee4977b": {
+                    "name": "HandleResponseOrNoResponseFallback",
+                    "status": "Status.RUNNING"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 4,
+                "SequenceLength": 5,
+                "NumRepetitions": 1,
+                "NumSequences": 2,
+                "SequenceSet": true,
+                "ResponseTimerActive": true,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": false,
+                "UserTimeout": false,
+                "CurrentSequence": "BABAA",
+                "UserSequence": "DABAA",
+                "AccuracySeed": 734992870,
+                "ResponseTimeSeed": 497613389,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.43999999999999995,
+                "UserEngagement": 0.68,
+                "UserFrustration": 0.8500000000000001,
+                "BaseUserAccuracy": 0.44800000000000006,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.776,
+                "ObservedUserResponseTime": 3.9584287282440496
+            }
+        },
+        "53": {
+            "update": {
+                "87eb79c7-cfea-4052-864b-e8691730b58d": {
+                    "name": "HandleResponseAndEndRepetition",
+                    "status": "Status.RUNNING"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 4,
+                "SequenceLength": 5,
+                "NumRepetitions": 1,
+                "NumSequences": 2,
+                "SequenceSet": true,
+                "ResponseTimerActive": true,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": false,
+                "UserTimeout": false,
+                "CurrentSequence": "BABAA",
+                "UserSequence": "DABAA",
+                "AccuracySeed": 734992870,
+                "ResponseTimeSeed": 497613389,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.43999999999999995,
+                "UserEngagement": 0.68,
+                "UserFrustration": 0.8500000000000001,
+                "BaseUserAccuracy": 0.44800000000000006,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.776,
+                "ObservedUserResponseTime": 3.9584287282440496
+            }
+        },
+        "54": {
+            "update": {
+                "abe1e8d6-9d3f-445e-bfee-0ed5b55a69d7": {
+                    "name": "StartGameSequence",
+                    "status": "Status.RUNNING"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 4,
+                "SequenceLength": 5,
+                "NumRepetitions": 1,
+                "NumSequences": 2,
+                "SequenceSet": true,
+                "ResponseTimerActive": true,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": false,
+                "UserTimeout": false,
+                "CurrentSequence": "BABAA",
+                "UserSequence": "DABAA",
+                "AccuracySeed": 734992870,
+                "ResponseTimeSeed": 497613389,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.43999999999999995,
+                "UserEngagement": 0.68,
+                "UserFrustration": 0.8500000000000001,
+                "BaseUserAccuracy": 0.44800000000000006,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.776,
+                "ObservedUserResponseTime": 3.9584287282440496
+            }
+        },
+        "55": {
+            "update": {
+                "510413b8-b6ee-468d-8e68-e8480787e60a": {
+                    "name": "OverrideOrContinueFallback",
+                    "status": "Status.RUNNING"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 4,
+                "SequenceLength": 5,
+                "NumRepetitions": 1,
+                "NumSequences": 2,
+                "SequenceSet": true,
+                "ResponseTimerActive": true,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": false,
+                "UserTimeout": false,
+                "CurrentSequence": "BABAA",
+                "UserSequence": "DABAA",
+                "AccuracySeed": 734992870,
+                "ResponseTimeSeed": 497613389,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.43999999999999995,
+                "UserEngagement": 0.68,
+                "UserFrustration": 0.8500000000000001,
+                "BaseUserAccuracy": 0.44800000000000006,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.776,
+                "ObservedUserResponseTime": 3.9584287282440496
+            }
+        }
+    },
+    "3": {
+        "56": {
+            "update": {
+                "61ab02f8-0ca7-4950-b394-b34f0ed39cba": {
+                    "name": "CheckOverride",
+                    "status": "Status.FAILURE",
+                    "action": "NullAction"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 4,
+                "SequenceLength": 5,
+                "NumRepetitions": 1,
+                "NumSequences": 2,
+                "SequenceSet": true,
+                "ResponseTimerActive": true,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": false,
+                "UserTimeout": false,
+                "CurrentSequence": "BABAA",
+                "UserSequence": "DABAA",
+                "AccuracySeed": 734992870,
+                "ResponseTimeSeed": 497613389,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.43999999999999995,
+                "UserEngagement": 0.68,
+                "UserFrustration": 0.8500000000000001,
+                "BaseUserAccuracy": 0.44800000000000006,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.776,
+                "ObservedUserResponseTime": 3.9584287282440496
+            }
+        },
+        "57": {
+            "update": {
+                "51358f02-7b6f-422e-874f-993c33733f31": {
+                    "name": "CheckOverrideAndEndSequence",
+                    "status": "Status.FAILURE"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 4,
+                "SequenceLength": 5,
+                "NumRepetitions": 1,
+                "NumSequences": 2,
+                "SequenceSet": true,
+                "ResponseTimerActive": true,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": false,
+                "UserTimeout": false,
+                "CurrentSequence": "BABAA",
+                "UserSequence": "DABAA",
+                "AccuracySeed": 734992870,
+                "ResponseTimeSeed": 497613389,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.43999999999999995,
+                "UserEngagement": 0.68,
+                "UserFrustration": 0.8500000000000001,
+                "BaseUserAccuracy": 0.44800000000000006,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.776,
+                "ObservedUserResponseTime": 3.9584287282440496
+            }
+        },
+        "58": {
+            "update": {
+                "48a87cf6-1585-4809-a941-e978f5c79801": {
+                    "name": "NudgeTimer",
+                    "status": "Status.SUCCESS",
+                    "action": "CheckTimer"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 4,
+                "SequenceLength": 5,
+                "NumRepetitions": 1,
+                "NumSequences": 2,
+                "SequenceSet": true,
+                "ResponseTimerActive": true,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": true,
+                "UserTimeout": false,
+                "CurrentSequence": "BABAA",
+                "UserSequence": "DABAA",
+                "AccuracySeed": 734992870,
+                "ResponseTimeSeed": 497613389,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.43999999999999995,
+                "UserEngagement": 0.68,
+                "UserFrustration": 0.8500000000000001,
+                "BaseUserAccuracy": 0.44800000000000006,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.776,
+                "ObservedUserResponseTime": 3.9584287282440496
+            }
+        },
+        "59": {
+            "update": {
+                "2bfa93b8-4b89-4fed-b541-a678aeaaf5bd": {
+                    "name": "HandleTimerResponse",
+                    "status": "Status.SUCCESS",
+                    "action": "NullAction"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 4,
+                "SequenceLength": 5,
+                "NumRepetitions": 1,
+                "NumSequences": 2,
+                "SequenceSet": true,
+                "ResponseTimerActive": false,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": true,
+                "UserTimeout": false,
+                "CurrentSequence": "BABAA",
+                "UserSequence": "DABAA",
+                "AccuracySeed": 734992870,
+                "ResponseTimeSeed": 497613389,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.43999999999999995,
+                "UserEngagement": 0.68,
+                "UserFrustration": 0.8500000000000001,
+                "BaseUserAccuracy": 0.44800000000000006,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.776,
+                "ObservedUserResponseTime": 3.9584287282440496
+            }
+        },
+        "60": {
+            "update": {
+                "eb16cdf5-9be7-4b37-a502-8a29a992066f": {
+                    "name": "NudgeTimerAndHandleResponse",
+                    "status": "Status.SUCCESS"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 4,
+                "SequenceLength": 5,
+                "NumRepetitions": 1,
+                "NumSequences": 2,
+                "SequenceSet": true,
+                "ResponseTimerActive": false,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": true,
+                "UserTimeout": false,
+                "CurrentSequence": "BABAA",
+                "UserSequence": "DABAA",
+                "AccuracySeed": 734992870,
+                "ResponseTimeSeed": 497613389,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.43999999999999995,
+                "UserEngagement": 0.68,
+                "UserFrustration": 0.8500000000000001,
+                "BaseUserAccuracy": 0.44800000000000006,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.776,
+                "ObservedUserResponseTime": 3.9584287282440496
+            }
+        },
+        "61": {
+            "update": {
+                "312c5c92-71a6-45e5-a5e4-41faa21c393d": {
+                    "name": "StartTimerAndWait",
+                    "status": "Status.SUCCESS"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 4,
+                "SequenceLength": 5,
+                "NumRepetitions": 1,
+                "NumSequences": 2,
+                "SequenceSet": true,
+                "ResponseTimerActive": false,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": true,
+                "UserTimeout": false,
+                "CurrentSequence": "BABAA",
+                "UserSequence": "DABAA",
+                "AccuracySeed": 734992870,
+                "ResponseTimeSeed": 497613389,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.43999999999999995,
+                "UserEngagement": 0.68,
+                "UserFrustration": 0.8500000000000001,
+                "BaseUserAccuracy": 0.44800000000000006,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.776,
+                "ObservedUserResponseTime": 3.9584287282440496
+            }
+        },
+        "62": {
+            "update": {
+                "2e966e09-ad7d-47c7-846b-c16b89c8dd15": {
+                    "name": "AssessUserSequence",
+                    "status": "Status.SUCCESS",
+                    "action": "AssessSequence"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 4,
+                "SequenceLength": 5,
+                "NumRepetitions": 1,
+                "NumSequences": 2,
+                "SequenceSet": true,
+                "ResponseTimerActive": false,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": true,
+                "UserTimeout": false,
+                "CurrentSequence": "BABAA",
+                "UserSequence": "DABAA",
+                "AccuracySeed": 734992870,
+                "ResponseTimeSeed": 497613389,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.43999999999999995,
+                "UserEngagement": 0.68,
+                "UserFrustration": 0.8500000000000001,
+                "BaseUserAccuracy": 0.44800000000000006,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.776,
+                "ObservedUserResponseTime": 3.9584287282440496
+            }
+        },
+        "63": {
+            "update": {
+                "6a90ee8a-6b3a-4a48-a3ce-1ec9973f2fba": {
+                    "name": "HandleUserResponse",
+                    "status": "Status.SUCCESS",
+                    "action": "NullAction"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 4,
+                "SequenceLength": 5,
+                "NumRepetitions": 1,
+                "NumSequences": 2,
+                "SequenceSet": true,
+                "ResponseTimerActive": false,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": true,
+                "UserTimeout": false,
+                "CurrentSequence": "BABAA",
+                "UserSequence": "DABAA",
+                "AccuracySeed": 734992870,
+                "ResponseTimeSeed": 497613389,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.43999999999999995,
+                "UserEngagement": 0.68,
+                "UserFrustration": 0.8500000000000001,
+                "BaseUserAccuracy": 0.44800000000000006,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.776,
+                "ObservedUserResponseTime": 3.9584287282440496
+            }
+        },
+        "64": {
+            "update": {
+                "9d9593af-95e5-410f-adf6-02f840aa8729": {
+                    "name": "RepeatOrEnd",
+                    "status": "Status.SUCCESS",
+                    "action": "EndThisSequence"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 4,
+                "SequenceLength": 5,
+                "NumRepetitions": 1,
+                "NumSequences": 2,
+                "SequenceSet": true,
+                "ResponseTimerActive": false,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": true,
+                "UserTimeout": false,
+                "CurrentSequence": "BABAA",
+                "UserSequence": "DABAA",
+                "AccuracySeed": 734992870,
+                "ResponseTimeSeed": 497613389,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.43999999999999995,
+                "UserEngagement": 0.68,
+                "UserFrustration": 0.8500000000000001,
+                "BaseUserAccuracy": 0.44800000000000006,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.776,
+                "ObservedUserResponseTime": 3.9584287282440496
+            }
+        },
+        "65": {
+            "update": {
+                "2f06c18a-d94a-497f-9662-7b3b0dfa76c6": {
+                    "name": "DecideSocialAction",
+                    "status": "Status.SUCCESS",
+                    "action": "EndSequenceSocial"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 4,
+                "SequenceLength": 5,
+                "NumRepetitions": 1,
+                "NumSequences": 2,
+                "SequenceSet": true,
+                "ResponseTimerActive": false,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": true,
+                "UserResponded": true,
+                "UserTimeout": false,
+                "CurrentSequence": "BABAA",
+                "UserSequence": "DABAA",
+                "AccuracySeed": 734992870,
+                "ResponseTimeSeed": 497613389,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.43999999999999995,
+                "UserEngagement": 0.68,
+                "UserFrustration": 0.9000000000000001,
+                "BaseUserAccuracy": 0.44800000000000006,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.776,
+                "ObservedUserResponseTime": 3.9584287282440496
+            }
+        },
+        "66": {
+            "update": {
+                "c9442521-fa73-4d06-bb15-4219b888e345": {
+                    "name": "DecideRepeatAndSocialAction",
+                    "status": "Status.SUCCESS"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 4,
+                "SequenceLength": 5,
+                "NumRepetitions": 1,
+                "NumSequences": 2,
+                "SequenceSet": true,
+                "ResponseTimerActive": false,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": true,
+                "UserResponded": true,
+                "UserTimeout": false,
+                "CurrentSequence": "BABAA",
+                "UserSequence": "DABAA",
+                "AccuracySeed": 734992870,
+                "ResponseTimeSeed": 497613389,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.43999999999999995,
+                "UserEngagement": 0.68,
+                "UserFrustration": 0.9000000000000001,
+                "BaseUserAccuracy": 0.44800000000000006,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.776,
+                "ObservedUserResponseTime": 3.9584287282440496
+            }
+        },
+        "67": {
+            "update": {
+                "0f7a9331-cd76-4a4b-a45b-2149075f549c": {
+                    "name": "AssessSequenceAndHandleUserResponse",
+                    "status": "Status.SUCCESS"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 4,
+                "SequenceLength": 5,
+                "NumRepetitions": 1,
+                "NumSequences": 2,
+                "SequenceSet": true,
+                "ResponseTimerActive": false,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": true,
+                "UserResponded": true,
+                "UserTimeout": false,
+                "CurrentSequence": "BABAA",
+                "UserSequence": "DABAA",
+                "AccuracySeed": 734992870,
+                "ResponseTimeSeed": 497613389,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.43999999999999995,
+                "UserEngagement": 0.68,
+                "UserFrustration": 0.9000000000000001,
+                "BaseUserAccuracy": 0.44800000000000006,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.776,
+                "ObservedUserResponseTime": 3.9584287282440496
+            }
+        },
+        "68": {
+            "update": {
+                "059004f0-3b01-4f0b-aea6-4d6418fa63d6": {
+                    "name": "WaitAndHandleResponse",
+                    "status": "Status.SUCCESS"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 4,
+                "SequenceLength": 5,
+                "NumRepetitions": 1,
+                "NumSequences": 2,
+                "SequenceSet": true,
+                "ResponseTimerActive": false,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": true,
+                "UserResponded": true,
+                "UserTimeout": false,
+                "CurrentSequence": "BABAA",
+                "UserSequence": "DABAA",
+                "AccuracySeed": 734992870,
+                "ResponseTimeSeed": 497613389,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.43999999999999995,
+                "UserEngagement": 0.68,
+                "UserFrustration": 0.9000000000000001,
+                "BaseUserAccuracy": 0.44800000000000006,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.776,
+                "ObservedUserResponseTime": 3.9584287282440496
+            }
+        },
+        "69": {
+            "update": {
+                "a59caf6f-0523-4fc5-aae2-37907ee4977b": {
+                    "name": "HandleResponseOrNoResponseFallback",
+                    "status": "Status.SUCCESS"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 4,
+                "SequenceLength": 5,
+                "NumRepetitions": 1,
+                "NumSequences": 2,
+                "SequenceSet": true,
+                "ResponseTimerActive": false,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": true,
+                "UserResponded": true,
+                "UserTimeout": false,
+                "CurrentSequence": "BABAA",
+                "UserSequence": "DABAA",
+                "AccuracySeed": 734992870,
+                "ResponseTimeSeed": 497613389,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.43999999999999995,
+                "UserEngagement": 0.68,
+                "UserFrustration": 0.9000000000000001,
+                "BaseUserAccuracy": 0.44800000000000006,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.776,
+                "ObservedUserResponseTime": 3.9584287282440496
+            }
+        },
+        "70": {
+            "update": {
+                "85c704b3-97ef-4020-a426-21249ffb8752": {
+                    "name": "CheckEndCurrentSequence",
+                    "status": "Status.SUCCESS",
+                    "action": "NullAction"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 4,
+                "SequenceLength": 5,
+                "NumRepetitions": 1,
+                "NumSequences": 2,
+                "SequenceSet": true,
+                "ResponseTimerActive": false,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": true,
+                "UserResponded": true,
+                "UserTimeout": false,
+                "CurrentSequence": "BABAA",
+                "UserSequence": "DABAA",
+                "AccuracySeed": 734992870,
+                "ResponseTimeSeed": 497613389,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.43999999999999995,
+                "UserEngagement": 0.68,
+                "UserFrustration": 0.9000000000000001,
+                "BaseUserAccuracy": 0.44800000000000006,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.776,
+                "ObservedUserResponseTime": 3.9584287282440496
+            }
+        },
+        "71": {
+            "update": {
+                "e2043bea-6d48-4b66-ab38-d1f66c84c72a": {
+                    "name": "EndCurrentSequence",
+                    "status": "Status.SUCCESS",
+                    "action": "EndThisSequence"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 4,
+                "SequenceLength": 5,
+                "NumRepetitions": 0,
+                "NumSequences": 2,
+                "SequenceSet": false,
+                "ResponseTimerActive": false,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": true,
+                "UserTimeout": false,
+                "CurrentSequence": "BABAA",
+                "UserSequence": "DABAA",
+                "AccuracySeed": 734992870,
+                "ResponseTimeSeed": 497613389,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.43999999999999995,
+                "UserEngagement": 0.68,
+                "UserFrustration": 0.9000000000000001,
+                "BaseUserAccuracy": 0.44800000000000006,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.776,
+                "ObservedUserResponseTime": 3.9584287282440496
+            }
+        },
+        "72": {
+            "update": {
+                "8c90a548-5f89-4d0a-b6fd-664124ca8e67": {
+                    "name": "CheckEndAndEndSequence",
+                    "status": "Status.SUCCESS"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 4,
+                "SequenceLength": 5,
+                "NumRepetitions": 0,
+                "NumSequences": 2,
+                "SequenceSet": false,
+                "ResponseTimerActive": false,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": true,
+                "UserTimeout": false,
+                "CurrentSequence": "BABAA",
+                "UserSequence": "DABAA",
+                "AccuracySeed": 734992870,
+                "ResponseTimeSeed": 497613389,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.43999999999999995,
+                "UserEngagement": 0.68,
+                "UserFrustration": 0.9000000000000001,
+                "BaseUserAccuracy": 0.44800000000000006,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.776,
+                "ObservedUserResponseTime": 3.9584287282440496
+            }
+        },
+        "73": {
+            "update": {
+                "bc70139d-7d99-4831-9a01-b58520c2656a": {
+                    "name": "EndOrRepeatFallback",
+                    "status": "Status.SUCCESS"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 4,
+                "SequenceLength": 5,
+                "NumRepetitions": 0,
+                "NumSequences": 2,
+                "SequenceSet": false,
+                "ResponseTimerActive": false,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": true,
+                "UserTimeout": false,
+                "CurrentSequence": "BABAA",
+                "UserSequence": "DABAA",
+                "AccuracySeed": 734992870,
+                "ResponseTimeSeed": 497613389,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.43999999999999995,
+                "UserEngagement": 0.68,
+                "UserFrustration": 0.9000000000000001,
+                "BaseUserAccuracy": 0.44800000000000006,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.776,
+                "ObservedUserResponseTime": 3.9584287282440496
+            }
+        },
+        "74": {
+            "update": {
+                "87eb79c7-cfea-4052-864b-e8691730b58d": {
+                    "name": "HandleResponseAndEndRepetition",
+                    "status": "Status.SUCCESS"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 4,
+                "SequenceLength": 5,
+                "NumRepetitions": 0,
+                "NumSequences": 2,
+                "SequenceSet": false,
+                "ResponseTimerActive": false,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": true,
+                "UserTimeout": false,
+                "CurrentSequence": "BABAA",
+                "UserSequence": "DABAA",
+                "AccuracySeed": 734992870,
+                "ResponseTimeSeed": 497613389,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.43999999999999995,
+                "UserEngagement": 0.68,
+                "UserFrustration": 0.9000000000000001,
+                "BaseUserAccuracy": 0.44800000000000006,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.776,
+                "ObservedUserResponseTime": 3.9584287282440496
+            }
+        },
+        "75": {
+            "update": {
+                "abe1e8d6-9d3f-445e-bfee-0ed5b55a69d7": {
+                    "name": "StartGameSequence",
+                    "status": "Status.SUCCESS"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 4,
+                "SequenceLength": 5,
+                "NumRepetitions": 0,
+                "NumSequences": 2,
+                "SequenceSet": false,
+                "ResponseTimerActive": false,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": true,
+                "UserTimeout": false,
+                "CurrentSequence": "BABAA",
+                "UserSequence": "DABAA",
+                "AccuracySeed": 734992870,
+                "ResponseTimeSeed": 497613389,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.43999999999999995,
+                "UserEngagement": 0.68,
+                "UserFrustration": 0.9000000000000001,
+                "BaseUserAccuracy": 0.44800000000000006,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.776,
+                "ObservedUserResponseTime": 3.9584287282440496
+            }
+        },
+        "76": {
+            "update": {
+                "510413b8-b6ee-468d-8e68-e8480787e60a": {
+                    "name": "OverrideOrContinueFallback",
+                    "status": "Status.SUCCESS"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 4,
+                "SequenceLength": 5,
+                "NumRepetitions": 0,
+                "NumSequences": 2,
+                "SequenceSet": false,
+                "ResponseTimerActive": false,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": true,
+                "UserTimeout": false,
+                "CurrentSequence": "BABAA",
+                "UserSequence": "DABAA",
+                "AccuracySeed": 734992870,
+                "ResponseTimeSeed": 497613389,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.43999999999999995,
+                "UserEngagement": 0.68,
+                "UserFrustration": 0.9000000000000001,
+                "BaseUserAccuracy": 0.44800000000000006,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.776,
+                "ObservedUserResponseTime": 3.9584287282440496
+            }
+        }
+    },
+    "4": {
+        "77": {
+            "update": {
+                "61ab02f8-0ca7-4950-b394-b34f0ed39cba": {
+                    "name": "CheckOverride",
+                    "status": "Status.FAILURE",
+                    "action": "NullAction"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 4,
+                "SequenceLength": 5,
+                "NumRepetitions": 0,
+                "NumSequences": 2,
+                "SequenceSet": false,
+                "ResponseTimerActive": false,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": true,
+                "UserTimeout": false,
+                "CurrentSequence": "BABAA",
+                "UserSequence": "DABAA",
+                "AccuracySeed": 734992870,
+                "ResponseTimeSeed": 497613389,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.43999999999999995,
+                "UserEngagement": 0.68,
+                "UserFrustration": 0.9000000000000001,
+                "BaseUserAccuracy": 0.44800000000000006,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.776,
+                "ObservedUserResponseTime": 3.9584287282440496
+            }
+        },
+        "78": {
+            "update": {
+                "51358f02-7b6f-422e-874f-993c33733f31": {
+                    "name": "CheckOverrideAndEndSequence",
+                    "status": "Status.FAILURE"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 4,
+                "SequenceLength": 5,
+                "NumRepetitions": 0,
+                "NumSequences": 2,
+                "SequenceSet": false,
+                "ResponseTimerActive": false,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": true,
+                "UserTimeout": false,
+                "CurrentSequence": "BABAA",
+                "UserSequence": "DABAA",
+                "AccuracySeed": 734992870,
+                "ResponseTimeSeed": 497613389,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.43999999999999995,
+                "UserEngagement": 0.68,
+                "UserFrustration": 0.9000000000000001,
+                "BaseUserAccuracy": 0.44800000000000006,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.776,
+                "ObservedUserResponseTime": 3.9584287282440496
+            }
+        },
+        "79": {
+            "update": {
+                "2fe27a5a-1c06-41aa-91ee-533245b0632b": {
+                    "name": "CheckInitialSequence",
+                    "status": "Status.SUCCESS",
+                    "action": "NullAction"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 4,
+                "SequenceLength": 5,
+                "NumRepetitions": 0,
+                "NumSequences": 2,
+                "SequenceSet": false,
+                "ResponseTimerActive": false,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": true,
+                "UserTimeout": false,
+                "CurrentSequence": "BABAA",
+                "UserSequence": "DABAA",
+                "AccuracySeed": 734992870,
+                "ResponseTimeSeed": 497613389,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.43999999999999995,
+                "UserEngagement": 0.68,
+                "UserFrustration": 0.9000000000000001,
+                "BaseUserAccuracy": 0.44800000000000006,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.776,
+                "ObservedUserResponseTime": 3.9584287282440496
+            }
+        },
+        "80": {
+            "update": {
+                "0a67f6a8-4141-4318-b4d7-ce31524bdd12": {
+                    "name": "SetSequenceParameters",
+                    "status": "Status.SUCCESS",
+                    "action": "SetSequenceParameters(5,4)"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 4,
+                "SequenceLength": 5,
+                "NumRepetitions": 0,
+                "NumSequences": 3,
+                "SequenceSet": true,
+                "ResponseTimerActive": false,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": true,
+                "UserTimeout": false,
+                "CurrentSequence": "ACCBB",
+                "UserSequence": "DABAA",
+                "AccuracySeed": 734992870,
+                "ResponseTimeSeed": 497613389,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.43999999999999995,
+                "UserEngagement": 0.68,
+                "UserFrustration": 0.9000000000000001,
+                "BaseUserAccuracy": 0.44800000000000006,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.776,
+                "ObservedUserResponseTime": 3.9584287282440496
+            }
+        },
+        "81": {
+            "update": {
+                "cf517e02-4b97-4781-b959-e767df7d65dd": {
+                    "name": "CheckInitialAndSetParamsSequence",
+                    "status": "Status.SUCCESS"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 4,
+                "SequenceLength": 5,
+                "NumRepetitions": 0,
+                "NumSequences": 3,
+                "SequenceSet": true,
+                "ResponseTimerActive": false,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": true,
+                "UserTimeout": false,
+                "CurrentSequence": "ACCBB",
+                "UserSequence": "DABAA",
+                "AccuracySeed": 734992870,
+                "ResponseTimeSeed": 497613389,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.43999999999999995,
+                "UserEngagement": 0.68,
+                "UserFrustration": 0.9000000000000001,
+                "BaseUserAccuracy": 0.44800000000000006,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.776,
+                "ObservedUserResponseTime": 3.9584287282440496
+            }
+        },
+        "82": {
+            "update": {
+                "d5aa95d7-d6b8-40de-800c-857f01c14874": {
+                    "name": "SetParamsOrHandleRepeatedFallback",
+                    "status": "Status.SUCCESS"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 4,
+                "SequenceLength": 5,
+                "NumRepetitions": 0,
+                "NumSequences": 3,
+                "SequenceSet": true,
+                "ResponseTimerActive": false,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": true,
+                "UserTimeout": false,
+                "CurrentSequence": "ACCBB",
+                "UserSequence": "DABAA",
+                "AccuracySeed": 734992870,
+                "ResponseTimeSeed": 497613389,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.43999999999999995,
+                "UserEngagement": 0.68,
+                "UserFrustration": 0.9000000000000001,
+                "BaseUserAccuracy": 0.44800000000000006,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.776,
+                "ObservedUserResponseTime": 3.9584287282440496
+            }
+        },
+        "83": {
+            "update": {
+                "75142fa5-fbf3-42ab-8402-aae382b45fb5": {
+                    "name": "ProvideSequence",
+                    "status": "Status.SUCCESS",
+                    "action": "ProvideSequence"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 4,
+                "SequenceLength": 5,
+                "NumRepetitions": 1,
+                "NumSequences": 3,
+                "SequenceSet": true,
+                "ResponseTimerActive": false,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": false,
+                "UserTimeout": false,
+                "CurrentSequence": "ACCBB",
+                "UserSequence": "ACBB",
+                "AccuracySeed": 894539983,
+                "ResponseTimeSeed": 920296524,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.43999999999999995,
+                "UserEngagement": 0.68,
+                "UserFrustration": 0.9000000000000001,
+                "BaseUserAccuracy": 0.44800000000000006,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.776,
+                "ObservedUserResponseTime": 2.499072911442406
+            }
+        },
+        "84": {
+            "update": {
+                "c6dc60e3-5578-433c-87d3-14b69e521d94": {
+                    "name": "StartResponseTimer",
+                    "status": "Status.SUCCESS",
+                    "action": "ResetTimer"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 4,
+                "SequenceLength": 5,
+                "NumRepetitions": 1,
+                "NumSequences": 3,
+                "SequenceSet": true,
+                "ResponseTimerActive": true,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": false,
+                "UserTimeout": false,
+                "CurrentSequence": "ACCBB",
+                "UserSequence": "ACBB",
+                "AccuracySeed": 894539983,
+                "ResponseTimeSeed": 920296524,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.43999999999999995,
+                "UserEngagement": 0.68,
+                "UserFrustration": 0.9000000000000001,
+                "BaseUserAccuracy": 0.44800000000000006,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.776,
+                "ObservedUserResponseTime": 2.499072911442406
+            }
+        },
+        "85": {
+            "update": {
+                "48a87cf6-1585-4809-a941-e978f5c79801": {
+                    "name": "NudgeTimer",
+                    "status": "Status.SUCCESS",
+                    "action": "CheckTimer"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 4,
+                "SequenceLength": 5,
+                "NumRepetitions": 1,
+                "NumSequences": 3,
+                "SequenceSet": true,
+                "ResponseTimerActive": true,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": false,
+                "UserTimeout": false,
+                "CurrentSequence": "ACCBB",
+                "UserSequence": "ACBB",
+                "AccuracySeed": 894539983,
+                "ResponseTimeSeed": 920296524,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.43999999999999995,
+                "UserEngagement": 0.68,
+                "UserFrustration": 0.9000000000000001,
+                "BaseUserAccuracy": 0.44800000000000006,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.776,
+                "ObservedUserResponseTime": 2.499072911442406
+            }
+        },
+        "86": {
+            "update": {
+                "2bfa93b8-4b89-4fed-b541-a678aeaaf5bd": {
+                    "name": "HandleTimerResponse",
+                    "status": "Status.RUNNING",
+                    "action": "NullAction"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 4,
+                "SequenceLength": 5,
+                "NumRepetitions": 1,
+                "NumSequences": 3,
+                "SequenceSet": true,
+                "ResponseTimerActive": true,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": false,
+                "UserTimeout": false,
+                "CurrentSequence": "ACCBB",
+                "UserSequence": "ACBB",
+                "AccuracySeed": 894539983,
+                "ResponseTimeSeed": 920296524,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.43999999999999995,
+                "UserEngagement": 0.68,
+                "UserFrustration": 0.9000000000000001,
+                "BaseUserAccuracy": 0.44800000000000006,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.776,
+                "ObservedUserResponseTime": 2.499072911442406
+            }
+        },
+        "87": {
+            "update": {
+                "eb16cdf5-9be7-4b37-a502-8a29a992066f": {
+                    "name": "NudgeTimerAndHandleResponse",
+                    "status": "Status.RUNNING"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 4,
+                "SequenceLength": 5,
+                "NumRepetitions": 1,
+                "NumSequences": 3,
+                "SequenceSet": true,
+                "ResponseTimerActive": true,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": false,
+                "UserTimeout": false,
+                "CurrentSequence": "ACCBB",
+                "UserSequence": "ACBB",
+                "AccuracySeed": 894539983,
+                "ResponseTimeSeed": 920296524,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.43999999999999995,
+                "UserEngagement": 0.68,
+                "UserFrustration": 0.9000000000000001,
+                "BaseUserAccuracy": 0.44800000000000006,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.776,
+                "ObservedUserResponseTime": 2.499072911442406
+            }
+        },
+        "88": {
+            "update": {
+                "312c5c92-71a6-45e5-a5e4-41faa21c393d": {
+                    "name": "StartTimerAndWait",
+                    "status": "Status.RUNNING"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 4,
+                "SequenceLength": 5,
+                "NumRepetitions": 1,
+                "NumSequences": 3,
+                "SequenceSet": true,
+                "ResponseTimerActive": true,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": false,
+                "UserTimeout": false,
+                "CurrentSequence": "ACCBB",
+                "UserSequence": "ACBB",
+                "AccuracySeed": 894539983,
+                "ResponseTimeSeed": 920296524,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.43999999999999995,
+                "UserEngagement": 0.68,
+                "UserFrustration": 0.9000000000000001,
+                "BaseUserAccuracy": 0.44800000000000006,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.776,
+                "ObservedUserResponseTime": 2.499072911442406
+            }
+        },
+        "89": {
+            "update": {
+                "059004f0-3b01-4f0b-aea6-4d6418fa63d6": {
+                    "name": "WaitAndHandleResponse",
+                    "status": "Status.RUNNING"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 4,
+                "SequenceLength": 5,
+                "NumRepetitions": 1,
+                "NumSequences": 3,
+                "SequenceSet": true,
+                "ResponseTimerActive": true,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": false,
+                "UserTimeout": false,
+                "CurrentSequence": "ACCBB",
+                "UserSequence": "ACBB",
+                "AccuracySeed": 894539983,
+                "ResponseTimeSeed": 920296524,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.43999999999999995,
+                "UserEngagement": 0.68,
+                "UserFrustration": 0.9000000000000001,
+                "BaseUserAccuracy": 0.44800000000000006,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.776,
+                "ObservedUserResponseTime": 2.499072911442406
+            }
+        },
+        "90": {
+            "update": {
+                "a59caf6f-0523-4fc5-aae2-37907ee4977b": {
+                    "name": "HandleResponseOrNoResponseFallback",
+                    "status": "Status.RUNNING"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 4,
+                "SequenceLength": 5,
+                "NumRepetitions": 1,
+                "NumSequences": 3,
+                "SequenceSet": true,
+                "ResponseTimerActive": true,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": false,
+                "UserTimeout": false,
+                "CurrentSequence": "ACCBB",
+                "UserSequence": "ACBB",
+                "AccuracySeed": 894539983,
+                "ResponseTimeSeed": 920296524,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.43999999999999995,
+                "UserEngagement": 0.68,
+                "UserFrustration": 0.9000000000000001,
+                "BaseUserAccuracy": 0.44800000000000006,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.776,
+                "ObservedUserResponseTime": 2.499072911442406
+            }
+        },
+        "91": {
+            "update": {
+                "87eb79c7-cfea-4052-864b-e8691730b58d": {
+                    "name": "HandleResponseAndEndRepetition",
+                    "status": "Status.RUNNING"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 4,
+                "SequenceLength": 5,
+                "NumRepetitions": 1,
+                "NumSequences": 3,
+                "SequenceSet": true,
+                "ResponseTimerActive": true,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": false,
+                "UserTimeout": false,
+                "CurrentSequence": "ACCBB",
+                "UserSequence": "ACBB",
+                "AccuracySeed": 894539983,
+                "ResponseTimeSeed": 920296524,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.43999999999999995,
+                "UserEngagement": 0.68,
+                "UserFrustration": 0.9000000000000001,
+                "BaseUserAccuracy": 0.44800000000000006,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.776,
+                "ObservedUserResponseTime": 2.499072911442406
+            }
+        },
+        "92": {
+            "update": {
+                "abe1e8d6-9d3f-445e-bfee-0ed5b55a69d7": {
+                    "name": "StartGameSequence",
+                    "status": "Status.RUNNING"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 4,
+                "SequenceLength": 5,
+                "NumRepetitions": 1,
+                "NumSequences": 3,
+                "SequenceSet": true,
+                "ResponseTimerActive": true,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": false,
+                "UserTimeout": false,
+                "CurrentSequence": "ACCBB",
+                "UserSequence": "ACBB",
+                "AccuracySeed": 894539983,
+                "ResponseTimeSeed": 920296524,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.43999999999999995,
+                "UserEngagement": 0.68,
+                "UserFrustration": 0.9000000000000001,
+                "BaseUserAccuracy": 0.44800000000000006,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.776,
+                "ObservedUserResponseTime": 2.499072911442406
+            }
+        },
+        "93": {
+            "update": {
+                "510413b8-b6ee-468d-8e68-e8480787e60a": {
+                    "name": "OverrideOrContinueFallback",
+                    "status": "Status.RUNNING"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 4,
+                "SequenceLength": 5,
+                "NumRepetitions": 1,
+                "NumSequences": 3,
+                "SequenceSet": true,
+                "ResponseTimerActive": true,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": false,
+                "UserTimeout": false,
+                "CurrentSequence": "ACCBB",
+                "UserSequence": "ACBB",
+                "AccuracySeed": 894539983,
+                "ResponseTimeSeed": 920296524,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.43999999999999995,
+                "UserEngagement": 0.68,
+                "UserFrustration": 0.9000000000000001,
+                "BaseUserAccuracy": 0.44800000000000006,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.776,
+                "ObservedUserResponseTime": 2.499072911442406
+            }
+        }
+    },
+    "5": {
+        "94": {
+            "update": {
+                "61ab02f8-0ca7-4950-b394-b34f0ed39cba": {
+                    "name": "CheckOverride",
+                    "status": "Status.FAILURE",
+                    "action": "NullAction"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 4,
+                "SequenceLength": 5,
+                "NumRepetitions": 1,
+                "NumSequences": 3,
+                "SequenceSet": true,
+                "ResponseTimerActive": true,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": false,
+                "UserTimeout": false,
+                "CurrentSequence": "ACCBB",
+                "UserSequence": "ACBB",
+                "AccuracySeed": 894539983,
+                "ResponseTimeSeed": 920296524,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.43999999999999995,
+                "UserEngagement": 0.68,
+                "UserFrustration": 0.9000000000000001,
+                "BaseUserAccuracy": 0.44800000000000006,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.776,
+                "ObservedUserResponseTime": 2.499072911442406
+            }
+        },
+        "95": {
+            "update": {
+                "51358f02-7b6f-422e-874f-993c33733f31": {
+                    "name": "CheckOverrideAndEndSequence",
+                    "status": "Status.FAILURE"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 4,
+                "SequenceLength": 5,
+                "NumRepetitions": 1,
+                "NumSequences": 3,
+                "SequenceSet": true,
+                "ResponseTimerActive": true,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": false,
+                "UserTimeout": false,
+                "CurrentSequence": "ACCBB",
+                "UserSequence": "ACBB",
+                "AccuracySeed": 894539983,
+                "ResponseTimeSeed": 920296524,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.43999999999999995,
+                "UserEngagement": 0.68,
+                "UserFrustration": 0.9000000000000001,
+                "BaseUserAccuracy": 0.44800000000000006,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.776,
+                "ObservedUserResponseTime": 2.499072911442406
+            }
+        },
+        "96": {
+            "update": {
+                "48a87cf6-1585-4809-a941-e978f5c79801": {
+                    "name": "NudgeTimer",
+                    "status": "Status.SUCCESS",
+                    "action": "CheckTimer"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 4,
+                "SequenceLength": 5,
+                "NumRepetitions": 1,
+                "NumSequences": 3,
+                "SequenceSet": true,
+                "ResponseTimerActive": true,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": true,
+                "UserTimeout": false,
+                "CurrentSequence": "ACCBB",
+                "UserSequence": "ACBB",
+                "AccuracySeed": 894539983,
+                "ResponseTimeSeed": 920296524,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.43999999999999995,
+                "UserEngagement": 0.68,
+                "UserFrustration": 0.9000000000000001,
+                "BaseUserAccuracy": 0.44800000000000006,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.776,
+                "ObservedUserResponseTime": 2.499072911442406
+            }
+        },
+        "97": {
+            "update": {
+                "2bfa93b8-4b89-4fed-b541-a678aeaaf5bd": {
+                    "name": "HandleTimerResponse",
+                    "status": "Status.SUCCESS",
+                    "action": "NullAction"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 4,
+                "SequenceLength": 5,
+                "NumRepetitions": 1,
+                "NumSequences": 3,
+                "SequenceSet": true,
+                "ResponseTimerActive": false,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": true,
+                "UserTimeout": false,
+                "CurrentSequence": "ACCBB",
+                "UserSequence": "ACBB",
+                "AccuracySeed": 894539983,
+                "ResponseTimeSeed": 920296524,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.43999999999999995,
+                "UserEngagement": 0.68,
+                "UserFrustration": 0.9000000000000001,
+                "BaseUserAccuracy": 0.44800000000000006,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.776,
+                "ObservedUserResponseTime": 2.499072911442406
+            }
+        },
+        "98": {
+            "update": {
+                "eb16cdf5-9be7-4b37-a502-8a29a992066f": {
+                    "name": "NudgeTimerAndHandleResponse",
+                    "status": "Status.SUCCESS"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 4,
+                "SequenceLength": 5,
+                "NumRepetitions": 1,
+                "NumSequences": 3,
+                "SequenceSet": true,
+                "ResponseTimerActive": false,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": true,
+                "UserTimeout": false,
+                "CurrentSequence": "ACCBB",
+                "UserSequence": "ACBB",
+                "AccuracySeed": 894539983,
+                "ResponseTimeSeed": 920296524,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.43999999999999995,
+                "UserEngagement": 0.68,
+                "UserFrustration": 0.9000000000000001,
+                "BaseUserAccuracy": 0.44800000000000006,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.776,
+                "ObservedUserResponseTime": 2.499072911442406
+            }
+        },
+        "99": {
+            "update": {
+                "312c5c92-71a6-45e5-a5e4-41faa21c393d": {
+                    "name": "StartTimerAndWait",
+                    "status": "Status.SUCCESS"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 4,
+                "SequenceLength": 5,
+                "NumRepetitions": 1,
+                "NumSequences": 3,
+                "SequenceSet": true,
+                "ResponseTimerActive": false,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": true,
+                "UserTimeout": false,
+                "CurrentSequence": "ACCBB",
+                "UserSequence": "ACBB",
+                "AccuracySeed": 894539983,
+                "ResponseTimeSeed": 920296524,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.43999999999999995,
+                "UserEngagement": 0.68,
+                "UserFrustration": 0.9000000000000001,
+                "BaseUserAccuracy": 0.44800000000000006,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.776,
+                "ObservedUserResponseTime": 2.499072911442406
+            }
+        },
+        "100": {
+            "update": {
+                "2e966e09-ad7d-47c7-846b-c16b89c8dd15": {
+                    "name": "AssessUserSequence",
+                    "status": "Status.SUCCESS",
+                    "action": "AssessSequence"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 4,
+                "SequenceLength": 5,
+                "NumRepetitions": 1,
+                "NumSequences": 3,
+                "SequenceSet": true,
+                "ResponseTimerActive": false,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": true,
+                "UserTimeout": false,
+                "CurrentSequence": "ACCBB",
+                "UserSequence": "ACBB",
+                "AccuracySeed": 894539983,
+                "ResponseTimeSeed": 920296524,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.43999999999999995,
+                "UserEngagement": 0.68,
+                "UserFrustration": 0.9000000000000001,
+                "BaseUserAccuracy": 0.44800000000000006,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.776,
+                "ObservedUserResponseTime": 2.499072911442406
+            }
+        },
+        "101": {
+            "update": {
+                "6a90ee8a-6b3a-4a48-a3ce-1ec9973f2fba": {
+                    "name": "HandleUserResponse",
+                    "status": "Status.SUCCESS",
+                    "action": "NullAction"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 4,
+                "SequenceLength": 5,
+                "NumRepetitions": 1,
+                "NumSequences": 3,
+                "SequenceSet": true,
+                "ResponseTimerActive": false,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": true,
+                "UserTimeout": false,
+                "CurrentSequence": "ACCBB",
+                "UserSequence": "ACBB",
+                "AccuracySeed": 894539983,
+                "ResponseTimeSeed": 920296524,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.43999999999999995,
+                "UserEngagement": 0.68,
+                "UserFrustration": 0.9000000000000001,
+                "BaseUserAccuracy": 0.44800000000000006,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.776,
+                "ObservedUserResponseTime": 2.499072911442406
+            }
+        },
+        "102": {
+            "update": {
+                "9d9593af-95e5-410f-adf6-02f840aa8729": {
+                    "name": "RepeatOrEnd",
+                    "status": "Status.SUCCESS",
+                    "action": "EndThisSequence"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 4,
+                "SequenceLength": 5,
+                "NumRepetitions": 1,
+                "NumSequences": 3,
+                "SequenceSet": true,
+                "ResponseTimerActive": false,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": true,
+                "UserTimeout": false,
+                "CurrentSequence": "ACCBB",
+                "UserSequence": "ACBB",
+                "AccuracySeed": 894539983,
+                "ResponseTimeSeed": 920296524,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.43999999999999995,
+                "UserEngagement": 0.68,
+                "UserFrustration": 0.9000000000000001,
+                "BaseUserAccuracy": 0.44800000000000006,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.776,
+                "ObservedUserResponseTime": 2.499072911442406
+            }
+        },
+        "103": {
+            "update": {
+                "2f06c18a-d94a-497f-9662-7b3b0dfa76c6": {
+                    "name": "DecideSocialAction",
+                    "status": "Status.SUCCESS",
+                    "action": "EndSequenceSocial"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 4,
+                "SequenceLength": 5,
+                "NumRepetitions": 1,
+                "NumSequences": 3,
+                "SequenceSet": true,
+                "ResponseTimerActive": false,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": true,
+                "UserResponded": true,
+                "UserTimeout": false,
+                "CurrentSequence": "ACCBB",
+                "UserSequence": "ACBB",
+                "AccuracySeed": 894539983,
+                "ResponseTimeSeed": 920296524,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.43999999999999995,
+                "UserEngagement": 0.68,
+                "UserFrustration": 0.9500000000000002,
+                "BaseUserAccuracy": 0.44800000000000006,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.776,
+                "ObservedUserResponseTime": 2.499072911442406
+            }
+        },
+        "104": {
+            "update": {
+                "c9442521-fa73-4d06-bb15-4219b888e345": {
+                    "name": "DecideRepeatAndSocialAction",
+                    "status": "Status.SUCCESS"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 4,
+                "SequenceLength": 5,
+                "NumRepetitions": 1,
+                "NumSequences": 3,
+                "SequenceSet": true,
+                "ResponseTimerActive": false,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": true,
+                "UserResponded": true,
+                "UserTimeout": false,
+                "CurrentSequence": "ACCBB",
+                "UserSequence": "ACBB",
+                "AccuracySeed": 894539983,
+                "ResponseTimeSeed": 920296524,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.43999999999999995,
+                "UserEngagement": 0.68,
+                "UserFrustration": 0.9500000000000002,
+                "BaseUserAccuracy": 0.44800000000000006,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.776,
+                "ObservedUserResponseTime": 2.499072911442406
+            }
+        },
+        "105": {
+            "update": {
+                "0f7a9331-cd76-4a4b-a45b-2149075f549c": {
+                    "name": "AssessSequenceAndHandleUserResponse",
+                    "status": "Status.SUCCESS"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 4,
+                "SequenceLength": 5,
+                "NumRepetitions": 1,
+                "NumSequences": 3,
+                "SequenceSet": true,
+                "ResponseTimerActive": false,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": true,
+                "UserResponded": true,
+                "UserTimeout": false,
+                "CurrentSequence": "ACCBB",
+                "UserSequence": "ACBB",
+                "AccuracySeed": 894539983,
+                "ResponseTimeSeed": 920296524,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.43999999999999995,
+                "UserEngagement": 0.68,
+                "UserFrustration": 0.9500000000000002,
+                "BaseUserAccuracy": 0.44800000000000006,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.776,
+                "ObservedUserResponseTime": 2.499072911442406
+            }
+        },
+        "106": {
+            "update": {
+                "059004f0-3b01-4f0b-aea6-4d6418fa63d6": {
+                    "name": "WaitAndHandleResponse",
+                    "status": "Status.SUCCESS"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 4,
+                "SequenceLength": 5,
+                "NumRepetitions": 1,
+                "NumSequences": 3,
+                "SequenceSet": true,
+                "ResponseTimerActive": false,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": true,
+                "UserResponded": true,
+                "UserTimeout": false,
+                "CurrentSequence": "ACCBB",
+                "UserSequence": "ACBB",
+                "AccuracySeed": 894539983,
+                "ResponseTimeSeed": 920296524,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.43999999999999995,
+                "UserEngagement": 0.68,
+                "UserFrustration": 0.9500000000000002,
+                "BaseUserAccuracy": 0.44800000000000006,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.776,
+                "ObservedUserResponseTime": 2.499072911442406
+            }
+        },
+        "107": {
+            "update": {
+                "a59caf6f-0523-4fc5-aae2-37907ee4977b": {
+                    "name": "HandleResponseOrNoResponseFallback",
+                    "status": "Status.SUCCESS"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 4,
+                "SequenceLength": 5,
+                "NumRepetitions": 1,
+                "NumSequences": 3,
+                "SequenceSet": true,
+                "ResponseTimerActive": false,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": true,
+                "UserResponded": true,
+                "UserTimeout": false,
+                "CurrentSequence": "ACCBB",
+                "UserSequence": "ACBB",
+                "AccuracySeed": 894539983,
+                "ResponseTimeSeed": 920296524,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.43999999999999995,
+                "UserEngagement": 0.68,
+                "UserFrustration": 0.9500000000000002,
+                "BaseUserAccuracy": 0.44800000000000006,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.776,
+                "ObservedUserResponseTime": 2.499072911442406
+            }
+        },
+        "108": {
+            "update": {
+                "85c704b3-97ef-4020-a426-21249ffb8752": {
+                    "name": "CheckEndCurrentSequence",
+                    "status": "Status.SUCCESS",
+                    "action": "NullAction"
+                }
+            },
+            "state": {
+                "EndGame": false,
+                "RepeatSequence": false,
+                "SequenceComplexity": 4,
+                "SequenceLength": 5,
+                "NumRepetitions": 1,
+                "NumSequences": 3,
+                "SequenceSet": true,
+                "ResponseTimerActive": false,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": true,
+                "UserResponded": true,
+                "UserTimeout": false,
+                "CurrentSequence": "ACCBB",
+                "UserSequence": "ACBB",
+                "AccuracySeed": 894539983,
+                "ResponseTimeSeed": 920296524,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.43999999999999995,
+                "UserEngagement": 0.68,
+                "UserFrustration": 0.9500000000000002,
+                "BaseUserAccuracy": 0.44800000000000006,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.776,
+                "ObservedUserResponseTime": 2.499072911442406
+            }
+        },
+        "109": {
+            "update": {
+                "e2043bea-6d48-4b66-ab38-d1f66c84c72a": {
+                    "name": "EndCurrentSequence",
+                    "status": "Status.SUCCESS",
+                    "action": "EndThisSequence"
+                }
+            },
+            "state": {
+                "EndGame": true,
+                "RepeatSequence": false,
+                "SequenceComplexity": 4,
+                "SequenceLength": 5,
+                "NumRepetitions": 0,
+                "NumSequences": 3,
+                "SequenceSet": false,
+                "ResponseTimerActive": false,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": true,
+                "UserTimeout": false,
+                "CurrentSequence": "ACCBB",
+                "UserSequence": "ACBB",
+                "AccuracySeed": 894539983,
+                "ResponseTimeSeed": 920296524,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.43999999999999995,
+                "UserEngagement": 0.68,
+                "UserFrustration": 0.9500000000000002,
+                "BaseUserAccuracy": 0.44800000000000006,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.776,
+                "ObservedUserResponseTime": 2.499072911442406
+            }
+        },
+        "110": {
+            "update": {
+                "8c90a548-5f89-4d0a-b6fd-664124ca8e67": {
+                    "name": "CheckEndAndEndSequence",
+                    "status": "Status.SUCCESS"
+                }
+            },
+            "state": {
+                "EndGame": true,
+                "RepeatSequence": false,
+                "SequenceComplexity": 4,
+                "SequenceLength": 5,
+                "NumRepetitions": 0,
+                "NumSequences": 3,
+                "SequenceSet": false,
+                "ResponseTimerActive": false,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": true,
+                "UserTimeout": false,
+                "CurrentSequence": "ACCBB",
+                "UserSequence": "ACBB",
+                "AccuracySeed": 894539983,
+                "ResponseTimeSeed": 920296524,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.43999999999999995,
+                "UserEngagement": 0.68,
+                "UserFrustration": 0.9500000000000002,
+                "BaseUserAccuracy": 0.44800000000000006,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.776,
+                "ObservedUserResponseTime": 2.499072911442406
+            }
+        },
+        "111": {
+            "update": {
+                "bc70139d-7d99-4831-9a01-b58520c2656a": {
+                    "name": "EndOrRepeatFallback",
+                    "status": "Status.SUCCESS"
+                }
+            },
+            "state": {
+                "EndGame": true,
+                "RepeatSequence": false,
+                "SequenceComplexity": 4,
+                "SequenceLength": 5,
+                "NumRepetitions": 0,
+                "NumSequences": 3,
+                "SequenceSet": false,
+                "ResponseTimerActive": false,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": true,
+                "UserTimeout": false,
+                "CurrentSequence": "ACCBB",
+                "UserSequence": "ACBB",
+                "AccuracySeed": 894539983,
+                "ResponseTimeSeed": 920296524,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.43999999999999995,
+                "UserEngagement": 0.68,
+                "UserFrustration": 0.9500000000000002,
+                "BaseUserAccuracy": 0.44800000000000006,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.776,
+                "ObservedUserResponseTime": 2.499072911442406
+            }
+        },
+        "112": {
+            "update": {
+                "87eb79c7-cfea-4052-864b-e8691730b58d": {
+                    "name": "HandleResponseAndEndRepetition",
+                    "status": "Status.SUCCESS"
+                }
+            },
+            "state": {
+                "EndGame": true,
+                "RepeatSequence": false,
+                "SequenceComplexity": 4,
+                "SequenceLength": 5,
+                "NumRepetitions": 0,
+                "NumSequences": 3,
+                "SequenceSet": false,
+                "ResponseTimerActive": false,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": true,
+                "UserTimeout": false,
+                "CurrentSequence": "ACCBB",
+                "UserSequence": "ACBB",
+                "AccuracySeed": 894539983,
+                "ResponseTimeSeed": 920296524,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.43999999999999995,
+                "UserEngagement": 0.68,
+                "UserFrustration": 0.9500000000000002,
+                "BaseUserAccuracy": 0.44800000000000006,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.776,
+                "ObservedUserResponseTime": 2.499072911442406
+            }
+        },
+        "113": {
+            "update": {
+                "abe1e8d6-9d3f-445e-bfee-0ed5b55a69d7": {
+                    "name": "StartGameSequence",
+                    "status": "Status.SUCCESS"
+                }
+            },
+            "state": {
+                "EndGame": true,
+                "RepeatSequence": false,
+                "SequenceComplexity": 4,
+                "SequenceLength": 5,
+                "NumRepetitions": 0,
+                "NumSequences": 3,
+                "SequenceSet": false,
+                "ResponseTimerActive": false,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": true,
+                "UserTimeout": false,
+                "CurrentSequence": "ACCBB",
+                "UserSequence": "ACBB",
+                "AccuracySeed": 894539983,
+                "ResponseTimeSeed": 920296524,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.43999999999999995,
+                "UserEngagement": 0.68,
+                "UserFrustration": 0.9500000000000002,
+                "BaseUserAccuracy": 0.44800000000000006,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.776,
+                "ObservedUserResponseTime": 2.499072911442406
+            }
+        },
+        "114": {
+            "update": {
+                "510413b8-b6ee-468d-8e68-e8480787e60a": {
+                    "name": "OverrideOrContinueFallback",
+                    "status": "Status.SUCCESS"
+                }
+            },
+            "state": {
+                "EndGame": true,
+                "RepeatSequence": false,
+                "SequenceComplexity": 4,
+                "SequenceLength": 5,
+                "NumRepetitions": 0,
+                "NumSequences": 3,
+                "SequenceSet": false,
+                "ResponseTimerActive": false,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": true,
+                "UserTimeout": false,
+                "CurrentSequence": "ACCBB",
+                "UserSequence": "ACBB",
+                "AccuracySeed": 894539983,
+                "ResponseTimeSeed": 920296524,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.43999999999999995,
+                "UserEngagement": 0.68,
+                "UserFrustration": 0.9500000000000002,
+                "BaseUserAccuracy": 0.44800000000000006,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.776,
+                "ObservedUserResponseTime": 2.499072911442406
+            }
+        }
+    },
+    "6": {
+        "115": {
+            "update": {
+                "61ab02f8-0ca7-4950-b394-b34f0ed39cba": {
+                    "name": "CheckOverride",
+                    "status": "Status.SUCCESS",
+                    "action": "NullAction"
+                }
+            },
+            "state": {
+                "EndGame": true,
+                "RepeatSequence": false,
+                "SequenceComplexity": 4,
+                "SequenceLength": 5,
+                "NumRepetitions": 0,
+                "NumSequences": 3,
+                "SequenceSet": false,
+                "ResponseTimerActive": false,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": true,
+                "UserTimeout": false,
+                "CurrentSequence": "ACCBB",
+                "UserSequence": "ACBB",
+                "AccuracySeed": 894539983,
+                "ResponseTimeSeed": 920296524,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.43999999999999995,
+                "UserEngagement": 0.68,
+                "UserFrustration": 0.9500000000000002,
+                "BaseUserAccuracy": 0.44800000000000006,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.776,
+                "ObservedUserResponseTime": 2.499072911442406
+            }
+        },
+        "116": {
+            "update": {
+                "c67a2698-a189-4d57-9135-1569e6234c54": {
+                    "name": "EndGame",
+                    "status": "Status.SUCCESS",
+                    "action": "EndGame"
+                }
+            },
+            "state": {
+                "EndGame": true,
+                "RepeatSequence": false,
+                "SequenceComplexity": 4,
+                "SequenceLength": 5,
+                "NumRepetitions": 0,
+                "NumSequences": 3,
+                "SequenceSet": false,
+                "ResponseTimerActive": false,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": true,
+                "UserTimeout": false,
+                "CurrentSequence": "ACCBB",
+                "UserSequence": "ACBB",
+                "AccuracySeed": 894539983,
+                "ResponseTimeSeed": 920296524,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.43999999999999995,
+                "UserEngagement": 0.68,
+                "UserFrustration": 0.9500000000000002,
+                "BaseUserAccuracy": 0.44800000000000006,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.776,
+                "ObservedUserResponseTime": 2.499072911442406
+            }
+        },
+        "117": {
+            "update": {
+                "51358f02-7b6f-422e-874f-993c33733f31": {
+                    "name": "CheckOverrideAndEndSequence",
+                    "status": "Status.SUCCESS"
+                }
+            },
+            "state": {
+                "EndGame": true,
+                "RepeatSequence": false,
+                "SequenceComplexity": 4,
+                "SequenceLength": 5,
+                "NumRepetitions": 0,
+                "NumSequences": 3,
+                "SequenceSet": false,
+                "ResponseTimerActive": false,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": true,
+                "UserTimeout": false,
+                "CurrentSequence": "ACCBB",
+                "UserSequence": "ACBB",
+                "AccuracySeed": 894539983,
+                "ResponseTimeSeed": 920296524,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.43999999999999995,
+                "UserEngagement": 0.68,
+                "UserFrustration": 0.9500000000000002,
+                "BaseUserAccuracy": 0.44800000000000006,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.776,
+                "ObservedUserResponseTime": 2.499072911442406
+            }
+        },
+        "118": {
+            "update": {
+                "510413b8-b6ee-468d-8e68-e8480787e60a": {
+                    "name": "OverrideOrContinueFallback",
+                    "status": "Status.SUCCESS"
+                }
+            },
+            "state": {
+                "EndGame": true,
+                "RepeatSequence": false,
+                "SequenceComplexity": 4,
+                "SequenceLength": 5,
+                "NumRepetitions": 0,
+                "NumSequences": 3,
+                "SequenceSet": false,
+                "ResponseTimerActive": false,
+                "AttemptedReengageUser": false,
+                "FeedbackGiven": false,
+                "UserResponded": true,
+                "UserTimeout": false,
+                "CurrentSequence": "ACCBB",
+                "UserSequence": "ACBB",
+                "AccuracySeed": 894539983,
+                "ResponseTimeSeed": 920296524,
+                "UserMemory": 0.8,
+                "UserAttention": 0.8,
+                "UserReactivity": 0.8,
+                "UserConfusion": 0.43999999999999995,
+                "UserEngagement": 0.68,
+                "UserFrustration": 0.9500000000000002,
+                "BaseUserAccuracy": 0.44800000000000006,
+                "UserNumErrors": 1,
+                "BaseUserResponseTime": 3.776,
+                "ObservedUserResponseTime": 2.499072911442406
+            }
+        }
+    }
+}

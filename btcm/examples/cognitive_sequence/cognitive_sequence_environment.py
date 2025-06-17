@@ -52,19 +52,20 @@ class UserProfile():
     '''
     @staticmethod
     def generate_sequence(state:CognitiveSequenceState):
+        rng = np.random.default_rng(state.get_value("AccuracySeed"))
         # Start with the true sequence
         user_sequence = state.get_value("CurrentSequence")
 
         if state.get_value("UserNumErrors") == 0:
             return user_sequence
 
-        random_indices = np.random.choice(len(user_sequence), state.get_value("UserNumErrors"), replace=False)
+        random_indices = rng.choice(len(user_sequence), state.get_value("UserNumErrors"), replace=False)
 
         sequence_list = list(user_sequence)
 
         for index in random_indices:
             errors = ["drop","replace"]
-            error_type = np.random.choice(errors)
+            error_type = rng.choice(errors)
 
             if error_type == "drop":
                 # Randomly drop a character
@@ -75,7 +76,7 @@ class UserProfile():
                 allowed_characters = character_set[0:state.get_value("SequenceComplexity")]
                 allowed_characters.remove(sequence_list[index]) # Not the same symbol
 
-                sequence_list[index] = np.random.choice(allowed_characters)
+                sequence_list[index] = rng.choice(allowed_characters)
 
         modified_list = [symbol for symbol in sequence_list if symbol is not None]
         return ''.join(modified_list)
@@ -152,6 +153,12 @@ class CognitiveSequenceEnvironment(Environment):
         # Update user response now that new sequence is here
         state.set_value("UserResponded",False)
 
+        # Update seeds
+        rng = np.random.default_rng(state.get_value("AccuracySeed"))
+        state.set_value("AccuracySeed",int(rng.integers(0,1000000000)))
+        rng = np.random.default_rng(state.get_value("ResponseTimeSeed"))
+        state.set_value("ResponseTimeSeed",int(rng.integers(0,1000000000)))
+
         # Update user variables based on the new sequence
         state.set_value("UserConfusion",CognitiveSequenceState.get_confusion(state))
         state.set_value("UserEngagement",CognitiveSequenceState.get_engagement(state))
@@ -162,11 +169,6 @@ class CognitiveSequenceEnvironment(Environment):
         if update_sequence:
             state.set_value("UserSequence",UserProfile.generate_sequence(state))
 
-        # Update seeds
-        state.set_value("AccuracySeed",np.random.randint(0,1000000000))
-        state.set_value("ResponseTimeSeed",np.random.randint(0,1000000000))
-
-    
     def reset_timer(self,state:CognitiveSequenceState):
         # Ask the user to respond
         self.robot_speak("Ok, now it's your turn. Please repeat the sequence.")

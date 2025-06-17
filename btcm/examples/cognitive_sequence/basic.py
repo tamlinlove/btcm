@@ -122,8 +122,8 @@ class CognitiveSequenceState(State):
     @staticmethod
     def get_num_errors(state:Self) -> int:
         # Determine if the sequence will be incorrect
-        np.random.seed(state.get_value("AccuracySeed"))
-        accuracy_score = min(1,max(0,np.random.normal(state.get_value("BaseUserAccuracy"),0.1)))
+        rng = np.random.default_rng(state.get_value("AccuracySeed"))
+        accuracy_score = min(1,max(0,rng.normal(state.get_value("BaseUserAccuracy"),0.1)))
 
         if accuracy_score > 0.7:
             # Perfect sequence
@@ -154,8 +154,8 @@ class CognitiveSequenceState(State):
     
     @staticmethod
     def get_observed_time(state:Self):
-        np.random.seed(state.get_value("ResponseTimeSeed"))
-        response_time = min(CognitiveSequenceState.MAX_TIMEOUT,max(0,np.random.normal(state.get_value("BaseUserResponseTime"),1)))
+        rng = np.random.default_rng(state.get_value("ResponseTimeSeed"))
+        response_time = min(CognitiveSequenceState.MAX_TIMEOUT,max(0,rng.normal(state.get_value("BaseUserResponseTime"),1)))
         return response_time
     
     @staticmethod
@@ -171,6 +171,9 @@ class CognitiveSequenceState(State):
 
     def run(self,node:str,state:State):
         return self.var_funcs()[node](state)
+    
+    def set_value(self, var, value):
+        return super().set_value(var, value)
     
     '''
     ACTIONS

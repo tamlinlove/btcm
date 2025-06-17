@@ -1,45 +1,6 @@
-import time
-import py_trees
+import numpy as np
 
-from btcm.examples.toy_examples import single_sequence
-from btcm.cm.causalmodel import build_state_model
-from btcm.bt.logger import Logger
-
-if __name__ == "__main__":
-    '''
-    Test State
-    '''
-    test_vals = {
-        "VarA":0,
-        "VarB":1,
-        "VarC":0,
-    }
-
-    '''
-    Tree
-    '''
-    board = single_sequence.setup_board(test_vals)
-    tree = single_sequence.make_tree()
-
-    '''
-    Visitor
-    '''
-    logger = Logger(tree=tree,filename="log")
-    tree.visitors.append(logger)
-
-    
-
-    '''
-    Run
-    '''
-    
-    tree.setup()
-    try:
-        finished = False
-        while not finished:
-            tree.tick()
-            time.sleep(0.5)
-            finished = tree.root.status != py_trees.common.Status.RUNNING
-    except KeyboardInterrupt:
-        print("KILL")
-        pass
+for i in [3.4159999999999995,3.548]:
+    rng = np.random.default_rng(597991390)
+    n = rng.normal(i,1)
+    print(i,n)

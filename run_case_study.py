@@ -13,9 +13,9 @@ if __name__ == "__main__":
     # Run
     vals = {
         "X_a":False,
-        "X_b":True,
-        "X_c":True,
-        "X_d":False,
+        "X_b":False,
+        "X_c":False,
+        "X_d":True,
     }
 
     board = case_study.setup_board(vals=vals)
@@ -52,10 +52,10 @@ if __name__ == "__main__":
     foils = [py_trees.common.Status.SUCCESS]
     '''
 
-    nodename = "CaseStudyFallback"
+    nodename = "CaseStudySequence"
     nodetype = "Return"
     tick = 0
-    time = 4
+    time = 2
     foils = [py_trees.common.Status.SUCCESS]
 
     query = query_manager.make_query(nodename,nodetype,tick=tick,time=time,foils=foils,action_foil_all_but_null=False)

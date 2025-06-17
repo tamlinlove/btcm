@@ -89,17 +89,18 @@ class SetSequenceParameters(ActionNode):
             state.increment("NumSequences")
 
             # Generate the sequence
-            state.set_value("CurrentSequence",self.generate_sequence(action))
+            state.set_value("CurrentSequence",self.generate_sequence(state,action))
 
             return py_trees.common.Status.SUCCESS
         return py_trees.common.Status.FAILURE
     
-    def generate_sequence(self,action:SetSequenceParametersAction):
+    def generate_sequence(self,state:CognitiveSequenceState,action:SetSequenceParametersAction):
         character_set = ["A","B","C","D"]
         allowed_characters = character_set[0:action.sequence_complexity]
 
         # TODO: If we care about reproducibility here, add a seed variable
-        sequence = [np.random.choice(allowed_characters) for _ in range(action.sequence_length)]
+        rng = np.random.default_rng(0)
+        sequence = [rng.choice(allowed_characters) for _ in range(action.sequence_length)]
 
         if self.board.display:
             print(f"ROBOT SETS SEQUENCE TO LENGTH {action.sequence_length} AND COMPLEXITY {action.sequence_complexity}")

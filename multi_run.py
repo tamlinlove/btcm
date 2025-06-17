@@ -12,14 +12,23 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('-p', '--profiles', nargs='*', required=True)
     parser.add_argument('-n', '--num_exps', type=int, default=10)
+    parser.add_argument('--debug_seed', type=int, default=None)
     args = parser.parse_args()           
 
     '''
     Run Experiment
     '''
-    seed = 0
+
+    # Debug
+    if args.debug_seed is None:
+        seed_range = range(args.num_exps)
+    else:
+        seed_range = [args.debug_seed]
+
+
     seed_interval = 1000
-    for run in range(args.num_exps):
+    for run in seed_range:
+        seed = run
         print(f"Run {run+1}/{args.num_exps}")
         for profile in args.profiles:
             profile_name = profile.lower()
@@ -39,8 +48,6 @@ if __name__ == "__main__":
                 log_dir=f"{LOG_DIR}/{profile_name}",
                 seed_override=seed_override
             )
-
-        seed += 1
 
     
 

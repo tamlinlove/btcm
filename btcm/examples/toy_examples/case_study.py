@@ -190,7 +190,6 @@ class L1(ActionNode):
             state.set_value("X_d",CaseStudyState.get_x_d(state))
         elif action == Action1():
             state.set_value("X_b",False)
-            print(CaseStudyState.get_x_d(state))
             state.set_value("X_d",CaseStudyState.get_x_d(state))
         else:
             # Do nothing

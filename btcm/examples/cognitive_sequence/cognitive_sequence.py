@@ -26,12 +26,12 @@ def setup_board(vals:dict=None,user_profile:UserProfile=None,skip=False,display=
     env = CognitiveSequenceEnvironment(user_profile=user_profile,skip=skip,display=display)
     board.environment = env
 
-    # User Profile
-    user_profile.update_state(board.state)
-
     # Seed
     if seed_override is not None:
         board.state.override_seeds(seed_override)
+
+    # User Profile
+    user_profile.update_state(board.state)
 
     # Other experiment parameters
     board.display = display

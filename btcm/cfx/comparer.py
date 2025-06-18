@@ -35,9 +35,9 @@ class Comparer:
             visualise:bool=False,
             visualise_only_valid:bool=False,
             hide_display:bool=False,
-    ) -> tuple[bool,int,int]:
+    ) -> tuple[bool,int,int,int,str]:
         # First round of explanations
-        explanations,tick,time = self.explain_first_difference(
+        explanations,tick,time,num_nodes = self.explain_first_difference(
             max_depth=max_depth,
             visualise=visualise,
             visualise_only_valid=visualise_only_valid,
@@ -47,15 +47,15 @@ class Comparer:
         # Check if explanation is valid
         if explanations is None:
             display("No differences",hide_display=hide_display)
-            return False,0,0,"NoDiff"
+            return False,0,0,num_nodes,"NoDiff"
 
         # Check if target found
         if target_var is None:
             display("\nNo need for follow-ups\n",hide_display=hide_display)
-            return False,0,0,"NoTarget"
+            return False,0,0,0,"NoTarget"
         elif self.target_found(explanations,target_var):
             display("Found target in 1 step",hide_display=hide_display)
-            return True,1,len(explanations),"Found"
+            return True,1,len(explanations),num_nodes,"Found"
         else:
             # Need to do follow up queries
             step = 2
@@ -140,7 +140,7 @@ class Comparer:
                 # Check if target is found
                 if self.target_found(next_exps,target_var):
                     display(f"Found target in {step} steps",hide_display=hide_display)
-                    return True,step,len(next_exps),"Found"
+                    return True,step,len(next_exps),len(explainer.model.nodes),"Found"
                 
                 explanations = next_exps
                     
@@ -148,7 +148,7 @@ class Comparer:
                 # Increment
                 step += 1
 
-        return False,0,0,"Unknown"
+        return False,0,0,len(explainer.model.nodes),"Unknown"
 
         
 
@@ -164,11 +164,14 @@ class Comparer:
         explanations = []
 
         if same:
-            display("No differences found",hide_display=hide_display)
-            return None,None,None
+            tick = 0
+            time = "end"
+        else:
+            tick = update2.tick
+            time = update2.time
         
         # Load the state
-        self.manager2.load_state(tick=update2.tick, time=update2.time)
+        self.manager2.load_state(tick=tick, time=time)
         self.node_names = self.manager2.pretty_node_names()
 
         # Load the explainer
@@ -176,6 +179,10 @@ class Comparer:
 
         # Query manager
         query_manager = QueryManager(explainer, self.manager2, visualise=visualise, visualise_only_valid=visualise_only_valid)
+
+        if same:
+            display("No differences found",hide_display=hide_display)
+            return None,None,None,len(explainer.model.nodes)
 
         # Get the query for the first difference
         if difference == "name":
@@ -202,7 +209,7 @@ class Comparer:
             display(f"-----{explanation.text(names=self.node_names)}",hide_display=hide_display)
         
         
-        return explanations,update2.tick,update2.time
+        return explanations,update2.tick,update2.time,len(explainer.model.nodes)
     
     '''
     QUERY

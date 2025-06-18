@@ -39,6 +39,7 @@ def compile_cog_seq_results():
         min_num_exps = found_df['num_explanations'].min()
         max_num_exps = found_df['num_explanations'].max()
         avg_num_exps = found_df['num_explanations'].mean()
+        std_num_exps = found_df['num_explanations'].std()
 
         table_data.append(
             {
@@ -47,12 +48,9 @@ def compile_cog_seq_results():
                 "num_no_diff":num_no_diff,
                 "num_other":num_other,
                 "target_recovery_rate":target_recovery_rate,
-                "min_depth":min_depth,
-                "max_depth":max_depth,
-                "avg_depth":avg_depth,
                 "min_num_exps":min_num_exps,
                 "max_num_exps":max_num_exps,
-                "avg_num_exps":avg_num_exps,
+                "mean_num_exps":f"{avg_num_exps:.2f} ({std_num_exps:.2f})",
             }
         )
 
@@ -79,6 +77,7 @@ def compile_cog_seq_results():
     min_num_exps = found_df['num_explanations'].min()
     max_num_exps = found_df['num_explanations'].max()
     avg_num_exps = found_df['num_explanations'].mean()
+    std_num_exps = found_df['num_explanations'].std()
 
     table_data.append(
         {
@@ -87,12 +86,9 @@ def compile_cog_seq_results():
             "num_no_diff":num_no_diff,
             "num_other":num_other,
             "target_recovery_rate":target_recovery_rate,
-            "min_depth":min_depth,
-            "max_depth":max_depth,
-            "avg_depth":avg_depth,
             "min_num_exps":min_num_exps,
             "max_num_exps":max_num_exps,
-            "avg_num_exps":avg_num_exps,
+            "mean_num_exps":f"{avg_num_exps:.2f} ({std_num_exps:.2f})",
         }
     )
 
@@ -128,10 +124,10 @@ def compile_random_results():
                 target_recovery_rate = (true_found_count / total_rows)
 
                 found_df = filtered_df[filtered_df['found']]
-                # Depth information
-                min_depth = found_df['depth'].min()
-                max_depth = found_df['depth'].max()
-                avg_depth = found_df['depth'].mean()
+                # Num cm nodes
+                min_num_cm_nodes = found_df['num_cm_nodes'].min()
+                max_num_cm_nodes = found_df['num_cm_nodes'].max()
+                avg_num_cm_nodes = found_df['num_cm_nodes'].mean()
 
                 # NumExps information
                 min_num_exps = found_df['num_explanations'].min()
@@ -147,9 +143,9 @@ def compile_random_results():
                         "num_no_diff":num_no_diff,
                         "num_other":num_other,
                         "target_recovery_rate":target_recovery_rate,
-                        "min_depth":min_depth,
-                        "max_depth":max_depth,
-                        "avg_depth":avg_depth,
+                        "min_num_cm_nodes":min_num_cm_nodes,
+                        "max_num_cm_nodes":max_num_cm_nodes,
+                        "avg_num_cm_nodes":avg_num_cm_nodes,
                         "min_num_exps":min_num_exps,
                         "max_num_exps":max_num_exps,
                         "avg_num_exps":avg_num_exps,
@@ -167,10 +163,10 @@ def compile_random_results():
     target_recovery_rate = (true_found_count / total_rows)
 
     found_df = df[df['found']]
-    # Depth information
-    min_depth = found_df['depth'].min()
-    max_depth = found_df['depth'].max()
-    avg_depth = found_df['depth'].mean()
+    # Num cm nodes
+    min_num_cm_nodes = found_df['num_cm_nodes'].min()
+    max_num_cm_nodes = found_df['num_cm_nodes'].max()
+    avg_num_cm_nodes = found_df['num_cm_nodes'].mean()
 
     # NumExps information
     min_num_exps = found_df['num_explanations'].min()
@@ -186,9 +182,9 @@ def compile_random_results():
             "num_no_diff":num_no_diff,
             "num_other":num_other,
             "target_recovery_rate":target_recovery_rate,
-            "min_depth":min_depth,
-            "max_depth":max_depth,
-            "avg_depth":avg_depth,
+            "min_num_cm_nodes":min_num_cm_nodes,
+            "max_num_cm_nodes":max_num_cm_nodes,
+            "avg_num_cm_nodes":avg_num_cm_nodes,
             "min_num_exps":min_num_exps,
             "max_num_exps":max_num_exps,
             "avg_num_exps":avg_num_exps,
@@ -223,15 +219,17 @@ def compile_random_results_ignore_connectivity():
             target_recovery_rate = (true_found_count / total_rows)
 
             found_df = filtered_df[filtered_df['found']]
-            # Depth information
-            min_depth = found_df['depth'].min()
-            max_depth = found_df['depth'].max()
-            avg_depth = found_df['depth'].mean()
+            # Num cm nodes
+            min_num_cm_nodes = found_df['num_cm_nodes'].min()
+            max_num_cm_nodes = found_df['num_cm_nodes'].max()
+            avg_num_cm_nodes = found_df['num_cm_nodes'].mean()
+            std_num_cm_nodes = found_df['num_cm_nodes'].std()
 
             # NumExps information
             min_num_exps = found_df['num_explanations'].min()
             max_num_exps = found_df['num_explanations'].max()
             avg_num_exps = found_df['num_explanations'].mean()
+            std_num_exps = found_df['num_explanations'].std()
 
             table_data.append(
                 {
@@ -241,12 +239,12 @@ def compile_random_results_ignore_connectivity():
                     "num_no_diff":num_no_diff,
                     "num_other":num_other,
                     "target_recovery_rate":target_recovery_rate,
-                    "min_depth":min_depth,
-                    "max_depth":max_depth,
-                    "avg_depth":avg_depth,
+                    "min_num_cm_nodes":min_num_cm_nodes,
+                    "max_num_cm_nodes":max_num_cm_nodes,
+                    "mean_num_cm_nodes":f"{avg_num_cm_nodes:.2f} ({std_num_cm_nodes:.2f})",
                     "min_num_exps":min_num_exps,
                     "max_num_exps":max_num_exps,
-                    "avg_num_exps":avg_num_exps,
+                    "mean_num_exps":f"{avg_num_exps:.2f} ({std_num_exps:.2f})",
                 }
             )
 
@@ -261,15 +259,17 @@ def compile_random_results_ignore_connectivity():
     target_recovery_rate = (true_found_count / total_rows)
 
     found_df = df[df['found']]
-    # Depth information
-    min_depth = found_df['depth'].min()
-    max_depth = found_df['depth'].max()
-    avg_depth = found_df['depth'].mean()
+    # Num cm nodes
+    min_num_cm_nodes = found_df['num_cm_nodes'].min()
+    max_num_cm_nodes = found_df['num_cm_nodes'].max()
+    avg_num_cm_nodes = found_df['num_cm_nodes'].mean()
+    std_num_cm_nodes = found_df['num_cm_nodes'].std()
 
     # NumExps information
     min_num_exps = found_df['num_explanations'].min()
     max_num_exps = found_df['num_explanations'].max()
     avg_num_exps = found_df['num_explanations'].mean()
+    std_num_exps = found_df['num_explanations'].std()
 
     table_data.append(
         {
@@ -279,12 +279,12 @@ def compile_random_results_ignore_connectivity():
             "num_no_diff":num_no_diff,
             "num_other":num_other,
             "target_recovery_rate":target_recovery_rate,
-            "min_depth":min_depth,
-            "max_depth":max_depth,
-            "avg_depth":avg_depth,
+            "min_num_cm_nodes":min_num_cm_nodes,
+            "max_num_cm_nodes":max_num_cm_nodes,
+            "mean_num_cm_nodes":f"{avg_num_cm_nodes:.2f} ({std_num_cm_nodes:.2f})",
             "min_num_exps":min_num_exps,
             "max_num_exps":max_num_exps,
-            "avg_num_exps":avg_num_exps,
+            "mean_num_exps":f"{avg_num_exps:.2f} ({std_num_exps:.2f})",
         }
     )
 

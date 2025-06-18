@@ -41,6 +41,8 @@ def explain_single(
     # Load explainer
     explainer = Explainer(manager.model,node_names=manager.node_names)
 
+    #print(f"Causal model with {len(explainer.model.nodes)} nodes and {len(explainer.model.graph.edges)} edges")
+
     # Set up the query and foils
 
     query_manager = QueryManager(explainer,manager,visualise=visualise,visualise_only_valid=visualise_only_valid)

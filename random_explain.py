@@ -79,7 +79,7 @@ if __name__ == "__main__":
 
                         # Compare
                         target_var = change
-                        found,depth,num_exps,msg = comparer.explain_follow_ups(
+                        found,depth,num_exps,num_cm_nodes,msg = comparer.explain_follow_ups(
                             target_var=target_var,
                             max_follow_ups=max_follow_ups,
                             max_depth=num_vars,
@@ -99,6 +99,7 @@ if __name__ == "__main__":
                                 "found":found,
                                 "depth":depth,
                                 "num_explanations":num_exps,
+                                "num_cm_nodes":num_cm_nodes,
                                 "msg":msg,
                             }
                         )
@@ -106,7 +107,7 @@ if __name__ == "__main__":
     # Save data
     csv_file = f'results/results_random.csv'
     with open(csv_file, mode='w', newline='') as file:
-        writer = csv.DictWriter(file, fieldnames=['seed', 'num_vars', 'cm_connectivity', 'num_leaves', 'change', 'found', 'depth', 'num_explanations', 'msg'])
+        writer = csv.DictWriter(file, fieldnames=list(save_data[0].keys()))
         writer.writeheader()
         writer.writerows(save_data)
 

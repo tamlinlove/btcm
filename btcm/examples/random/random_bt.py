@@ -11,10 +11,11 @@ from btcm.dm.action import NullAction
 from btcm.bt.nodes import ActionNode,ConditionNode
 
 class RandomActionNode(ActionNode):
-    def __init__(self,inputs:list[str],outputs:list[str],actions:list[RandomAction],seed:int=None,name:str = "RandomActionNode"):
+    def __init__(self,inputs:list[str],direct_outputs:list[str],outputs:list[str],actions:list[RandomAction],seed:int=None,name:str = "RandomActionNode"):
         super(RandomActionNode, self).__init__(name)
 
         self.inputs = inputs
+        self.direct_outputs = direct_outputs
         self.outputs = outputs
         self.actions = actions
         self.seed = seed
@@ -51,6 +52,18 @@ class RandomActionNode(ActionNode):
         rng = np.random.default_rng(self.seed if self.seed is not None else 0)
         key_action = rng.choice(self.actions)
 
+        if action != NullAction():
+            seed_seed = self.seed if self.seed is not None else 0
+            action_seed = abs(hash(action.name))
+            combined_seed = seed_seed + action_seed
+
+            rng = np.random.default_rng(combined_seed)
+            for output_var in self.direct_outputs:
+                change = rng.choice([True,False])
+                if change:
+                    new_val = bool(rng.choice([True,False]))
+                    state.set_value(output_var,new_val)
+
         if action == key_action:
             return py_trees.common.Status.SUCCESS
         else:
@@ -60,7 +73,7 @@ class RandomActionNode(ActionNode):
         return self.inputs
     
     def output_variables(self):
-        return self.outputs
+        return self.direct_outputs
     
     def action_space(self):
         return self.actions + [NullAction()]
@@ -109,12 +122,13 @@ def random_bt(num_leaves:int,state:RandomState,seed:int=None,visualise:bool=Fals
         plt.show()
 
     # Decide on input and output variables for each node
-    node_inputs,node_outputs,node_actions = random_node_io(tree_graph, state)
+    node_inputs,node_direct_outputs,node_outputs,node_actions = random_node_io(tree_graph, state)
 
     # Instantiate the tree
     tree = instantiate_tree(
         tree_graph=tree_graph,
         node_inputs=node_inputs,
+        node_direct_outputs=node_direct_outputs,
         node_outputs=node_outputs,
         node_actions=node_actions,
         state=state)
@@ -171,6 +185,7 @@ def random_bt_structure(num_leaves:int):
 
 def random_node_io(tree_graph:nx.DiGraph, state:RandomState):
     node_inputs = {}
+    node_direct_outputs = {}
     node_outputs = {}
     node_actions = {}
 
@@ -187,7 +202,13 @@ def random_node_io(tree_graph:nx.DiGraph, state:RandomState):
                 node_inputs[node] = np.random.choice(available_inputs, size=max_inputs, replace=False).tolist()
                 
                 max_outputs = np.random.randint(1, len(available_outputs) + 1)
-                node_outputs[node] = np.random.choice(available_outputs, size=max_outputs, replace=False).tolist()
+                direct_outputs = np.random.choice(available_outputs, size=max_outputs, replace=False).tolist()
+                outputs = set(direct_outputs)
+                for do_node in direct_outputs:
+                    outputs.update(nx.descendants(state.state_graph, do_node))
+                
+                node_direct_outputs[node] = direct_outputs
+                node_outputs[node] = list(outputs)
 
                 if node_inputs[node] == 0:
                     max_actions = 1
@@ -199,13 +220,14 @@ def random_node_io(tree_graph:nx.DiGraph, state:RandomState):
                 max_inputs = np.random.randint(1, len(available_inputs) + 1)
                 node_inputs[node] = np.random.choice(available_inputs, size=max_inputs, replace=False).tolist()
 
+                node_direct_outputs[node] = []
                 node_outputs[node] = []
                 node_actions[node] = []
 
 
-    return node_inputs, node_outputs, node_actions
+    return node_inputs, node_direct_outputs, node_outputs, node_actions
 
-def instantiate_tree(tree_graph:nx.DiGraph, node_inputs:dict, node_outputs:dict, node_actions:dict, state:RandomState):
+def instantiate_tree(tree_graph:nx.DiGraph, node_inputs:dict, node_direct_outputs:dict, node_outputs:dict, node_actions:dict, state:RandomState):
     node_seeds = {node: np.random.randint(0, 10000) for node in tree_graph.nodes}
     
     # Create BT nodes
@@ -224,6 +246,7 @@ def instantiate_tree(tree_graph:nx.DiGraph, node_inputs:dict, node_outputs:dict,
                 # If there are actions, create a RandomActionNode
                 node_bt = RandomActionNode(
                     inputs=node_inputs[node],
+                    direct_outputs=node_direct_outputs[node],
                     outputs=node_outputs[node],
                     actions=node_actions[node],
                     seed=node_seeds[node],

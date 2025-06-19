@@ -42,9 +42,9 @@ if __name__ == "__main__":
 
     save_data = []
 
-    particular_execution = False
+    particular_execution = True
     ped = {
-        "seed":3,
+        "seed":1,
         "num_vars":12,
         "connectivity":0.5,
         "num_leaves":8,

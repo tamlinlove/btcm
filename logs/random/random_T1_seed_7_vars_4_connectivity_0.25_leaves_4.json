@@ -1,42 +1,50 @@
 {
     "tree": {
-        "985a6d29-5e6c-40b3-820b-989084308148": {
+        "C0": {
             "name": "C0",
             "category": "Sequence",
             "memory": false,
             "children": [
-                "36fbba9b-d88c-43ac-a190-a41a8580e86b",
-                "381454c2-0854-4cae-a240-9537a09c4222",
-                "373c9fc6-40cc-438c-b773-716968c110c5",
-                "7c158074-be5e-455b-9b15-cc398bef0209"
+                "L0",
+                "C1"
             ]
         },
-        "36fbba9b-d88c-43ac-a190-a41a8580e86b": {
+        "L0": {
             "name": "L0",
             "category": "Condition",
             "description": "Random condition node",
             "class": "RandomConditionNode",
             "module": "btcm.examples.random.random_bt"
         },
-        "381454c2-0854-4cae-a240-9537a09c4222": {
+        "C1": {
+            "name": "C1",
+            "category": "Fallback",
+            "memory": false,
+            "children": [
+                "L1",
+                "L2",
+                "L3"
+            ]
+        },
+        "L1": {
             "name": "L1",
-            "category": "Action",
-            "description": "Random action node",
-            "class": "RandomActionNode",
+            "category": "Condition",
+            "description": "Random condition node",
+            "class": "RandomConditionNode",
             "module": "btcm.examples.random.random_bt"
         },
-        "373c9fc6-40cc-438c-b773-716968c110c5": {
+        "L2": {
             "name": "L2",
             "category": "Action",
             "description": "Random action node",
             "class": "RandomActionNode",
             "module": "btcm.examples.random.random_bt"
         },
-        "7c158074-be5e-455b-9b15-cc398bef0209": {
+        "L3": {
             "name": "L3",
-            "category": "Condition",
-            "description": "Random condition node",
-            "class": "RandomConditionNode",
+            "category": "Action",
+            "description": "Random action node",
+            "class": "RandomActionNode",
             "module": "btcm.examples.random.random_bt"
         }
     },
@@ -61,7 +69,7 @@
         },
         "1": {
             "update": {
-                "36fbba9b-d88c-43ac-a190-a41a8580e86b": {
+                "L0": {
                     "name": "L0",
                     "status": "Status.SUCCESS",
                     "action": "NullAction"
@@ -76,10 +84,10 @@
         },
         "2": {
             "update": {
-                "381454c2-0854-4cae-a240-9537a09c4222": {
+                "L1": {
                     "name": "L1",
-                    "status": "Status.SUCCESS",
-                    "action": "RandomAction3"
+                    "status": "Status.FAILURE",
+                    "action": "NullAction"
                 }
             },
             "state": {
@@ -91,14 +99,14 @@
         },
         "3": {
             "update": {
-                "373c9fc6-40cc-438c-b773-716968c110c5": {
+                "L2": {
                     "name": "L2",
-                    "status": "Status.SUCCESS",
+                    "status": "Status.FAILURE",
                     "action": "RandomAction0"
                 }
             },
             "state": {
-                "T1": true,
+                "T1": false,
                 "T2": false,
                 "I1": false,
                 "B1": false
@@ -106,14 +114,14 @@
         },
         "4": {
             "update": {
-                "7c158074-be5e-455b-9b15-cc398bef0209": {
+                "L3": {
                     "name": "L3",
-                    "status": "Status.SUCCESS",
-                    "action": "NullAction"
+                    "status": "Status.FAILURE",
+                    "action": "RandomAction0"
                 }
             },
             "state": {
-                "T1": true,
+                "T1": false,
                 "T2": false,
                 "I1": false,
                 "B1": false
@@ -121,13 +129,27 @@
         },
         "5": {
             "update": {
-                "985a6d29-5e6c-40b3-820b-989084308148": {
-                    "name": "C0",
-                    "status": "Status.SUCCESS"
+                "C1": {
+                    "name": "C1",
+                    "status": "Status.FAILURE"
                 }
             },
             "state": {
-                "T1": true,
+                "T1": false,
+                "T2": false,
+                "I1": false,
+                "B1": false
+            }
+        },
+        "6": {
+            "update": {
+                "C0": {
+                    "name": "C0",
+                    "status": "Status.FAILURE"
+                }
+            },
+            "state": {
+                "T1": false,
                 "T2": false,
                 "I1": false,
                 "B1": false

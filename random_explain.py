@@ -41,18 +41,38 @@ if __name__ == "__main__":
     hide_display = True
 
     save_data = []
+
+    particular_execution = False
+    ped = {
+        "seed":3,
+        "num_vars":12,
+        "connectivity":0.5,
+        "num_leaves":8,
+        "target":"T3",
+    }
+
+    if particular_execution:
+        hide_display = False
     
     # Run comparison
     for seed in runs:
         for num_vars in runs[seed]:
             for cm_connectivity in runs[seed][num_vars]:
                 for num_leaves in runs[seed][num_vars][cm_connectivity]:
+                    if particular_execution:
+                        if not(seed == ped["seed"] and num_vars == ped["num_vars"] and cm_connectivity == ped["connectivity"] and num_leaves == ped["num_leaves"]):
+                            continue
                     print(f"Seed: {seed}, Num Vars: {num_vars}, Connectivity: {cm_connectivity}, Num Leaves: {num_leaves}")
                     
                     default_file = runs[seed][num_vars][cm_connectivity][num_leaves]["default"]
                     other_changes = [f for f in runs[seed][num_vars][cm_connectivity][num_leaves] if f != "default"]
                     
                     for change in other_changes:
+                        if particular_execution:
+                            if change != ped["target"]:
+                                continue
+                                
+
                         change_file = runs[seed][num_vars][cm_connectivity][num_leaves][change]
                         print(f"\tComparing {default_file} with {change_file}")
 
@@ -105,11 +125,12 @@ if __name__ == "__main__":
                         )
 
     # Save data
-    csv_file = f'results/results_random.csv'
-    with open(csv_file, mode='w', newline='') as file:
-        writer = csv.DictWriter(file, fieldnames=list(save_data[0].keys()))
-        writer.writeheader()
-        writer.writerows(save_data)
+    if not particular_execution:
+        csv_file = f'results/results_random.csv'
+        with open(csv_file, mode='w', newline='') as file:
+            writer = csv.DictWriter(file, fieldnames=list(save_data[0].keys()))
+            writer.writeheader()
+            writer.writerows(save_data)
 
                         
                         

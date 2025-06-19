@@ -1,38 +1,46 @@
 {
     "tree": {
-        "b54e8e0b-c4a0-433f-ae44-4d9276b2a9c8": {
+        "C0": {
             "name": "C0",
-            "category": "Sequence",
+            "category": "Fallback",
             "memory": false,
             "children": [
-                "87062434-5f8f-4bd7-8dd6-7c36b4ab5384",
-                "6466534b-5031-40fe-af66-f4110f05f6b0",
-                "f1bc14f1-64c0-4959-8ecd-0d8f4e74ef67",
-                "adc56a16-5006-4e2c-8946-c7ed56b6274c"
+                "L0",
+                "C1"
             ]
         },
-        "87062434-5f8f-4bd7-8dd6-7c36b4ab5384": {
+        "L0": {
             "name": "L0",
             "category": "Condition",
             "description": "Random condition node",
             "class": "RandomConditionNode",
             "module": "btcm.examples.random.random_bt"
         },
-        "6466534b-5031-40fe-af66-f4110f05f6b0": {
-            "name": "L1",
-            "category": "Condition",
-            "description": "Random condition node",
-            "class": "RandomConditionNode",
-            "module": "btcm.examples.random.random_bt"
+        "C1": {
+            "name": "C1",
+            "category": "Fallback",
+            "memory": false,
+            "children": [
+                "L1",
+                "L2",
+                "L3"
+            ]
         },
-        "f1bc14f1-64c0-4959-8ecd-0d8f4e74ef67": {
-            "name": "L2",
+        "L1": {
+            "name": "L1",
             "category": "Action",
             "description": "Random action node",
             "class": "RandomActionNode",
             "module": "btcm.examples.random.random_bt"
         },
-        "adc56a16-5006-4e2c-8946-c7ed56b6274c": {
+        "L2": {
+            "name": "L2",
+            "category": "Condition",
+            "description": "Random condition node",
+            "class": "RandomConditionNode",
+            "module": "btcm.examples.random.random_bt"
+        },
+        "L3": {
             "name": "L3",
             "category": "Condition",
             "description": "Random condition node",
@@ -69,9 +77,9 @@
         },
         "1": {
             "update": {
-                "87062434-5f8f-4bd7-8dd6-7c36b4ab5384": {
+                "L0": {
                     "name": "L0",
-                    "status": "Status.SUCCESS",
+                    "status": "Status.FAILURE",
                     "action": "NullAction"
                 }
             },
@@ -88,10 +96,10 @@
         },
         "2": {
             "update": {
-                "6466534b-5031-40fe-af66-f4110f05f6b0": {
+                "L1": {
                     "name": "L1",
-                    "status": "Status.SUCCESS",
-                    "action": "NullAction"
+                    "status": "Status.FAILURE",
+                    "action": "RandomAction3"
                 }
             },
             "state": {
@@ -107,14 +115,14 @@
         },
         "3": {
             "update": {
-                "f1bc14f1-64c0-4959-8ecd-0d8f4e74ef67": {
+                "L2": {
                     "name": "L2",
-                    "status": "Status.SUCCESS",
-                    "action": "RandomAction2"
+                    "status": "Status.FAILURE",
+                    "action": "NullAction"
                 }
             },
             "state": {
-                "T1": true,
+                "T1": false,
                 "T2": false,
                 "T3": false,
                 "T4": true,
@@ -126,14 +134,14 @@
         },
         "4": {
             "update": {
-                "adc56a16-5006-4e2c-8946-c7ed56b6274c": {
+                "L3": {
                     "name": "L3",
-                    "status": "Status.FAILURE",
+                    "status": "Status.SUCCESS",
                     "action": "NullAction"
                 }
             },
             "state": {
-                "T1": true,
+                "T1": false,
                 "T2": false,
                 "T3": false,
                 "T4": true,
@@ -145,13 +153,31 @@
         },
         "5": {
             "update": {
-                "b54e8e0b-c4a0-433f-ae44-4d9276b2a9c8": {
-                    "name": "C0",
-                    "status": "Status.FAILURE"
+                "C1": {
+                    "name": "C1",
+                    "status": "Status.SUCCESS"
                 }
             },
             "state": {
-                "T1": true,
+                "T1": false,
+                "T2": false,
+                "T3": false,
+                "T4": true,
+                "I1": true,
+                "I2": false,
+                "B1": true,
+                "B2": true
+            }
+        },
+        "6": {
+            "update": {
+                "C0": {
+                    "name": "C0",
+                    "status": "Status.SUCCESS"
+                }
+            },
+            "state": {
+                "T1": false,
                 "T2": false,
                 "T3": false,
                 "T4": true,

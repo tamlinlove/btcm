@@ -110,7 +110,7 @@ def reconstruct_random_tree(filename:str,directory:str="logs/random/",data:dict=
             add_nodes_and_edges(child)
 
     add_nodes_and_edges(tree.root)
-
+    
     return graph, tree, behaviours, behaviours_to_nodes
 
     

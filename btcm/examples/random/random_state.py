@@ -25,11 +25,6 @@ class RandomState(State):
         self.internal_ratio = internal_ratio
         self.seed = seed
 
-        # Seed
-        if seed is not None:
-            np.random.seed(seed)
-
-
         # Create variables
         self.var_list,self.tops,self.bottoms,self.internals = self.random_vars()
 
@@ -79,15 +74,17 @@ class RandomState(State):
 
         for i in range(num_internals):
             var_list.append(f"I{i+1}")
-            internals.append(f"T{i+1}")
+            internals.append(f"I{i+1}")
 
         for i in range(num_bottoms):
             var_list.append(f"B{i+1}")
-            bottoms.append(f"T{i+1}")
+            bottoms.append(f"B{i+1}")
 
         return var_list,tops,bottoms,internals
     
     def random_causal_edges(self) -> list[tuple[str,str]]:
+        rng = np.random.default_rng(self.seed)
+
         max_num_edges_total = self.num_vars * (self.num_vars - 1) / 2 # Max number of edges in a DAG
         num_toppables = len(self.tops) + len(self.internals)
         max_non_top_edges = int(max_num_edges_total - (num_toppables * (num_toppables - 1) / 2)) # Max number of edges excluding TOP and Internal nodes
@@ -101,7 +98,7 @@ class RandomState(State):
 
         possible_edge_indices = list(range(len(possible_edges)))
 
-        edge_indices = np.random.choice(
+        edge_indices = rng.choice(
             possible_edge_indices,
             size=num_edges,
             replace=False
@@ -115,6 +112,8 @@ class RandomState(State):
         return {var:VarRange.boolean() for var in self.var_list}
     
     def random_var_funcs(self) -> dict:
+        rng = np.random.default_rng(self.seed)
+
         # Initialise variable functions as just returning the variable value for all variables
         func_seeds = {}
 
@@ -125,14 +124,14 @@ class RandomState(State):
 
         for var in self.var_list:
             var_parents = list(self.state_graph.predecessors(var))
-            func_seeds[var] = np.random.randint(0, 10000)
+            func_seeds[var] = rng.integers(0, 10000)
             if len(var_parents) > 0:
                 def child_func(state:Self,var:str=var,var_parents:list[str]=var_parents):
-                    rng = np.random.default_rng(state.func_seeds[var])
+                    rng_child = np.random.default_rng(state.func_seeds[var])
                     combined_value = state.get_value(var_parents[0])
                     
                     for parent in var_parents[1:]:
-                        if rng.choice([True, False]):
+                        if rng_child.choice([True, False]):
                             combined_value = combined_value and state.get_value(parent)
                         else:
                             combined_value = combined_value or state.get_value(parent)

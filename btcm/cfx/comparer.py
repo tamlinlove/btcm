@@ -81,7 +81,7 @@ class Comparer:
                     vars = list(foil.keys())
                     if len(list(foil.keys())) == 1:
                         # TODO: Fix to handle multiple 
-                        var = vars[0]
+                        var = vars[0]                    
                         update_history = self.manager2.update_history[var]
                         curr_tick,curr_time = self.get_curr_time([var],{var:update_history},curr_tick)
                         num_parents = sum(1 for _ in self.manager2.model.graph.predecessors(var))
@@ -206,7 +206,8 @@ class Comparer:
         display(f"\n=====QUERY=====\n{query_manager.query_text(query)}", hide_display=hide_display)
         display("\n=====EXPLANATION=====",hide_display=hide_display)
         for explanation in explanations:
-            display(f"-----{explanation.text(names=self.node_names)}",hide_display=hide_display)
+            #display(f"-----{explanation.text(names=self.node_names)}",hide_display=hide_display)
+            display(f"-----{explanation.text()}",hide_display=hide_display)
         
         
         return explanations,update2.tick,update2.time,len(explainer.model.nodes)

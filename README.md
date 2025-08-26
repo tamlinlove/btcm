@@ -1,5 +1,5 @@
-# btcm
-Generating causal models of behaviour trees for counterfactual explanations
+# Temporal Counterfactual Explanations of Behaviour Tree Decisions
+Generating causal models of behaviour trees for counterfactual explanations. This repository contains the code used in the paper "Temporal Counterfactual Explanations of Behaviour Tree Decisions" submitted to EAAI.
 
 ## Executing Behaviour Trees
 To run the serial recall use case, use the following:

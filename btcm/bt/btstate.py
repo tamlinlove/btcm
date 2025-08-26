@@ -678,6 +678,7 @@ class BTStateManager:
 
         if time == "end":
             time = sorted(int(key) for key in self.data[str(tick)].keys())[-1]
+        time = int(time)
 
         # Get nearest recorded time
         available_times = sorted(int(key) for key in self.value_history[var][str(tick)].keys())
@@ -690,7 +691,7 @@ class BTStateManager:
     def find_closest_index(self,numbers, target):
         if not numbers:
             raise ValueError("The list is empty")
-
+        
         # If the target is less than the minimum value, return 0
         if target < numbers[0]:
             return 0

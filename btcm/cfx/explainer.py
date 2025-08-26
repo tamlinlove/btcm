@@ -310,10 +310,9 @@ class Explainer:
         explanations = []
         for combo in search_combos:
             new_graph,new_state = self.model.intervene(combo,search_graph)
-            
 
-           
             satisfied = False
+            
             if query.satisfies_query(new_state):
                 satisfied = True
                 explanations.append(CounterfactualExplanation(combo,new_state.get_values(query.foil_vars()),self.model.state,query.tick,query.time))

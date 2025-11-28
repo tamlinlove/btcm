@@ -44,6 +44,10 @@ if __name__ == "__main__":
     foils = None
     if args.foils is not None and args.nodetype == "Decision":
         foils = [CognitiveSequenceState.retrieve_action(foil) for foil in args.foils]
+    else:
+        # TODO: Get foils working, needs to cast to appropriate var type
+        pass
+        # foils = args.foils
         
 
     explain_single(

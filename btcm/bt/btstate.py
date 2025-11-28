@@ -297,7 +297,15 @@ class BTState(State):
             if self.categories[node] == "State":
                 all_state = all([self.categories[var] == "State" for var in node_input])
                 if all_state:
-                    # Can delegate to var_state
+                    # Check if parent is same variable
+                    input_node_names = [self.node_names[pnode] for pnode in node_input]
+                    all_same_node = all(pname == self.node_names[node] for pname in input_node_names)
+                    if all_same_node:
+                        # State variable takes its last value
+                        parents = [pnode for pnode in node_input if pnode != node]
+                        latest_parent = max(parents, key=lambda s: int(s.split("_")[-1]))
+                        return self.get_value(latest_parent)
+                    # Some other combination of state variables (e.g. external state)
                     return var_state.run(self.node_names[node],var_state)
                 else:
                     return self.run_internal_state(node,var_state)
@@ -797,7 +805,15 @@ class BTStateManager:
                                 same_batch_ancestors = [anc for anc in state_ancestors if self.state_batches[anc] == self.state_batches[parent]]
                                 vars_to_update = [parent] + same_batch_ancestors
                                 for var in vars_to_update:
-                                    
+                                    # Check if already updated
+                                    if var in self.update_history:
+                                        already_updated = True if str(curr_tick) in self.update_history[var] else False
+                                    else:
+                                        already_updated = False
+
+                                    if already_updated:
+                                        continue
+                                    # Update var
                                     data_tick_time = self.data[str(last_state_time[0])][str(last_state_time[1])] # Use t-1
                                     self.state.set_value(var,data_tick_time["state"][self.state.node_names[var]])
                                     self.add_to_val_history(var,last_state_time[0],last_state_time[1],data_tick_time["state"][self.state.node_names[var]])

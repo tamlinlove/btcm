@@ -309,6 +309,15 @@ class Explainer:
 
         explanations = []
         for combo in search_combos:
+            '''
+            if "BaseUserAccuracy_0" not in combo:
+                continue
+            if combo["BaseUserAccuracy_0"] not in [0.6,0.7]:
+                continue
+            accuracy_seed_edges = [edge for edge in self.model.graph.edges if edge[0].startswith("AccuracySeed") or edge[1].startswith("AccuracySeed")]
+            print([f"{self.node_names[edge[0]]}:{self.node_names[edge[1]]}" for edge in accuracy_seed_edges])
+            '''
+
             new_graph,new_state = self.model.intervene(combo,search_graph)
 
             satisfied = False

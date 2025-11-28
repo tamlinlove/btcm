@@ -78,22 +78,22 @@ if __name__ == "__main__":
     foils = [True]
     '''
 
-    '''
+    #'''
     nodename = "L2"
     nodetype = "Decision"
     tick = 0
     time = 3
     foils = None
     action_foil_all_but_null = True
-    '''
-
     #'''
+
+    '''
     nodename = "X_c"
     nodetype = "State"
     tick = 0
     time = 2
     foils = [True]
-    #'''
+    '''
 
     '''
     nodename = "X_b"

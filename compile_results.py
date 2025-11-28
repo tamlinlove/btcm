@@ -235,6 +235,18 @@ def compile_random_results_ignore_connectivity():
             avg_num_exps = found_df['num_explanations'].mean()
             std_num_exps = found_df['num_explanations'].std()
 
+            # Runtime
+            min_runtime = found_df['time'].min()
+            max_runtime = found_df['time'].max()
+            avg_runtime = found_df['time'].mean()
+            std_runtime = found_df['time'].std()
+
+            # CFX Candidates
+            min_num_cfx = found_df['num_cfx'].min()
+            max_num_cfx = found_df['num_cfx'].max()
+            avg_num_cfx = found_df['num_cfx'].mean()
+            std_num_cfx = found_df['num_cfx'].std()
+
             table_data.append(
                 {
                     "num_vars":num_vars,
@@ -249,6 +261,14 @@ def compile_random_results_ignore_connectivity():
                     "min_num_exps":min_num_exps,
                     "max_num_exps":max_num_exps,
                     "mean_num_exps":f"{avg_num_exps:.2f} ({std_num_exps:.2f})",
+                    "min_runtime":min_runtime,
+                    "max_runtime":max_runtime,
+                    "avg_runtime":avg_runtime,
+                    "std_runtime":std_runtime,
+                    "min_num_cfx":min_num_cfx,
+                    "max_num_cfx":max_num_cfx,
+                    "avg_num_cfx":avg_num_cfx,
+                    "std_num_cfx":std_num_cfx,
                 }
             )
 
@@ -275,6 +295,18 @@ def compile_random_results_ignore_connectivity():
     avg_num_exps = found_df['num_explanations'].mean()
     std_num_exps = found_df['num_explanations'].std()
 
+    # Runtime
+    min_runtime = found_df['time'].min()
+    max_runtime = found_df['time'].max()
+    avg_runtime = found_df['time'].mean()
+    std_runtime = found_df['time'].std()
+
+    # CFX Candidates
+    min_num_cfx = found_df['num_cfx'].min()
+    max_num_cfx = found_df['num_cfx'].max()
+    avg_num_cfx = found_df['num_cfx'].mean()
+    std_num_cfx = found_df['num_cfx'].std()
+
     table_data.append(
         {
             "num_vars":"All",
@@ -289,6 +321,14 @@ def compile_random_results_ignore_connectivity():
             "min_num_exps":min_num_exps,
             "max_num_exps":max_num_exps,
             "mean_num_exps":f"{avg_num_exps:.2f} ({std_num_exps:.2f})",
+            "min_runtime":min_runtime,
+            "max_runtime":max_runtime,
+            "avg_runtime":avg_runtime,
+            "std_runtime":std_runtime,
+            "min_num_cfx":min_num_cfx,
+            "max_num_cfx":max_num_cfx,
+            "avg_num_cfx":avg_num_cfx,
+            "std_num_cfx":std_num_cfx,
         }
     )
 
@@ -300,6 +340,6 @@ def compile_random_results_ignore_connectivity():
         writer.writerows(table_data)
 
 if __name__ == "__main__":
-    compile_cog_seq_results()
-    compile_random_results()
-    #compile_random_results_ignore_connectivity()
+    #compile_cog_seq_results()
+    #compile_random_results()
+    compile_random_results_ignore_connectivity()

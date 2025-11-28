@@ -263,7 +263,7 @@ class Explainer:
     '''
     EXPLAIN
     '''
-    def explain(self,query:CounterfactualQuery,max_depth:int = None, visualise:bool = False, visualise_only_valid:bool =False, visualised_interventions: list = None) -> List[CounterfactualExplanation]:
+    def explain(self,query:CounterfactualQuery,max_depth:int = None, visualise:bool = False, visualise_only_valid:bool =False, visualised_interventions: list = None, return_cfx_candidates_nums: bool = False) -> List[CounterfactualExplanation]:
         # Validate
         for var in query.foils:
             if query.foils[var] is None:
@@ -282,8 +282,10 @@ class Explainer:
             max_depth = min(max_depth,len(search_space.keys()))
 
         explanations = []
+        sum_cfx_candidates = 0
         for i in range(max_depth):
-            new_exps = self.explain_to_depth(query=query,search_space=search_space,depth=i+1,search_graph=search_graph,visualise=visualise,visualise_only_valid=visualise_only_valid,visualised_interventions=visualised_interventions)
+            new_exps,num_cfx_candidates = self.explain_to_depth(query=query,search_space=search_space,depth=i+1,search_graph=search_graph,visualise=visualise,visualise_only_valid=visualise_only_valid,visualised_interventions=visualised_interventions)
+            sum_cfx_candidates += num_cfx_candidates
 
             # Aggregate
             new_exps = self.aggregate_explanations(new_exps)
@@ -292,8 +294,12 @@ class Explainer:
 
             if len(explanations) > 0:
                 break
-
-        return explanations
+    
+        if return_cfx_candidates_nums:
+            return explanations,sum_cfx_candidates
+        else:
+            # To fix compatability issues
+            return explanations
 
     def explain_to_depth(
             self,
@@ -344,7 +350,7 @@ class Explainer:
                 if display_this:
                     self.visualise_intervention(combo,new_graph,new_state,query,search_space)
         
-        return explanations
+        return explanations,len(search_combos)
     
     def aggregate_explanations(self,explanations:List[CounterfactualExplanation]):
 

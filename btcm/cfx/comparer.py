@@ -1,5 +1,7 @@
 import py_trees
 
+import timeit
+
 from btcm.cfx.query_manager import QueryManager
 from btcm.cfx.explainer import Explainer,AggregatedCounterfactualExplanation
 from btcm.bt.btstate import BTStateManager
@@ -35,27 +37,42 @@ class Comparer:
             visualise:bool=False,
             visualise_only_valid:bool=False,
             hide_display:bool=False,
-    ) -> tuple[bool,int,int,int,str]:
+    ) -> tuple[bool,int,int,int,float,str]:
+        '''
+        Returns:
+            found
+            depth
+            num_explanations
+            num_cm_nodes
+            runtime
+            msg
+        '''
+        # Start timer
+        start_timer = timeit.default_timer()
+
         # First round of explanations
-        explanations,tick,time,num_nodes = self.explain_first_difference(
+        explanations,tick,time,num_nodes,num_cfx = self.explain_first_difference(
             max_depth=max_depth,
             visualise=visualise,
             visualise_only_valid=visualise_only_valid,
             hide_display=hide_display,
         )
 
+        first_diff_timer = timeit.default_timer()
+        first_diff = first_diff_timer - start_timer
+
         # Check if explanation is valid
         if explanations is None:
             display("No differences",hide_display=hide_display)
-            return False,0,0,num_nodes,"NoDiff"
+            return False,0,0,num_nodes,first_diff,num_cfx,"NoDiff"
 
         # Check if target found
         if target_var is None:
             display("\nNo need for follow-ups\n",hide_display=hide_display)
-            return False,0,0,0,"NoTarget"
+            return False,0,0,0,first_diff,num_cfx,"NoTarget"
         elif self.target_found(explanations,target_var):
             display("Found target in 1 step",hide_display=hide_display)
-            return True,1,len(explanations),num_nodes,"Found"
+            return True,1,len(explanations),num_nodes,first_diff,num_cfx,"Found"
         else:
             # Need to do follow up queries
             step = 2
@@ -126,8 +143,9 @@ class Comparer:
                         query_manager = QueryManager(explainer, self.manager2, visualise=visualise, visualise_only_valid=visualise_only_valid)
 
                         query = query_manager.make_follow_up_query(foil,curr_tick,curr_time)
-                        new_explanations = explainer.explain(query, max_depth=max_depth, visualise=visualise, visualise_only_valid=visualise_only_valid)
-                        
+                        new_explanations,new_num_cfx = explainer.explain(query, max_depth=max_depth, visualise=visualise, visualise_only_valid=visualise_only_valid,return_cfx_candidates_nums=True)
+                        num_cfx += new_num_cfx
+
                         display(f"\n=====QUERY=====\n{query_manager.query_text(query)}", hide_display=hide_display)
                         display("\n=====EXPLANATION=====",hide_display=hide_display)
                         for exp in new_explanations:
@@ -136,11 +154,13 @@ class Comparer:
                         # Add new explanations to a list of all explanations for this round
                         next_exps += new_explanations
 
-                    
+                curr_diff_timer = timeit.default_timer()
+                curr_diff = curr_diff_timer - start_timer 
+
                 # Check if target is found
                 if self.target_found(next_exps,target_var):
                     display(f"Found target in {step} steps",hide_display=hide_display)
-                    return True,step,len(next_exps),len(explainer.model.nodes),"Found"
+                    return True,step,len(next_exps),len(explainer.model.nodes),curr_diff,num_cfx,"Found"
                 
                 explanations = next_exps
                     
@@ -148,7 +168,7 @@ class Comparer:
                 # Increment
                 step += 1
 
-        return False,0,0,len(explainer.model.nodes),"Unknown"
+        return False,0,0,len(explainer.model.nodes),curr_diff,num_cfx,"Unknown"
 
         
 
@@ -182,7 +202,7 @@ class Comparer:
 
         if same:
             display("No differences found",hide_display=hide_display)
-            return None,None,None,len(explainer.model.nodes)
+            return None,None,None,len(explainer.model.nodes),0
 
         # Get the query for the first difference
         if difference == "name":
@@ -202,7 +222,7 @@ class Comparer:
         else:
             raise ValueError(f"Unknown difference {difference}")
         
-        explanations = explainer.explain(query, max_depth=max_depth, visualise=visualise, visualise_only_valid=visualise_only_valid)
+        explanations,num_cfx = explainer.explain(query, max_depth=max_depth, visualise=visualise, visualise_only_valid=visualise_only_valid,return_cfx_candidates_nums=True)
         display(f"\n=====QUERY=====\n{query_manager.query_text(query)}", hide_display=hide_display)
         display("\n=====EXPLANATION=====",hide_display=hide_display)
         for explanation in explanations:
@@ -210,7 +230,7 @@ class Comparer:
             display(f"-----{explanation.text()}",hide_display=hide_display)
         
         
-        return explanations,update2.tick,update2.time,len(explainer.model.nodes)
+        return explanations,update2.tick,update2.time,len(explainer.model.nodes),num_cfx
     
     '''
     QUERY

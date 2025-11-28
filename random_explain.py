@@ -42,7 +42,8 @@ if __name__ == "__main__":
 
     save_data = []
 
-    particular_execution = True
+    # Set to true to test a particular execution rather than the entire dataset
+    particular_execution = False
     ped = {
         "seed":1,
         "num_vars":12,
@@ -99,7 +100,7 @@ if __name__ == "__main__":
 
                         # Compare
                         target_var = change
-                        found,depth,num_exps,num_cm_nodes,msg = comparer.explain_follow_ups(
+                        found,depth,num_exps,num_cm_nodes,time,num_cfx,msg = comparer.explain_follow_ups(
                             target_var=target_var,
                             max_follow_ups=max_follow_ups,
                             max_depth=num_vars,
@@ -120,6 +121,8 @@ if __name__ == "__main__":
                                 "depth":depth,
                                 "num_explanations":num_exps,
                                 "num_cm_nodes":num_cm_nodes,
+                                "time":time,
+                                "num_cfx":num_cfx,
                                 "msg":msg,
                             }
                         )

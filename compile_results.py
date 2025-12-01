@@ -41,6 +41,18 @@ def compile_cog_seq_results():
         avg_num_exps = found_df['num_explanations'].mean()
         std_num_exps = found_df['num_explanations'].std()
 
+        # Runtime
+        min_runtime = found_df['runtime'].min()
+        max_runtime = found_df['runtime'].max()
+        avg_runtime = found_df['runtime'].mean()
+        std_runtime = found_df['runtime'].std()
+
+        # CFX Candidates
+        min_num_cfx = found_df['num_cfx'].min()
+        max_num_cfx = found_df['num_cfx'].max()
+        avg_num_cfx = found_df['num_cfx'].mean()
+        std_num_cfx = found_df['num_cfx'].std()
+
         table_data.append(
             {
                 "profile":profile,
@@ -51,6 +63,12 @@ def compile_cog_seq_results():
                 "min_num_exps":min_num_exps,
                 "max_num_exps":max_num_exps,
                 "mean_num_exps":f"{avg_num_exps:.2f} ({std_num_exps:.2f})",
+                "min_runtime":f"{min_runtime:.4f}",
+                "max_runtime":f"{max_runtime:.4f}",
+                "mean_runtime":f"{avg_runtime:.4f} ({std_runtime:.4f})",
+                "min_num_cfx":min_num_cfx,
+                "max_num_cfx":max_num_cfx,
+                "mean_num_cfx":f"{avg_num_cfx:.2f} ({std_num_cfx:.2f})",
             }
         )
 
@@ -79,6 +97,18 @@ def compile_cog_seq_results():
     avg_num_exps = found_df['num_explanations'].mean()
     std_num_exps = found_df['num_explanations'].std()
 
+    # Runtime
+    min_runtime = found_df['runtime'].min()
+    max_runtime = found_df['runtime'].max()
+    avg_runtime = found_df['runtime'].mean()
+    std_runtime = found_df['runtime'].std()
+
+    # CFX Candidates
+    min_num_cfx = found_df['num_cfx'].min()
+    max_num_cfx = found_df['num_cfx'].max()
+    avg_num_cfx = found_df['num_cfx'].mean()
+    std_num_cfx = found_df['num_cfx'].std()
+
     table_data.append(
         {
             "profile":"All",
@@ -89,6 +119,12 @@ def compile_cog_seq_results():
             "min_num_exps":min_num_exps,
             "max_num_exps":max_num_exps,
             "mean_num_exps":f"{avg_num_exps:.2f} ({std_num_exps:.2f})",
+            "min_runtime":f"{min_runtime:.4f}",
+            "max_runtime":f"{max_runtime:.4f}",
+            "mean_runtime":f"{avg_runtime:.4f} ({std_runtime:.4f})",
+            "min_num_cfx":min_num_cfx,
+            "max_num_cfx":max_num_cfx,
+            "mean_num_cfx":f"{avg_num_cfx:.2f} ({std_num_cfx:.2f})",
         }
     )
 
@@ -261,14 +297,12 @@ def compile_random_results_ignore_connectivity():
                     "min_num_exps":min_num_exps,
                     "max_num_exps":max_num_exps,
                     "mean_num_exps":f"{avg_num_exps:.2f} ({std_num_exps:.2f})",
-                    "min_runtime":min_runtime,
-                    "max_runtime":max_runtime,
-                    "avg_runtime":avg_runtime,
-                    "std_runtime":std_runtime,
+                    "min_runtime":f"{min_runtime:.4f}",
+                    "max_runtime":f"{max_runtime:.4f}",
+                    "mean_runtime":f"{avg_runtime:.4f} ({std_runtime:.4f})",
                     "min_num_cfx":min_num_cfx,
                     "max_num_cfx":max_num_cfx,
-                    "avg_num_cfx":avg_num_cfx,
-                    "std_num_cfx":std_num_cfx,
+                    "mean_num_cfx":f"{avg_num_cfx:.2f} ({std_num_cfx:.2f})",
                 }
             )
 
@@ -321,14 +355,12 @@ def compile_random_results_ignore_connectivity():
             "min_num_exps":min_num_exps,
             "max_num_exps":max_num_exps,
             "mean_num_exps":f"{avg_num_exps:.2f} ({std_num_exps:.2f})",
-            "min_runtime":min_runtime,
-            "max_runtime":max_runtime,
-            "avg_runtime":avg_runtime,
-            "std_runtime":std_runtime,
+            "min_runtime":f"{min_runtime:.4f}",
+            "max_runtime":f"{max_runtime:.4f}",
+            "mean_runtime":f"{avg_runtime:.4f} ({std_runtime:.4f})",
             "min_num_cfx":min_num_cfx,
             "max_num_cfx":max_num_cfx,
-            "avg_num_cfx":avg_num_cfx,
-            "std_num_cfx":std_num_cfx,
+            "mean_num_cfx":f"{avg_num_cfx:.2f} ({std_num_cfx:.2f})",
         }
     )
 
@@ -340,6 +372,6 @@ def compile_random_results_ignore_connectivity():
         writer.writerows(table_data)
 
 if __name__ == "__main__":
-    #compile_cog_seq_results()
+    compile_cog_seq_results()
     #compile_random_results()
     compile_random_results_ignore_connectivity()

@@ -45,6 +45,7 @@ class Comparer:
             num_explanations
             num_cm_nodes
             runtime
+            num_cfx
             msg
         '''
         # Start timer

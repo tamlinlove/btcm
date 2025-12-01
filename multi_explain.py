@@ -53,6 +53,9 @@ if __name__ == "__main__":
     founds = []
     depths = []
     nums_exps = []
+    nums_cm_nodes = []
+    runtimes = []
+    nums_cfx = []
     data = []
     msgs = []
     for seed in seed_dict:
@@ -62,7 +65,7 @@ if __name__ == "__main__":
         if not args.hide_display:
             print(f"\n\n===Comparing {file1} and {file2}===")
 
-        found,depth,num_exps,msg = compare_runs(
+        found,depth,num_exps,num_cm_nodes,runtime,num_cfx,msg = compare_runs(
             file1=file1,
             file2=file2,
             target_profile=profile_name_2,
@@ -77,7 +80,10 @@ if __name__ == "__main__":
 
         founds.append(found)
         depths.append(depth)
-        nums_exps.append(num_exps)  
+        nums_exps.append(num_exps)
+        nums_cm_nodes.append(num_cm_nodes)
+        runtimes.append(runtime)
+        nums_cfx.append(num_cfx)
         msgs.append(msg)
 
         data.append(
@@ -86,6 +92,9 @@ if __name__ == "__main__":
                 'found': found,
                 'depth': depth,
                 'num_explanations': num_exps,
+                'num_cm_nodes': num_cm_nodes,
+                'runtime': runtime,
+                'num_cfx': num_cfx,
                 'msg': msg
             }
         )
@@ -107,7 +116,7 @@ if __name__ == "__main__":
     # Save
     csv_file = f'results/results_{profile_name_1}_{profile_name_2}.csv'
     with open(csv_file, mode='w', newline='') as file:
-        writer = csv.DictWriter(file, fieldnames=['seed', 'found', 'depth', 'num_explanations', 'msg'])
+        writer = csv.DictWriter(file, fieldnames=list(data[0].keys()))
         writer.writeheader()
         writer.writerows(data)
 

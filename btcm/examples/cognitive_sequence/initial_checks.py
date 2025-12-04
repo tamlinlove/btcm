@@ -32,6 +32,9 @@ class CheckOverride(ConditionNode):
     def semantic_description(self) -> str:
         return "Checks if the game must be ended. If so, it returns SUCCESS, otherwise FAILURE."
     
+    def detailed_semantic_description(self) -> str:
+        return "Succeeds if EndGame is True, otherwise fails."
+    
 class EndGame(ActionNode):
     def __init__(self, name:str = "EndGame"):
         super(EndGame, self).__init__(name)
@@ -62,6 +65,9 @@ class EndGame(ActionNode):
     '''
     def semantic_description(self) -> str:
         return "Ends the cognitive sequence task."
+    
+    def detailed_semantic_description(self) -> str:
+        return "Instructs the environment to end the game. Should always succeed."
     
 '''
 Composite Nodes

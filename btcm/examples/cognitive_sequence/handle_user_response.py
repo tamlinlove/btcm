@@ -48,6 +48,12 @@ class StartResponseTimer(ActionNode):
     def action_space(self):
         return [ResetTimerAction(),NullAction()]
     
+    '''
+    SEMANTIC DESCRIPTION
+    '''
+    def detailed_semantic_description(self) -> str:
+        return "Resets the timer if ResponseTimerActive is false, setting ResponseTimerActive to True, UserResponded to False and UserTimeout to False. Otherwise does nothing."
+    
 class NudgeTimer(ActionNode):
     def __init__(self, name:str = "NudgeTimer"):
         super(NudgeTimer, self).__init__(name)
@@ -79,6 +85,13 @@ class NudgeTimer(ActionNode):
     
     def action_space(self):
         return [CheckTimerAction(),NullAction()]
+    
+    '''
+    SEMANTIC DESCRIPTION
+    '''
+    def detailed_semantic_description(self) -> str:
+        return "Nudges the environment to check if the user has responded or timed out yet. As a result executing this node, the environment will update the values of the UserResponded and UserTimeout variables."
+    
     
 class HandleTimerResponse(ActionNode):
     def __init__(self, name:str = "HandleTimerResponse"):
@@ -112,6 +125,13 @@ class HandleTimerResponse(ActionNode):
     def action_space(self):
         return [NullAction()]
     
+    '''
+    SEMANTIC DESCRIPTION
+    '''
+    def detailed_semantic_description(self) -> str:
+        return "If UserResponded is True, sets ResponseTimerActive to False and succeeds. Otherwise, if UserTimeout is true, sets ResponseTimerActive to False and fails. Otherwise, returns running."
+    
+    
 class AssessUserSequence(ActionNode):
     def __init__(self, name:str = "AssessUserSequence"):
         super(AssessUserSequence, self).__init__(name)
@@ -139,6 +159,13 @@ class AssessUserSequence(ActionNode):
     def action_space(self):
         return [AssessSequenceAction(),NullAction()]
     
+    '''
+    SEMANTIC DESCRIPTION
+    '''
+    def detailed_semantic_description(self) -> str:
+        return "Assesses the user sequence. This has no effect on the state. The node always succeeds."
+    
+    
 class HandleUserResponse(ActionNode):
     def __init__(self, name:str = "HandleUserResponse"):
         super(HandleUserResponse, self).__init__(name)
@@ -165,6 +192,12 @@ class HandleUserResponse(ActionNode):
     
     def action_space(self):
         return [NullAction()]
+    
+    '''
+    SEMANTIC DESCRIPTION
+    '''
+    def detailed_semantic_description(self) -> str:
+        return "Fails if UserResponded is False, otherwise succeeds."
     
 
 class RepeatOrEnd(ActionNode):
@@ -212,6 +245,12 @@ class RepeatOrEnd(ActionNode):
     
     def action_space(self):
         return [RepeatThisSequenceAction(),EndThisSequenceAction(),NullAction()]
+    
+    '''
+    SEMANTIC DESCRIPTION
+    '''
+    def detailed_semantic_description(self) -> str:
+        return "Decides whether to end the current task or give the user another attempt at the same sequence. If NumRepetitions >= the maximum number of attempts, the node will select EndThisSequenceAction. Otherwise, if UserResponded is True and UserNumErrors is either 0 or the maximum possible, it selects EndThisSequenceAction. If instead UserEngagement < 0.4 and AttemptedReengageUser is True, it selects EndThisSequenceAction. If UserFrustration > 0.7, it also selects EndThisSequenceAction. In all other cases, it selects RepeatThisSequenceAction. Selecting EndThisSequenceAction sets RepeatSequence to False, while selecting RepeatThisSequenceAction sets it to True. The node always succeeds."
 
 class DecideSocialAction(ActionNode):
     def __init__(self, name:str = "DecideSocialAction"):
@@ -273,6 +312,12 @@ class DecideSocialAction(ActionNode):
     
     def action_space(self):
         return [GiveSequenceHintAction(),RepeatSequenceSocialAction(),EndSequenceSocialAction(),RecaptureAttentionAction(),NullAction()]
+
+    '''
+    SEMANTIC DESCRIPTION
+    '''
+    def detailed_semantic_description(self) -> str:
+        return "Decides on the interaction strategy for the robot to take with the human. If UserResponded and RepeatSequence are true, and UserConfusion >= 0.6, then it selects GiveSequenceHintAction. If UserResponded and RepeatSequence are true, UserEngagement < 0.4 and AttemptedReengageUser is false, it selects RecaptureAttentionAction. If UserResponded is true but RepeatSequence is false, it selects EndSequenceSocialAction. Otherwise, if UserResponded is not true, and RepeatSequence is True, and UserEngagement < 0.4 and AttemptedReengageUser is false, it selects RecaptureAttentionAction. Otherwise, if UserResponded is not true and RepeatSequence is true, it selects RepeatSequenceSocialAction. In all other cases it selects EndSequenceSocialAction. If RecaptureAttentionAction is selected, then AttemptedReengageUser is set to True. Executing this node always sets FeedbackGiven to True. The node always succeeds."
 
 '''
 Composite Nodes

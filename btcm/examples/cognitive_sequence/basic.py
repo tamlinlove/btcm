@@ -287,7 +287,6 @@ class CognitiveSequenceState(State):
             ("BaseUserResponseTime","ObservedUserResponseTime"),
             ("ResponseTimeSeed","ObservedUserResponseTime"),
             # Frustration
-            # TODO - missing self link, how to add?
             ("UserNumErrors","UserFrustration"),
             ("FeedbackGiven","UserFrustration"),
 

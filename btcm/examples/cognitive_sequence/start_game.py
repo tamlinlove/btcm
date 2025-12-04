@@ -31,6 +31,9 @@ class CheckInitialSequence(ConditionNode):
     def semantic_description(self) -> str:
         return "Checks if a sequence has already been set or not. If not, it returns SUCCESS, otherwise FAILURE."
     
+    def detailed_semantic_description(self) -> str:
+        return "Succeeds if NumRepetitions is 0, fails otherwise."
+    
 class SetSequenceParameters(ActionNode):
     def __init__(self, name:str = "SetSequenceParameters"):
         super(SetSequenceParameters, self).__init__(name)
@@ -135,6 +138,9 @@ class SetSequenceParameters(ActionNode):
     def semantic_description(self) -> str:
         return "Sets the parameters for the sequence, based on a number of human factors in the state."
     
+    def detailed_semantic_description(self) -> str:
+        return "If NumSequences is 0, sets SequenceLength to 5 and SequenceComplexity to 3. Otherwise, complexity is updated by subtracting (UserNumErrors-1), subtracting 1 if UserConfusion >= 0.8, and adding 1 if UserConfusion < 0.3. Length is halved if UserTimeout, otherwise length += round(min(2,max(-2,time_diff))), where time_diff is 0.8 x SequenceLength - ObservedUserResponseTime. Length is also updated in the no timeout case by subtracting (UserNumErrors-1). Both length and complexity cannot go above or below the ranges previously established. Executing this node sets the SequenceComplexity and SequenceLength, sets SequenceSet to True and increments NumSequences. It also generates an appropriate sequence of symbols by updating CurrentSequence according to the new parameters."
+    
 class HandleRepeatedSequence(ActionNode):
     def __init__(self, name:str = "HandleRepeatedSequence"):
         super(HandleRepeatedSequence, self).__init__(name)
@@ -164,6 +170,9 @@ class HandleRepeatedSequence(ActionNode):
     '''
     def semantic_description(self) -> str:
         return "Handles the case where a sequence has already been set."
+    
+    def detailed_semantic_description(self) -> str:
+        return "This node selects CrashAction if SequenceSet is not true. Otherwise it does nothing."
     
 class ProvideSequence(ActionNode):
     def __init__(self, name:str = "ProvideSequence"):
@@ -208,6 +217,9 @@ class ProvideSequence(ActionNode):
     '''
     def semantic_description(self) -> str:
         return "Presents the sequence that was selected."
+    
+    def detailed_semantic_description(self) -> str:
+        return "This node presents the previously selected sequence to the user. Executing the node sets UserResponded to False, and triggers the environment to update the variables in the state model according to the predefined state dynamics."
     
 '''
 COMPOSITE NODES

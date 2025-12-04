@@ -28,7 +28,7 @@ You can also configure ths search with the following arguments:
 
 * --max_depth : the maximum depth (i.e. number of counterfactual variables) before giving up the search
 
-## Replciating Experiments
+## Replicating Experiments
 
 The following replicates the random BT experiments:
 

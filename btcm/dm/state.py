@@ -10,6 +10,27 @@ class VarRange:
         self.min = min
         self.max = max
 
+    def range_list(self):
+        if self.range_type == "cat":
+            # Categorical, can just list all values
+            return f"Categorical, with possible values {self.values}"
+        elif self.range_type == "cont":
+            if self.var_type == float:
+                return f"A continuous floating point number between {self.min} and {self.max}"
+            else:
+                raise NotImplementedError
+        elif self.range_type == "bool":
+            return "A boolean, either True or False"
+        elif self.range_type == "disc_cont":
+            return f"A discretised continuous variable, with possible values {self.values} between {self.min} and {self.max}"
+        elif self.range_type == "any":
+            if self.var_type == str:
+                return f"Any string"
+            elif self.var_type == int:
+                return "Any integer"
+            raise NotImplementedError
+        raise NotImplementedError
+
     '''
     Constructors
     '''

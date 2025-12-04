@@ -21,6 +21,15 @@ class Update:
         self.tick = tick
         self.time = time
 
+    def to_dict(self):
+        return {
+            "name":self.name,
+            "status":self.status,
+            "action":self.action,
+            "tick":self.tick,
+            "time":self.time,
+        }
+
 class Comparer:
     def __init__(self, manager1:BTStateManager, manager2:BTStateManager):
         self.manager1 = manager1

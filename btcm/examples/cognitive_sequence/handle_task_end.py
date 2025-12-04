@@ -22,6 +22,13 @@ class CheckEndCurrentSequence(ConditionNode):
     
     def output_variables(self):
         return []
+    
+    '''
+    SEMANTIC DESCRIPTION
+    '''
+    def detailed_semantic_description(self) -> str:
+        return "This node succeeds if RepeatSequence is False, and fails otherwise."
+
 
 class EndCurrentSequence(ActionNode):
     def __init__(self, name:str = "EndCurrentSequence"):
@@ -63,6 +70,12 @@ class EndCurrentSequence(ActionNode):
     def action_space(self):
         return [EndThisSequenceAction(),NullAction()]
     
+    '''
+    SEMANTIC DESCRIPTION
+    '''
+    def detailed_semantic_description(self) -> str:
+        return "This node resets values for future tasks. Namely, it sets NumRepetitions to 0, SequenceSet to False, ResponseTimerActive to False, AttemptedReengageUser to False, FeedbackGiven to False and RepeatSequence to False. If NumSequences has reached the maximum, it sets EndGame to True. The node always succeeds."
+    
 class RepeatCurrentSequence(ActionNode):
     def __init__(self, name:str = "RepeatCurrentSequence"):
         super(RepeatCurrentSequence, self).__init__(name)
@@ -84,6 +97,12 @@ class RepeatCurrentSequence(ActionNode):
     
     def action_space(self):
         return [RepeatThisSequenceAction(),NullAction()]
+    
+    '''
+    SEMANTIC DESCRIPTION
+    '''
+    def detailed_semantic_description(self) -> str:
+        return "This node always succeeds."
     
 '''
 COMPOSITE NODES

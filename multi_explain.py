@@ -19,6 +19,7 @@ if __name__ == "__main__":
     parser.add_argument('--visualise_only_valid',  action='store_true')
     parser.add_argument('--max_depth',  type=int, default=1)
     parser.add_argument('--max_follow_ups',  type=int, default=2)
+    parser.add_argument('--debug_seed',  type=int, default=None)
     args = parser.parse_args()
 
     '''
@@ -43,10 +44,14 @@ if __name__ == "__main__":
     seed_dict = {}
     for file1 in files1:
         seed = file1.split("_")[-1].split(".")[0]
+        if args.debug_seed is not None and int(seed) != args.debug_seed:
+            continue
         seed_dict[seed] = [file1]
 
     for file2 in files2:
         seed = file2.split("_")[-1].split(".")[0]
+        if args.debug_seed is not None and int(seed) != args.debug_seed:
+            continue
         seed_dict[seed].append(file2)
 
     # RUN

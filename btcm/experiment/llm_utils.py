@@ -90,10 +90,77 @@ def prompt_example_explanations():
     return f'''
     Example 1:
 
-    User question: Why(decision_RepeatOrEnd=EndThisSequence,decision_RepeatOrEnd=RepeatThisSequence?,tick:5,time:101)
+    User question: Why(decision_RepeatOrEnd=EndThisSequence,decision_RepeatOrEnd=RepeatThisSequence,tick:1,time:26)
     Answer: [
-    {{}}
+    {{
+    "reason":"UserFrustration=0.8",
+    "intervention":"UserFrustration<=0.7",
+    "counterfactual":"decision_RepeatOrEnd=RepeatThisSequence"
+    }}
     ]
+
+    Example 2:
+
+    User question: Why(decision_DecideSocialAction=RecaptureAttention,decision_DecideSocialAction=RepeatSequenceSocial,tick:1,time:27)
+    Answer: [
+    {{
+    "reason":"UserMemory=0.8",
+    "intervention":"UserMemory=1.0",
+    "counterfactual":"decision_DecideSocialAction=RepeatSequenceSocial"
+    }},
+    {{
+    "reason":"SequenceComplexity=3",
+    "intervention":"SequenceComplexity=2",
+    "counterfactual":"decision_DecideSocialAction=RepeatSequenceSocial"
+    }},
+    {{
+    "reason":"AttemptedReengageUser=False",
+    "intervention":"AttemptedReengageUser=True",
+    "counterfactual":"decision_DecideSocialAction=RepeatSequenceSocial"
+    }},
+    {{
+    "reason":"UserEngagement=35500000000000004",
+    "intervention":"UserEngagement>=0.4",
+    "counterfactual":"decision_DecideSocialAction=RepeatSequenceSocial"
+    }},
+    {{
+    "reason":"UserAttention=0",
+    "intervention":"UserAttention>=0.3",
+    "counterfactual":"decision_DecideSocialAction=RepeatSequenceSocial"
+    }},
+    {{
+    "reason":"UserConfusion=0.2899999999999999",
+    "intervention":"UserConfusion<=0.2",
+    "counterfactual":"decision_DecideSocialAction=RepeatSequenceSocial"
+    }}
+    ]
+
+    Example 3:
+
+    User question: Why(decision_SetSequenceParameters=SetSequenceParameters(4,4),decision_SetSequenceParameters=SetSequenceParameters(6,4),tick:6,time:118)
+    Answer: [
+    {{
+    "reason":"BaseUserResponseTime=5.335999999999999",
+    "intervention":"BaseUserResponseTime=2.8",
+    "counterfactual":"decision_SetSequenceParameters=SetSequenceParameters(6,4)"
+    }},
+    {{
+    "reason":"UserReactivity=0",
+    "intervention":"UserReactivity>=0.8",
+    "counterfactual":"decision_SetSequenceParameters=SetSequenceParameters(6,4)"
+    }},
+    {{
+    "reason":"ObservedUserResponseTime=5.340529039512243",
+    "intervention":"ObservedUserResponseTime=2.8",
+    "counterfactual":"decision_SetSequenceParameters=SetSequenceParameters(6,4)"
+    }},
+    {{
+    "reason":"SequenceLength=5",
+    "intervention":"SequenceLength=7",
+    "counterfactual":"decision_SetSequenceParameters=SetSequenceParameters(6,4)"
+    }},
+    ]
+    
     '''
 
 def explainer_system_propmt(ep_mem:str):
@@ -110,10 +177,14 @@ def explainer_system_propmt(ep_mem:str):
         
         In order to provide counterfactual explanations in response to the user query, you have access to the following information:
         
-        1. A textual description of the task
-        2. A textual description of the environment state.
-        3. A textual description of the behaviour tree, and how it interacts with the state.
-        4. Episodic memory, in the form of a json file which describe the sequence of events in execution B.
+        - A textual description of the task
+        - A textual description of the environment state.
+        - A textual description of the behaviour tree, and how it interacts with the state.
+        - Episodic memory, in the form of a json file which describe the sequence of events in execution B.
+
+        Below follows the episodic memory describing the sequence of events that occurred in execution B, indexed by the tick and timestep of the behaviour tree and listing the value of state variables at each timestep as well as the last node executed, its decision and return status:
+
+        {ep_mem}
 
         Below follows a textual description of the task:
 
@@ -127,9 +198,6 @@ def explainer_system_propmt(ep_mem:str):
 
         {prompt_bt_description()}
 
-        Below follows the episodic memory describing the sequence of events that occurred in execution B, indexed by the tick and timestep of the behaviour tree and listing the value of state variables at each timestep as well as the last node executed, its decision and return status:
-
-        {ep_mem}
 
         Given the above information, you must answer the user's query concisely and accurately, using only the information provided. 
         Your response must consist of a list of dictionary string swith the following fields: reason, intervention, counterfactual.
@@ -137,7 +205,7 @@ def explainer_system_propmt(ep_mem:str):
 
         The fields have the following meanings:
         - reason: "Var=X" implies that the fact that variable Var had value X in execution B resulted in the difference from execution A
-        - intervention: "Var=Y" implies that changing the variable Var to have value Y instead of X would have resulted in the counterfactual outcome implied by the user's question
+        - intervention: "Var=Y" implies that changing the variable Var to have value Y instead of X would have resulted in the counterfactual outcome implied by the user's question. An intervention may also be of the form "Var<=Y" or "Var>=Y", indicating all values less than or equal to or greater than or equal to Y respectively. It can also take the form "Var€[Y1,Y2,Y3]", indicating that setting Var to any of the values Y1, Y2, or Y3 would change the outcome.
         - counterfactual: "OutcomeVar=Q" implies that the intervention in the "intervention" field has resulted in the variable OutcomeVar changing to Q from its real value of P, which satisfies the user's question
 
         Thus, your answer should look like this:
@@ -160,6 +228,10 @@ def explainer_system_propmt(ep_mem:str):
         Below are some examples of correctly formatted explanations.
 
         {prompt_example_explanations()}
+
+        Remember to answer only in the above dictionary format. Do not answer in any other way. Answering in a paragraph is wrong.
+        
+        Ensure that all variables used in the explanations are ones that correspond to state variables in the environment or the decisions, executions or return statuses of behaviour tree nodes. The names of variables should be exactly the same as they appear in the episodic memory.
 
 
     '''

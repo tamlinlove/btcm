@@ -215,6 +215,23 @@ class Comparer:
             return None,None,None,len(explainer.model.nodes),0
 
         # Get the query for the first difference
+        query = self.build_difference_query(difference,query_manager,update1,update2)
+        
+        
+        explanations,num_cfx = explainer.explain(query, max_depth=max_depth, visualise=visualise, visualise_only_valid=visualise_only_valid,return_cfx_candidates_nums=True)
+        display(f"\n=====QUERY=====\n{query_manager.query_text(query)}", hide_display=hide_display)
+        display("\n=====EXPLANATION=====",hide_display=hide_display)
+        for explanation in explanations:
+            #display(f"-----{explanation.text(names=self.node_names)}",hide_display=hide_display)
+            display(f"-----{explanation.text()}",hide_display=hide_display)
+        
+        
+        return explanations,update2.tick,update2.time,len(explainer.model.nodes),num_cfx
+    
+    '''
+    QUERY
+    '''
+    def build_difference_query(self,difference,query_manager,update1,update2):
         if difference == "name":
             # TODO: Can query why the node didn't execute????
             raise NotImplementedError("Name comparison not implemented")
@@ -231,20 +248,9 @@ class Comparer:
             query = query_manager.make_query(update2.name, "Decision", tick=update2.tick, time=update2.time, foils=foils)
         else:
             raise ValueError(f"Unknown difference {difference}")
-        
-        explanations,num_cfx = explainer.explain(query, max_depth=max_depth, visualise=visualise, visualise_only_valid=visualise_only_valid,return_cfx_candidates_nums=True)
-        display(f"\n=====QUERY=====\n{query_manager.query_text(query)}", hide_display=hide_display)
-        display("\n=====EXPLANATION=====",hide_display=hide_display)
-        for explanation in explanations:
-            #display(f"-----{explanation.text(names=self.node_names)}",hide_display=hide_display)
-            display(f"-----{explanation.text()}",hide_display=hide_display)
-        
-        
-        return explanations,update2.tick,update2.time,len(explainer.model.nodes),num_cfx
-    
-    '''
-    QUERY
-    '''
+        return query
+
+
     def target_found(self,explanations:list[AggregatedCounterfactualExplanation],target:str):
         # TODO: Make sure this works for multiple foils
         target_found = False

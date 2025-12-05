@@ -45,7 +45,7 @@ def llm_compare(
     same,difference,u1,u2 = comparer.find_first_difference()
 
     if same:
-        return False, None
+        return False, None, None, False
     
     # There is a difference, pass to LLM
     
@@ -112,10 +112,15 @@ def llm_compare(
     end = rstring.rfind(']')
     
     if start == -1 or end == -1 or end < start:
-        raise "Uh oh"
+        print("Poorly formatted response")
+        print(rstring)
+        return False,None,rstring, True
     
     json_string = rstring[start:end+1]
-    llm_explanations = json.loads(json_string)
+    try:
+        llm_explanations = json.loads(json_string)
+    except:
+        return False,None,rstring, True
 
     response_timer = timeit.default_timer()
     response_time = response_timer - start_timer
@@ -123,11 +128,13 @@ def llm_compare(
     # Calculate metrics
 
     # Runtime
-    print(f"Response time: {response_time}")
+    if not hide_display:
+        print(f"Response time: {response_time}")
 
     # Number of explanations
     num_exps = len(llm_explanations)
-    print(f"Number of Explanations: {num_exps}")
+    if not hide_display:
+        print(f"Number of Explanations: {num_exps}")
 
     # Calculate causal explanations for comparison
     explanations,tick,time,num_nodes,num_cfx = comparer.explain_first_difference(
@@ -137,48 +144,55 @@ def llm_compare(
             hide_display=True,
         )
     
-    # First, is the target variable recovered?
-    target_recovered = False
-    for llm_exp in llm_explanations:
-        if llm_exp["reason"] == target_var:
-            target_recovered = True
-            break
-    print(f"Target recovered: {target_recovered}")
+    try:
+    
+        # First, is the target variable recovered?
+        target_recovered = False
+        for llm_exp in llm_explanations:
+            if llm_exp["reason"] == target_var:
+                target_recovered = True
+                break
+        if not hide_display:
+            print(f"Target recovered: {target_recovered}")
 
-    # Second, count how many llm explanations are contained in the real explanation set
-    num_true_var = 0
-    num_true_val = 0
-    num_real_vars = 0
+        # Second, count how many llm explanations are contained in the real explanation set
+        num_true_var = 0
+        num_true_val = 0
+        num_real_vars = 0
 
-    for llm_exp in llm_explanations:
-        reason_list = llm_exp["reason"].split("=")
-        reason_var = reason_list[0]
-        reason_val = reason_list[1]
-        
-        var_match = False
-        val_match = False
-        for exp in explanations:
-            exp_var_time = list(exp.reason.keys())[0]
-            exp_var = node_names[exp_var_time]
-            exp_val = exp.reason[exp_var_time]
+        for llm_exp in llm_explanations:
+            reason_list = llm_exp["reason"].split("=")
+            reason_var = reason_list[0]
+            reason_val = reason_list[1]
+            
+            var_match = False
+            val_match = False
+            for exp in explanations:
+                exp_var_time = list(exp.reason.keys())[0]
+                exp_var = node_names[exp_var_time]
+                exp_val = exp.reason[exp_var_time]
 
-            if reason_var == exp_var:
-                var_match = True
-                if reason_val == exp_val:
-                    val_match = True
+                if reason_var == exp_var:
+                    var_match = True
+                    if reason_val == exp_val:
+                        val_match = True
 
-        if var_match:
-            num_true_var += 1
-        if val_match:
-            num_true_val += 1
+            if var_match:
+                num_true_var += 1
+            if val_match:
+                num_true_val += 1
 
-        # Check if variable was made up
-        if reason_var in CognitiveSequenceState.default_values():
-            num_real_vars += 1
+            # Check if variable was made up
+            if reason_var in CognitiveSequenceState.default_values():
+                num_real_vars += 1
+    except:
+        # Must be an LLM formatting error
+        return False,None,rstring,True
 
     metrics = {
         "runtime":response_time,
         "num_exps":num_exps,
+        "target_recovered":target_recovered,
         "true_var_score":num_true_var/num_exps,
         "true_val_score":num_true_val/num_exps,
         "real_var_score":num_real_vars/num_exps,
@@ -190,4 +204,4 @@ def llm_compare(
         print(f"Number of times correct variable had correct value: {num_true_val}/{num_exps}")
         print(f"Number of times the reason variable corresponds to a real state variable: {num_real_vars}/{num_exps}")
 
-    return True,metrics
+    return True,metrics,rstring,False

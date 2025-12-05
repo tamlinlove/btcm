@@ -63,7 +63,7 @@ if __name__ == "__main__":
         if not args.hide_display:
             print(f"\n\n===Comparing {file1} and {file2}===")
 
-        found,metrics = llm_explainer.llm_compare(
+        found,metrics,response,format_error = llm_explainer.llm_compare(
             file1=file1,
             file2=file2,
             target_profile=profile_name_2,
@@ -77,6 +77,7 @@ if __name__ == "__main__":
             metrics = {
                 "runtime":None,
                 "num_exps":None,
+                "target_recovered":None,
                 "true_var_score":None,
                 "true_val_score":None,
                 "real_var_score":None,
@@ -87,6 +88,8 @@ if __name__ == "__main__":
         data_row["seed"] = seed
         data_row["found"] = found
         data_row["model"] = args.llm_model
+        data_row["response"] = response
+        data_row["format_error"] = format_error
 
     
         data.append(data_row)

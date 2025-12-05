@@ -136,6 +136,163 @@ def compile_cog_seq_results():
         writer.writeheader()
         writer.writerows(table_data)
 
+def compile_llm_results(model_name="phi4"):
+    profiles = ["frustrated","no_attention","no_reactivity","no_memory"]
+
+    # Read all csvs into pandas dfs
+    dfs = {}
+    for profile in profiles:
+        filepath = f"{RESULT_DIR}{model_name}/results_llm_default_{profile}.csv"
+        dfs[profile] = pd.read_csv(filepath)
+
+    # Compile into table
+    table_data = []
+    for profile in profiles:
+        df = dfs[profile]
+
+        # Only consider cases where explanations were found
+        num_found = df['found'].sum() # Explanations found
+        num_error = df['format_error'].sum() # Formatting error
+        num_no_diff = df[(df['found'] == False) & (df['format_error'] == False)].shape[0]
+
+        # Target recovery rate
+        filtered_df = df[df['found']]
+        true_found_count = filtered_df['target_recovered'].sum()
+        total_rows = len(filtered_df)
+        target_recovery_rate = (true_found_count / total_rows)
+
+        found_df = df[df['found']]
+        # True Var Score
+        min_true_var = found_df['true_var_score'].min()
+        max_true_var = found_df['true_var_score'].max()
+        avg_true_var = found_df['true_var_score'].mean()
+        std_true_var = found_df['true_var_score'].std()
+
+        # True Val Score
+        min_true_val = found_df['true_val_score'].min()
+        max_true_val = found_df['true_val_score'].max()
+        avg_true_val = found_df['true_val_score'].mean()
+        std_true_val = found_df['true_val_score'].std()
+
+        # Real Var Score
+        min_real_var = found_df['real_var_score'].min()
+        max_real_var = found_df['real_var_score'].max()
+        avg_real_var = found_df['real_var_score'].mean()
+        std_real_var = found_df['real_var_score'].std()
+
+        # Runtime
+        min_runtime = found_df['runtime'].min()
+        max_runtime = found_df['runtime'].max()
+        avg_runtime = found_df['runtime'].mean()
+        std_runtime = found_df['runtime'].std()
+
+        # Num exps
+        min_num_exps = found_df['num_exps'].min()
+        max_num_exps = found_df['num_exps'].max()
+        avg_num_exps = found_df['num_exps'].mean()
+        std_num_exps = found_df['num_exps'].std()
+
+        table_data.append(
+            {
+                "profile":profile,
+                "num_found":num_found,
+                "num_no_diff":num_no_diff,
+                "num_error":num_error,
+                "target_recovery_rate":target_recovery_rate,
+                "min_num_exps":min_num_exps,
+                "max_num_exps":max_num_exps,
+                "mean_num_exps":f"{avg_num_exps:.2f} ({std_num_exps:.2f})",
+                "min_runtime":f"{min_runtime:.4f}",
+                "max_runtime":f"{max_runtime:.4f}",
+                "mean_runtime":f"{avg_runtime:.4f} ({std_runtime:.4f})",
+                "min_true_var":min_true_var,
+                "max_true_var":max_true_var,
+                "mean_true_var":f"{avg_true_var:.2f} ({std_true_var:.2f})",
+                "min_true_val":min_true_val,
+                "max_true_val":max_true_val,
+                "mean_true_val":f"{avg_true_val:.2f} ({std_true_val:.2f})",
+                "min_real_var":min_real_var,
+                "max_real_var":max_real_var,
+                "mean_real_var":f"{avg_real_var:.2f} ({std_real_var:.2f})",
+            }
+        )
+
+    # Aggregated
+    compiled_df = pd.concat(dfs.values(), ignore_index=True)
+    # Numbers
+    num_found = compiled_df['found'].sum() # Explanations found
+    num_error = compiled_df['format_error'].sum() # Formatting error
+    num_no_diff = compiled_df[(compiled_df['found'] == False) & (compiled_df['format_error'] == False)].shape[0]
+
+    # Target recovery rate
+    filtered_df = compiled_df[compiled_df['found']]
+    true_found_count = filtered_df['target_recovered'].sum()
+    total_rows = len(filtered_df)
+    target_recovery_rate = (true_found_count / total_rows)
+
+    found_df = compiled_df[compiled_df['found']]
+    # True Var Score
+    min_true_var = found_df['true_var_score'].min()
+    max_true_var = found_df['true_var_score'].max()
+    avg_true_var = found_df['true_var_score'].mean()
+    std_true_var = found_df['true_var_score'].std()
+
+    # True Val Score
+    min_true_val = found_df['true_val_score'].min()
+    max_true_val = found_df['true_val_score'].max()
+    avg_true_val = found_df['true_val_score'].mean()
+    std_true_val = found_df['true_val_score'].std()
+
+    # Real Var Score
+    min_real_var = found_df['real_var_score'].min()
+    max_real_var = found_df['real_var_score'].max()
+    avg_real_var = found_df['real_var_score'].mean()
+    std_real_var = found_df['real_var_score'].std()
+
+    # Runtime
+    min_runtime = found_df['runtime'].min()
+    max_runtime = found_df['runtime'].max()
+    avg_runtime = found_df['runtime'].mean()
+    std_runtime = found_df['runtime'].std()
+
+    # Num exps
+    min_num_exps = found_df['num_exps'].min()
+    max_num_exps = found_df['num_exps'].max()
+    avg_num_exps = found_df['num_exps'].mean()
+    std_num_exps = found_df['num_exps'].std()
+
+    table_data.append(
+        {
+            "profile":"All",
+            "num_found":num_found,
+            "num_no_diff":num_no_diff,
+            "num_error":num_error,
+            "target_recovery_rate":target_recovery_rate,
+            "min_num_exps":min_num_exps,
+            "max_num_exps":max_num_exps,
+            "mean_num_exps":f"{avg_num_exps:.2f} ({std_num_exps:.2f})",
+            "min_runtime":f"{min_runtime:.4f}",
+            "max_runtime":f"{max_runtime:.4f}",
+            "mean_runtime":f"{avg_runtime:.4f} ({std_runtime:.4f})",
+            "min_true_var":min_true_var,
+            "max_true_var":max_true_var,
+            "mean_true_var":f"{avg_true_var:.2f} ({std_true_var:.2f})",
+            "min_true_val":min_true_val,
+            "max_true_val":max_true_val,
+            "mean_true_val":f"{avg_true_val:.2f} ({std_true_val:.2f})",
+            "min_real_var":min_real_var,
+            "max_real_var":max_real_var,
+            "mean_real_var":f"{avg_real_var:.2f} ({std_real_var:.2f})",
+        }
+    ) 
+
+
+    # Save table data
+    csv_file = f'{COMPILED_DIR}results_llm_{model_name}.csv'
+    with open(csv_file, mode='w', newline='') as file:
+        writer = csv.DictWriter(file, fieldnames=list(table_data[0].keys()))
+        writer.writeheader()
+        writer.writerows(table_data)
 
 def compile_random_results():
     df = pd.read_csv(f"{RESULT_DIR}results_random.csv")
@@ -375,3 +532,4 @@ if __name__ == "__main__":
     compile_cog_seq_results()
     #compile_random_results()
     compile_random_results_ignore_connectivity()
+    compile_llm_results()

@@ -532,4 +532,4 @@ if __name__ == "__main__":
     compile_cog_seq_results()
     #compile_random_results()
     compile_random_results_ignore_connectivity()
-    compile_llm_results()
+    compile_llm_results(model_name="deepseek-r1:32b")

@@ -86,11 +86,10 @@ def prompt_bt_description():
     '''
 
 def prompt_example_explanations():
-    # TODO: Come up with examples that don't come from the same seeds as the experiment
     return f'''
     Example 1:
 
-    User question: Why(decision_RepeatOrEnd=EndThisSequence,decision_RepeatOrEnd=RepeatThisSequence,tick:1,time:26)
+    User question: Identify the reasons in the dictionary format why decision_RepeatOrEnd=EndThisSequence and not decision_RepeatOrEnd=RepeatThisSequence, at tick 1 and time 26
     Answer: [
     {{
     "reason":"UserFrustration=0.8",
@@ -101,7 +100,7 @@ def prompt_example_explanations():
 
     Example 2:
 
-    User question: Why(decision_DecideSocialAction=RecaptureAttention,decision_DecideSocialAction=RepeatSequenceSocial,tick:1,time:27)
+    User question: Identify the reasons in the dictionary format why decision_DecideSocialAction=RecaptureAttention and not decision_DecideSocialAction=RepeatSequenceSocial, at tick 1 and time 27
     Answer: [
     {{
     "reason":"UserMemory=0.8",
@@ -138,6 +137,7 @@ def prompt_example_explanations():
     Example 3:
 
     User question: Why(decision_SetSequenceParameters=SetSequenceParameters(4,4),decision_SetSequenceParameters=SetSequenceParameters(6,4),tick:6,time:118)
+    User question: Identify the reasons in the dictionary format why decision_SetSequenceParameters=SetSequenceParameters(4,4) and not decision_SetSequenceParameters=SetSequenceParameters(6,4), at tick 6 and time 118
     Answer: [
     {{
     "reason":"BaseUserResponseTime=5.335999999999999",
@@ -163,6 +163,39 @@ def prompt_example_explanations():
     
     '''
 
+def prompt_simple_examples():
+    return f'''
+    Example 1:
+
+    User question: Identify the reasons in the dictionary format why decision_RepeatOrEnd=EndThisSequence and not decision_RepeatOrEnd=RepeatThisSequence, at tick 1 and time 26
+    Answer: [
+    {{
+    "reason":"UserFrustration=0.8"
+    }}
+    ]
+
+    Example 2:
+
+    User question: Identify the reasons in the dictionary format why decision_DecideSocialAction=RecaptureAttention and not decision_DecideSocialAction=RepeatSequenceSocial, at tick 1 and time 27
+    Answer: [
+    {{
+    "reason":"UserAttention=0"
+    }}
+    ]
+
+    Example 3:
+
+    User question: Why(decision_SetSequenceParameters=SetSequenceParameters(4,4),decision_SetSequenceParameters=SetSequenceParameters(6,4),tick:6,time:118)
+    User question: Identify the reasons in the dictionary format why decision_SetSequenceParameters=SetSequenceParameters(4,4) and not decision_SetSequenceParameters=SetSequenceParameters(6,4), at tick 6 and time 118
+    Answer: [
+    {{
+    "reason":"UserReactivity=0"
+    }}
+    ]
+    
+    '''
+
+
 def explainer_system_propmt(ep_mem:str):
     return f'''
         You are an explainable AI system designed to explain the behaviour of a robotic system controlled by a behaviour tree.
@@ -171,9 +204,7 @@ def explainer_system_propmt(ep_mem:str):
         In execution B, something happened differently than what happened in execution A. The user will ask why the difference exists, referencing the specific difference that occurred.
         The user's query will take the following form:
 
-        Why(OutcomeVar=P,OutcomeVar=Q,tick:i,time:j)
-
-        You should interpret this query as the sentence "Why did variable OutcomeVar have the value of P at tick i, time j in execution B and not the value Q?"
+        "Identify the reasons in the dictionary format why OutcomeVar=P and not OutcomeVar=Q, at tick i and time j"
         
         In order to provide counterfactual explanations in response to the user query, you have access to the following information:
         
@@ -214,12 +245,12 @@ def explainer_system_propmt(ep_mem:str):
         {{
         "reason":"Var1=X",
         "intervention":"Var1=Y",
-        "counterfactual":"OutcomeVar=Q",
+        "counterfactual":"OutcomeVar=Q"
         }},
         {{
         "reason":"Var2=A",
         "intervention":"Var2=B",
-        "counterfactual":"OutcomeVar=Q",
+        "counterfactual":"OutcomeVar=Q"
         }},
         ]
 
@@ -235,3 +266,60 @@ def explainer_system_propmt(ep_mem:str):
 
 
     '''
+
+def explainer_simple_prompt(ep_mem:str):
+    return f'''
+        You are an explainable AI system designed to explain the behaviour of a robotic system controlled by a behaviour tree.
+        You can explain the decisions taken by the robot, why particular behaviour tree nodes did or did not execute, the return statuses of behaviour tree nodes, and the values of variables representing factors in the environment state.
+        In particular, your job is to compare two executions of the same robot in different contexts. Let's call these executions execution A and execution B.
+        In execution B, something happened differently than what happened in execution A. The user will ask why the difference exists, referencing the specific difference that occurred.
+        The user's query will take the following form:
+
+        "Identify the reasons in the dictionary format why OutcomeVar=P and not OutcomeVar=Q, at tick i and time j"
+        
+        In order to provide explanations in response to the user query, you have access to the following information:
+        
+        - A textual description of the task
+        - A textual description of the environment state.
+        - A textual description of the behaviour tree, and how it interacts with the state.
+        - Episodic memory, in the form of a json file which describe the sequence of events in execution B.
+
+        Below follows the episodic memory describing the sequence of events that occurred in execution B, indexed by the tick and timestep of the behaviour tree and listing the value of state variables at each timestep as well as the last node executed, its decision and return status:
+
+        {ep_mem}
+
+        Below follows a textual description of the task:
+
+        {prompt_task_description()}
+
+        Below follows a textual description of the environment state:
+
+        {prompt_environment_description()}
+
+        Below follows a textual description of the behaviour tree, and how it interacts with the state:
+
+        {prompt_bt_description()}
+
+
+        Given the above information, you must answer the user's query concisely and accurately, using only the information provided. 
+        Your response must be a single explanation of the form "VarX=X", where VarX is the most relevant variable in the environment state, or behaviour tree structure, that could have caused the difference in execution, and X is value the variable took at the relevant time.
+         
+        You should put your single variable response in a json list object containing a single dictionary with the key "reason". You may put additional output under the key "message" if you wish to provide more information.
+
+        Thus, your answer should look like this:
+
+        [
+        {{
+        "reason":"Var1=X",
+        "message":"..."
+        }}
+        ]
+
+        Below are some examples of correctly formatted explanations:
+
+        {prompt_simple_examples()}
+
+        Remember to answer only in the above dictionary format. Do not answer in any other way. Answering in a paragraph is wrong.
+        
+        Ensure that the variable used in the explanation corresponds to state variables in the environment or the decisions, executions or return statuses of behaviour tree nodes. The names of variables should be exactly the same as they appear in the episodic memory.
+'''

@@ -9,7 +9,7 @@ from btcm.examples.cognitive_sequence.dummy_env import DummyCognitiveSequenceEnv
 from btcm.experiment import cognitive_sequence_experiment
 from btcm.cfx.query_manager import QueryManager
 from btcm.cfx.explainer import Explainer,AggregatedCounterfactualExplanation
-from btcm.experiment.llm_utils import explainer_system_propmt,prompt_example_explanations
+from btcm.experiment.llm_utils import explainer_system_propmt,prompt_example_explanations,explainer_simple_prompt, prompt_simple_examples
 from btcm.examples.cognitive_sequence.basic import CognitiveSequenceState
 
 
@@ -31,6 +31,7 @@ def llm_compare(
         log_dir2:str=cognitive_sequence_experiment.LOG_DIRECTORY,
         model_name:str="phi4",
         hide_display: bool = False,
+        use_simple_prompt: bool = False,
 ):
     # Reconstruct BT
     manager1 = BTStateManager(file1,dummy_env=DummyCognitiveSequenceEnvironment(),directory=log_dir1)
@@ -45,6 +46,8 @@ def llm_compare(
     same,difference,u1,u2 = comparer.find_first_difference()
 
     if same:
+        if not hide_display:
+            print("Executions same")
         return False, None, None, False
     
     # There is a difference, pass to LLM
@@ -56,8 +59,10 @@ def llm_compare(
         data.pop("state",None)
         data.pop("environment",None)
 
-    llm_system_prompt = explainer_system_propmt(str(data))
-    #llm_system_prompt = explainer_system_propmt("")
+    if use_simple_prompt:
+        llm_system_prompt = explainer_simple_prompt(str(data))
+    else:
+        llm_system_prompt = explainer_system_propmt(str(data))
     
     # Extract query
     manager2.load_state(tick=u2.tick, time=u2.time)
@@ -92,13 +97,21 @@ def llm_compare(
     #qstring = f"Why({qvar}={rval},{qvar}={qval},tick:{query.tick},time:{query.time})"
 
     qstring = f"Identify the reasons in the dictionary format why {qvar}={rval} and not {qvar}={qval}, at tick {query.tick} and time {query.time}"
-    qstring += f"\n\nAnswer as in these examples:\n{prompt_example_explanations()}"
+    
+    if use_simple_prompt:
+        qstring += f"\n\nAnswer as in these examples:\n{prompt_simple_examples()}"
+    else:
+        qstring += f"\n\nAnswer as in these examples:\n{prompt_example_explanations()}"
 
     # Prompt LLM
     messages = [
         {"role":"system", "content":llm_system_prompt},
         {"role":"user", "content":qstring}
     ]
+
+    print("SP\n\n",llm_system_prompt)
+    print("UP\n\n",qstring)
+    exit()
 
     start_timer = timeit.default_timer()
 
@@ -112,14 +125,20 @@ def llm_compare(
     end = rstring.rfind(']')
     
     if start == -1 or end == -1 or end < start:
-        print("Poorly formatted response")
-        print(rstring)
+        if not hide_display:
+            print("Poorly formatted response, can't find brackets")
+            print(rstring)
         return False,None,rstring, True
     
     json_string = rstring[start:end+1]
     try:
         llm_explanations = json.loads(json_string)
     except:
+        if not hide_display:
+            print("Poorly formatted response, cannot load json")
+            print(rstring)
+            print("Attempted to load")
+            print(json_string)
         return False,None,rstring, True
 
     response_timer = timeit.default_timer()
@@ -149,7 +168,7 @@ def llm_compare(
         # First, is the target variable recovered?
         target_recovered = False
         for llm_exp in llm_explanations:
-            if llm_exp["reason"] == target_var:
+            if llm_exp["reason"].split("=")[0] == target_var:
                 target_recovered = True
                 break
         if not hide_display:
@@ -174,7 +193,7 @@ def llm_compare(
 
                 if reason_var == exp_var:
                     var_match = True
-                    if reason_val == exp_val:
+                    if reason_val == str(exp_val):
                         val_match = True
 
             if var_match:
@@ -200,6 +219,7 @@ def llm_compare(
 
 
     if not hide_display:
+        print(llm_explanations)
         print(f"Number of times correct variable was identified: {num_true_var}/{num_exps}")
         print(f"Number of times correct variable had correct value: {num_true_val}/{num_exps}")
         print(f"Number of times the reason variable corresponds to a real state variable: {num_real_vars}/{num_exps}")

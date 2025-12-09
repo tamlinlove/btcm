@@ -136,13 +136,18 @@ def compile_cog_seq_results():
         writer.writeheader()
         writer.writerows(table_data)
 
-def compile_llm_results(model_name="phi4"):
+def compile_llm_results(model_name="phi4",use_simple_prompt=False):
     profiles = ["frustrated","no_attention","no_reactivity","no_memory"]
+
+    if use_simple_prompt:
+        prompt_flag = "simple_"
+    else:
+        prompt_flag = ""
 
     # Read all csvs into pandas dfs
     dfs = {}
     for profile in profiles:
-        filepath = f"{RESULT_DIR}{model_name}/results_llm_default_{profile}.csv"
+        filepath = f"{RESULT_DIR}{prompt_flag}{model_name}/results_llm_{prompt_flag}default_{profile}.csv"
         dfs[profile] = pd.read_csv(filepath)
 
     # Compile into table
@@ -160,6 +165,8 @@ def compile_llm_results(model_name="phi4"):
         true_found_count = filtered_df['target_recovered'].sum()
         total_rows = len(filtered_df)
         target_recovery_rate = (true_found_count / total_rows)
+        target_recovery_mean = filtered_df['target_recovered'].mean()
+        target_recovery_std = filtered_df['target_recovered'].std()
 
         found_df = df[df['found']]
         # True Var Score
@@ -169,10 +176,11 @@ def compile_llm_results(model_name="phi4"):
         std_true_var = found_df['true_var_score'].std()
 
         # True Val Score
-        min_true_val = found_df['true_val_score'].min()
-        max_true_val = found_df['true_val_score'].max()
-        avg_true_val = found_df['true_val_score'].mean()
-        std_true_val = found_df['true_val_score'].std()
+        true_var_df = found_df[(found_df['true_var_score'] > 0)]
+        min_true_val = true_var_df['true_val_score'].min()
+        max_true_val = true_var_df['true_val_score'].max()
+        avg_true_val = true_var_df['true_val_score'].mean()
+        std_true_val = true_var_df['true_val_score'].std()
 
         # Real Var Score
         min_real_var = found_df['real_var_score'].min()
@@ -192,13 +200,17 @@ def compile_llm_results(model_name="phi4"):
         avg_num_exps = found_df['num_exps'].mean()
         std_num_exps = found_df['num_exps'].std()
 
+        # Hallucinated
+        contains_incorrect_variable = (found_df['real_var_score'] < 1).sum()
+
         table_data.append(
             {
                 "profile":profile,
                 "num_found":num_found,
                 "num_no_diff":num_no_diff,
                 "num_error":num_error,
-                "target_recovery_rate":target_recovery_rate,
+                "target_recovery_rate":f"{target_recovery_mean:.2f} ({target_recovery_std:.2f})",
+                "contains_incorrect_variable":contains_incorrect_variable,
                 "min_num_exps":min_num_exps,
                 "max_num_exps":max_num_exps,
                 "mean_num_exps":f"{avg_num_exps:.2f} ({std_num_exps:.2f})",
@@ -229,6 +241,8 @@ def compile_llm_results(model_name="phi4"):
     true_found_count = filtered_df['target_recovered'].sum()
     total_rows = len(filtered_df)
     target_recovery_rate = (true_found_count / total_rows)
+    target_recovery_mean = filtered_df['target_recovered'].mean()
+    target_recovery_std = filtered_df['target_recovered'].std()
 
     found_df = compiled_df[compiled_df['found']]
     # True Var Score
@@ -238,10 +252,11 @@ def compile_llm_results(model_name="phi4"):
     std_true_var = found_df['true_var_score'].std()
 
     # True Val Score
-    min_true_val = found_df['true_val_score'].min()
-    max_true_val = found_df['true_val_score'].max()
-    avg_true_val = found_df['true_val_score'].mean()
-    std_true_val = found_df['true_val_score'].std()
+    true_var_df = found_df[(found_df['true_var_score'] > 0)]
+    min_true_val = true_var_df['true_val_score'].min()
+    max_true_val = true_var_df['true_val_score'].max()
+    avg_true_val = true_var_df['true_val_score'].mean()
+    std_true_val = true_var_df['true_val_score'].std()
 
     # Real Var Score
     min_real_var = found_df['real_var_score'].min()
@@ -261,13 +276,17 @@ def compile_llm_results(model_name="phi4"):
     avg_num_exps = found_df['num_exps'].mean()
     std_num_exps = found_df['num_exps'].std()
 
+    # Hallucinated
+    contains_incorrect_variable = (found_df['real_var_score'] < 1).sum()
+
     table_data.append(
         {
             "profile":"All",
             "num_found":num_found,
             "num_no_diff":num_no_diff,
             "num_error":num_error,
-            "target_recovery_rate":target_recovery_rate,
+            "target_recovery_rate":f"{target_recovery_mean:.2f} ({target_recovery_std:.2f})",
+            "contains_incorrect_variable":contains_incorrect_variable,
             "min_num_exps":min_num_exps,
             "max_num_exps":max_num_exps,
             "mean_num_exps":f"{avg_num_exps:.2f} ({std_num_exps:.2f})",
@@ -288,7 +307,7 @@ def compile_llm_results(model_name="phi4"):
 
 
     # Save table data
-    csv_file = f'{COMPILED_DIR}results_llm_{model_name}.csv'
+    csv_file = f'{COMPILED_DIR}results_llm_{prompt_flag}{model_name}.csv'
     with open(csv_file, mode='w', newline='') as file:
         writer = csv.DictWriter(file, fieldnames=list(table_data[0].keys()))
         writer.writeheader()
@@ -532,4 +551,7 @@ if __name__ == "__main__":
     compile_cog_seq_results()
     #compile_random_results()
     compile_random_results_ignore_connectivity()
+    compile_llm_results(model_name="phi4")
     compile_llm_results(model_name="deepseek-r1:32b")
+    compile_llm_results(model_name="phi4",use_simple_prompt=True)
+    compile_llm_results(model_name="deepseek-r1:32b",use_simple_prompt=True)

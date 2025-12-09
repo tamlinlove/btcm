@@ -19,6 +19,7 @@ if __name__ == "__main__":
     parser.add_argument('-p2', '--profile2', type=str)
     parser.add_argument('-m', '--llm_model', type=str, default=DEFAULT_LLM_MODEL)
     parser.add_argument('--hide_display', action='store_true')
+    parser.add_argument('--use_simple_prompt', action='store_true')
     args = parser.parse_args()
 
     '''
@@ -50,7 +51,11 @@ if __name__ == "__main__":
         seed_dict[seed].append(file2)
 
     # Create save dir
-    save_path = f"results/{args.llm_model}"
+    if args.use_simple_prompt:
+        prompt_flag = "simple_"
+    else:
+        prompt_flag = ""
+    save_path = f"results/{prompt_flag}{args.llm_model}"
     if not os.path.isdir(save_path):
         os.makedirs(save_path, exist_ok=True)
 
@@ -71,6 +76,7 @@ if __name__ == "__main__":
             log_dir2=log_dir2,
             model_name=args.llm_model,
             hide_display=args.hide_display,
+            use_simple_prompt=args.use_simple_prompt
         )
 
         if not found:
@@ -95,7 +101,8 @@ if __name__ == "__main__":
         data.append(data_row)
 
     # Save
-    csv_file = f'{save_path}/results_llm_{profile_name_1}_{profile_name_2}.csv'
+    
+    csv_file = f'{save_path}/results_llm_{prompt_flag}{profile_name_1}_{profile_name_2}.csv'
     with open(csv_file, mode='w', newline='') as file:
         writer = csv.DictWriter(file, fieldnames=list(data[0].keys()))
         writer.writeheader()

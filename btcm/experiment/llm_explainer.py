@@ -111,7 +111,21 @@ def llm_compare(
 
     print("SP\n\n",llm_system_prompt)
     print("UP\n\n",qstring)
+
+    '''
+    # For generating example prompts
+    
+    prompt_flag = "complete"
+    if use_simple_prompt:
+        prompt_flag = "simple"
+
+    with open(f"system_prompt_{prompt_flag}.txt", "w") as text_file:
+        text_file.write(llm_system_prompt)
+    with open(f"user_prompt_{prompt_flag}.txt", "w") as text_file:
+        text_file.write(qstring)   
+
     exit()
+    '''
 
     start_timer = timeit.default_timer()
 

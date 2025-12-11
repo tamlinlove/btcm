@@ -1,0 +1,2 @@
+# Random BT and State Environment
+The random BTs are generated in *random_bt.py* and the random states in *random_state.py*. Both are assembled into an environment for use in experiments by the *random_domain.py* script.

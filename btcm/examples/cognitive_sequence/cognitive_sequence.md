@@ -1,0 +1,2 @@
+# Serial Recall Environment
+The scripts in this directory assemble and manage the serial recall BTs, state and environment. The BT is defined programmatically, with different tree branches defined in the *initial_checks.py*, *start_game.py*, *handle_user_response.py* and *hand_task_end.py*. The state is defined in *basic.py*, and the environment in *cognitive_sequence_environment.py*. The entire task is assembled and managed by *cognitive_sequence.py*.

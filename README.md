@@ -1,5 +1,5 @@
 # Temporal Counterfactual Explanations of Behaviour Tree Decisions
-Generating causal models of behaviour trees for counterfactual explanations. This repository contains the code used in the paper "Temporal Counterfactual Explanations of Behaviour Tree Decisions" submitted to EAAI.
+Generating causal models of behaviour trees for counterfactual explanations. This repository contains the code used in the paper "Temporal Counterfactual Explanations of Behaviour Tree Decisions".
 
 ## Code Structure
 The *btcm* package is divided into a number of subpackages:
